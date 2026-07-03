@@ -3,9 +3,7 @@ import { Text, View, StyleSheet } from 'react-native';
 export default function FavoritesScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Ulubiony Pokémony</Text>
-      <Text>Tu na razie jest pusto, ale zaraz to zmienimy!</Text>
-      
+      <Text style={styles.text}>Ulubiony Pokémony</Text>      
     </View>
   );
 }
