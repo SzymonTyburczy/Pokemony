@@ -7,33 +7,52 @@ export function useFavourites() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    getFavourites().then((data) => {
-      setFavourites(data);
-      setIsLoaded(true);
-    });
+    let isActive = true;
+
+    getFavourites()
+      .then((data) => {
+        if (isActive) {
+          setFavourites(data);
+        }
+      })
+      .catch((error) => {
+        console.error('Nie udało się załadować ulubionych Pokémonów:', error);
+      })
+      .finally(() => {
+        if (isActive) {
+          setIsLoaded(true);
+        }
+      });
+
+    return () => {
+      isActive = false;
+    };
   }, []);
+
+  useEffect(() => {
+    if (isLoaded) {
+      saveFavourites(favourites);
+    }
+  }, [favourites, isLoaded]);
 
   const toggleFavourite = useCallback(
     (pokemon: Pokemon) => {
       setFavourites((prev) => {
         const exists = prev.some((p) => p.name === pokemon.name);
-        const next = exists
+        return exists
           ? prev.filter((p) => p.name !== pokemon.name)
           : [...prev, pokemon];
-        saveFavourites(next);
-        return next;
       });
     },
     []
   );
 
-  const removeFavourite = useCallback((name: string) => {
-    setFavourites((prev) => {
-      const next = prev.filter((p) => p.name !== name);
-      saveFavourites(next);
-      return next;
-    });
-  }, []);
+  const removeFavourite = useCallback(
+    (name: string) => {
+      setFavourites((prev) => prev.filter((p) => p.name !== name));
+    },
+    []
+  );
 
   const isFavourite = useCallback(
     (name: string) => favourites.some((p) => p.name === name),

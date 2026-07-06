@@ -1,12 +1,20 @@
-import { Tabs } from 'expo-router';
+import { NativeTabs } from 'expo-router/unstable-native-tabs';
 
 export default function TabsLayout() {
-	return (
-		<Tabs>
-			<Tabs.Screen name="index" options={{ title: 'Home' }} />
-			<Tabs.Screen name="list" options={{ title: 'List' }} />
-			<Tabs.Screen name="map" options={{ title: 'Map' }} />
-            <Tabs.Screen name="camera" options={{ title: 'Camera' }} />
-		</Tabs>
-	);
+  return (
+    <NativeTabs>
+      <NativeTabs.Trigger name="index">
+        <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="list">
+        <NativeTabs.Trigger.Label>List</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="map">
+        <NativeTabs.Trigger.Label>Map</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="camera">
+        <NativeTabs.Trigger.Label>Camera</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+    </NativeTabs>
+  );
 }

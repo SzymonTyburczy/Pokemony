@@ -8,6 +8,9 @@ export function usePokemonDetails(pokemonName?: string) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const abortController = new AbortController();
+    let isActive = true;
+
     const fetchDetails = async () => {
       if (!pokemonName) {
         setError('Brak nazwy Pokémona.');
@@ -18,21 +21,37 @@ export function usePokemonDetails(pokemonName?: string) {
       try {
         setIsLoading(true);
         setError(null);
-        const data = await fetchPokemonDetails(pokemonName);
-        setPokemon(data);
+        const data = await fetchPokemonDetails(pokemonName, abortController.signal);
+
+        if (isActive) {
+          setPokemon(data);
+        }
       } catch (err: unknown) {
+        if (err instanceof Error && err.name === 'AbortError') {
+          return;
+        }
+
         console.error('Błąd podczas pobierania szczegółów Pokémona:', err);
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError('Nie udało się pobrać szczegółów Pokémona.');
+        if (isActive) {
+          if (err instanceof Error) {
+            setError(err.message);
+          } else {
+            setError('Nie udało się pobrać szczegółów Pokémona.');
+          }
         }
       } finally {
-        setIsLoading(false);
+        if (isActive) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchDetails();
+
+    return () => {
+      isActive = false;
+      abortController.abort();
+    };
   }, [pokemonName]);
 
   return {

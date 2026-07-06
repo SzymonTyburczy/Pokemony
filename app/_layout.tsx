@@ -1,10 +1,17 @@
+import 'react-native-gesture-handler';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { Stack } from 'expo-router';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { FavouritesProvider } from '../src/features/favourites/context/FavouritesContext';
 
 export default function RootLayout() {
   return (
-    <FavouritesProvider>
-      <Stack screenOptions={{ headerShown: false }} />
-    </FavouritesProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <BottomSheetModalProvider>
+        <FavouritesProvider>
+          <Stack screenOptions={{ headerShown: false }} />
+        </FavouritesProvider>
+      </BottomSheetModalProvider>
+    </GestureHandlerRootView>
   );
 }

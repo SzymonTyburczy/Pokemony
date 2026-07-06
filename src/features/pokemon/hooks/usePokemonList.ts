@@ -11,6 +11,8 @@ export function usePokemonList() {
   const [nextUrl, setNextUrl] = useState<string | null>(INITIAL_POKEMON_URL);
   const [error, setError] = useState<string | null>(null);
   const isFetchingRef = useRef(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const isMountedRef = useRef(true);
 
   const fetchPokemons = async (resetList: boolean = false) => {
     const requestUrl = resetList ? INITIAL_POKEMON_URL : nextUrl;
@@ -29,6 +31,8 @@ export function usePokemonList() {
 
     try {
       isFetchingRef.current = true;
+      const abortController = new AbortController();
+      abortControllerRef.current = abortController;
 
       if (resetList) {
         setIsLoading(pokemons.length === 0);
@@ -40,18 +44,27 @@ export function usePokemonList() {
 
       setError(null);
 
-      const data = await fetchPokemonListByUrl(requestUrl);
-      const nextPokemons = data.results ?? [];
-      const mergedPokemons = resetList
-        ? nextPokemons
-        : [...pokemons, ...nextPokemons].filter(
-            (pokemon, index, array) => array.findIndex((item) => item.name === pokemon.name) === index
-          );
+      const data = await fetchPokemonListByUrl(requestUrl, abortController.signal);
 
-      setPokemons(mergedPokemons);
+      if (!isMountedRef.current || abortController.signal.aborted) {
+        return;
+      }
+
+      const nextPokemons = data.results ?? [];
+      setPokemons((prevPokemons) =>
+        resetList
+          ? nextPokemons
+          : [...prevPokemons, ...nextPokemons].filter(
+              (pokemon, index, array) => array.findIndex((item) => item.name === pokemon.name) === index
+            )
+      );
       setNextUrl(data.next ?? null);
       setHasMore(Boolean(data.next));
     } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        return;
+      }
+
       console.error('Błąd podczas pobierania danych:', err);
       if (resetList || pokemons.length === 0) {
         if (err instanceof Error) {
@@ -61,15 +74,24 @@ export function usePokemonList() {
         }
       }
     } finally {
+      abortControllerRef.current = null;
       isFetchingRef.current = false;
-      setIsLoading(false);
-      setIsRefreshing(false);
-      setIsLoadingMore(false);
+
+      if (isMountedRef.current) {
+        setIsLoading(false);
+        setIsRefreshing(false);
+        setIsLoadingMore(false);
+      }
     }
   };
 
   useEffect(() => {
     fetchPokemons(true);
+
+    return () => {
+      isMountedRef.current = false;
+      abortControllerRef.current?.abort();
+    };
   }, []);
 
   const handleLoadMore = () => {
