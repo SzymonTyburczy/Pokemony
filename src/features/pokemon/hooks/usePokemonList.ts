@@ -17,7 +17,7 @@ export function usePokemonList() {
   const fetchPokemons = async (resetList: boolean = false) => {
     const requestUrl = resetList ? INITIAL_POKEMON_URL : nextUrl;
 
-    if (isFetchingRef.current) {
+    if (isFetchingRef.current && !resetList) {
       return;
     }
 
@@ -29,9 +29,14 @@ export function usePokemonList() {
       return;
     }
 
+    const abortController = new AbortController();
+
     try {
+      if (isFetchingRef.current) {
+        abortControllerRef.current?.abort();
+      }
+
       isFetchingRef.current = true;
-      const abortController = new AbortController();
       abortControllerRef.current = abortController;
 
       if (resetList) {
@@ -74,13 +79,15 @@ export function usePokemonList() {
         }
       }
     } finally {
-      abortControllerRef.current = null;
-      isFetchingRef.current = false;
+      if (abortControllerRef.current === abortController) {
+        abortControllerRef.current = null;
+        isFetchingRef.current = false;
 
-      if (isMountedRef.current) {
-        setIsLoading(false);
-        setIsRefreshing(false);
-        setIsLoadingMore(false);
+        if (isMountedRef.current) {
+          setIsLoading(false);
+          setIsRefreshing(false);
+          setIsLoadingMore(false);
+        }
       }
     }
   };
