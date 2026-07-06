@@ -8,9 +8,17 @@ interface PokemonListItemProps {
   item: Pokemon;
   isImageVisible: boolean;
   onPress: () => void;
+  isFavourite?: boolean;
+  onToggleFavourite?: (pokemon: Pokemon) => void;
 }
 
-export function PokemonListItem({ item, isImageVisible, onPress }: PokemonListItemProps) {
+export function PokemonListItem({
+  item,
+  isImageVisible,
+  onPress,
+  isFavourite = false,
+  onToggleFavourite,
+}: PokemonListItemProps) {
   const imageUrl = getPokemonImageUrl(item.url);
 
   return (
@@ -23,6 +31,18 @@ export function PokemonListItem({ item, isImageVisible, onPress }: PokemonListIt
         )}
       </View>
       <Text style={styles.pokemonName}>{formatPokemonName(item.name)}</Text>
+      {onToggleFavourite && (
+        <Pressable
+          style={({ pressed }) => [styles.heartButton, pressed && styles.heartPressed]}
+          onPress={(e) => {
+            e.stopPropagation?.();
+            onToggleFavourite(item);
+          }}
+          hitSlop={8}
+        >
+          <Text style={styles.heartIcon}>{isFavourite ? '❤️' : '🤍'}</Text>
+        </Pressable>
+      )}
     </Pressable>
   );
 }
@@ -55,6 +75,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#e9ecef',
   },
   pokemonName: {
+    flex: 1,
     fontSize: 18,
     fontWeight: '500',
     color: '#212529',
@@ -63,5 +84,15 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     marginRight: 15,
+  },
+  heartButton: {
+    padding: 6,
+  },
+  heartPressed: {
+    opacity: 0.6,
+    transform: [{ scale: 0.85 }],
+  },
+  heartIcon: {
+    fontSize: 22,
   },
 });
