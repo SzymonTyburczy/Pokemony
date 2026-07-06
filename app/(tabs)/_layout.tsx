@@ -4,20 +4,35 @@ export default function TabsLayout() {
   return (
     <NativeTabs>
       <NativeTabs.Trigger name="index">
-        <NativeTabs.Trigger.Icon sf="house" md="home" />
-        <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'heart', selected: 'heart.fill' }}
+          selectedColor="#3b4cca"
+        />
+        <NativeTabs.Trigger.Label>Ulubione</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
+
       <NativeTabs.Trigger name="list">
-        <NativeTabs.Trigger.Icon sf="list.bullet" md="list" />
-        <NativeTabs.Trigger.Label>List</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'list.bullet', selected: 'list.bullet' }}
+          selectedColor="#3b4cca"
+        />
+        <NativeTabs.Trigger.Label>Lista</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
+
       <NativeTabs.Trigger name="map">
-        <NativeTabs.Trigger.Icon sf="map" md="map" />
-        <NativeTabs.Trigger.Label>Map</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'map', selected: 'map.fill' }}
+          selectedColor="#3b4cca"
+        />
+        <NativeTabs.Trigger.Label>Mapa</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
+
       <NativeTabs.Trigger name="camera">
-        <NativeTabs.Trigger.Icon sf="camera" md="photo_camera" />
-        <NativeTabs.Trigger.Label>Camera</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'camera', selected: 'camera.fill' }}
+          selectedColor="#3b4cca"
+        />
+        <NativeTabs.Trigger.Label>Kamera</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   );

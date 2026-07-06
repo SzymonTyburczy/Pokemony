@@ -7,9 +7,10 @@ interface PokemonDetailsCardProps {
   pokemon: PokemonDetails;
   onImagePress?: () => void;
   onSoundPress?: () => void;
+  hasCry?: boolean;
 }
 
-export function PokemonDetailsCard({ pokemon, onImagePress, onSoundPress }: PokemonDetailsCardProps) {
+export function PokemonDetailsCard({ pokemon, onImagePress, onSoundPress, hasCry = true }: PokemonDetailsCardProps) {
   const imageUrl =
     pokemon.sprites.other?.['official-artwork']?.front_default || pokemon.sprites.front_default || null;
 
@@ -28,11 +29,19 @@ export function PokemonDetailsCard({ pokemon, onImagePress, onSoundPress }: Poke
       <Text style={styles.name}>{formatPokemonName(pokemon.name)}</Text>
       <Text style={styles.subtitle}>#{pokemon.id}</Text>
 
-      {onSoundPress ? (
-        <Pressable style={({ pressed }) => [styles.soundButton, pressed && styles.soundPressed]} onPress={onSoundPress}>
-          <Text style={styles.soundButtonText}>♪ Odtworz dzwiek</Text>
-        </Pressable>
-      ) : null}
+      <Pressable
+        style={({ pressed }) => [
+          styles.soundButton,
+          !hasCry && styles.soundButtonDisabled,
+          pressed && hasCry && styles.soundPressed,
+        ]}
+        onPress={hasCry ? onSoundPress : undefined}
+        disabled={!hasCry}
+      >
+        <Text style={[styles.soundButtonText, !hasCry && styles.soundButtonTextDisabled]}>
+          {hasCry ? '♪ Odtworz dzwiek' : '♪ Brak dzwieku'}
+        </Text>
+      </Pressable>
 
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>Informacje</Text>
@@ -97,6 +106,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     marginBottom: 20,
   },
+  soundButtonDisabled: {
+    backgroundColor: '#d1d5db',
+  },
   soundPressed: {
     opacity: 0.75,
     transform: [{ scale: 0.97 }],
@@ -105,6 +117,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 15,
     fontWeight: '800',
+  },
+  soundButtonTextDisabled: {
+    color: '#9ca3af',
   },
   card: {
     backgroundColor: '#f8f9fa',

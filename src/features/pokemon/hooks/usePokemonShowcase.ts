@@ -1,12 +1,12 @@
 import { useCallback, useState } from 'react';
-import { fetchRandomPokemon3dForm } from '../api/pokemon3dApi';
+import { fetchAllPokemon3dForms } from '../api/pokemon3dApi';
 import { Pokemon } from '../model/types';
 import { Pokemon3dSelection } from '../model/pokemon3d';
 import { getPokemonIdFromUrl } from '../../../shared/utils/getPokemonIdFromUrl';
 import { usePokemonCryPlayer } from './usePokemonCryPlayer';
 
 export function usePokemonShowcase() {
-  const playPokemonCry = usePokemonCryPlayer();
+  const { webViewRef, playPokemonCry } = usePokemonCryPlayer();
   const [selectedAnimation, setSelectedAnimation] = useState<Pokemon3dSelection | null>(null);
   const [loadingPokemonName, setLoadingPokemonName] = useState<string | null>(null);
 
@@ -15,12 +15,14 @@ export function usePokemonShowcase() {
       setLoadingPokemonName(pokemonName);
 
       try {
-        const form = await fetchRandomPokemon3dForm(pokemonId);
-        if (form) {
+        const forms = await fetchAllPokemon3dForms(pokemonId);
+        if (forms.length > 0) {
+          const randomForm = forms[Math.floor(Math.random() * forms.length)];
           setSelectedAnimation({
             id: pokemonId,
             pokemonName,
-            form,
+            form: randomForm,
+            forms,
           });
         }
       } catch (error) {
@@ -29,7 +31,7 @@ export function usePokemonShowcase() {
         setLoadingPokemonName(null);
       }
     },
-    [playPokemonCry]
+    []
   );
 
   const showPokemon = useCallback(
@@ -52,6 +54,7 @@ export function usePokemonShowcase() {
     selectedAnimation,
     loadingPokemonName,
     playPokemonCry,
+    webViewRef,
     showPokemon,
     showPokemonById,
     closeAnimation,

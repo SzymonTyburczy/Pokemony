@@ -1,5 +1,6 @@
 import { FlatList, Text, View, StyleSheet, ActivityIndicator, Button, ViewToken, TextInput } from 'react-native';
 import React, { useRef, useState } from 'react';
+import { WebView } from 'react-native-webview';
 import { useRouter } from 'expo-router';
 import { usePokemonList } from '../../src/features/pokemon/hooks/usePokemonList';
 import { usePokemonSearch } from '../../src/features/pokemon/hooks/usePokemonSearch';
@@ -8,14 +9,14 @@ import { PokemonListItem } from '../../src/features/pokemon/ui/PokemonListItem';
 import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
 import { preloadRandomPokemon3dForm } from '../../src/features/pokemon/api/pokemon3dApi';
 import { getPokemonIdFromUrl } from '../../src/shared/utils/getPokemonIdFromUrl';
-import { usePokemonCryPlayer } from '../../src/features/pokemon/hooks/usePokemonCryPlayer';
+import { usePokemonCryPlayer, getCryPlayerHtml } from '../../src/features/pokemon/hooks/usePokemonCryPlayer';
 
 const ListScreen = () => {
   const router = useRouter();
   const { pokemons, isLoading, isLoadingMore, isRefreshing, error, fetchPokemons, handleLoadMore, handleRefresh } =
     usePokemonList();
   const { isFavourite, toggleFavourite } = useFavouritesContext();
-  const playPokemonCry = usePokemonCryPlayer();
+  const { webViewRef, playPokemonCry } = usePokemonCryPlayer();
   const [searchQuery, setSearchQuery] = useState('');
   const { isSearchActive, results: searchResults, isLoading: isSearchLoading, error: searchError } =
     usePokemonSearch(searchQuery);
@@ -112,6 +113,16 @@ const ListScreen = () => {
 
   return (
     <View style={styles.container}>
+      {/* Hidden WebView for OGG audio playback */}
+      <WebView
+        ref={webViewRef}
+        source={{ html: getCryPlayerHtml() }}
+        style={styles.hiddenWebView}
+        javaScriptEnabled
+        mediaPlaybackRequiresUserAction={false}
+        allowsInlineMediaPlayback
+      />
+
       <Text style={styles.title}>Lista Pokémonów</Text>
 
       <TextInput
@@ -145,6 +156,11 @@ const ListScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  hiddenWebView: {
+    width: 0,
+    height: 0,
+    position: 'absolute',
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',

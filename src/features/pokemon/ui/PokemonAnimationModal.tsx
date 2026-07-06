@@ -1,18 +1,26 @@
 import React, { useMemo } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { Pokemon3dSelection } from '../model/pokemon3d';
+import { Pokemon3dForm, Pokemon3dSelection } from '../model/pokemon3d';
 import { formatPokemonName } from '../../../shared/utils/formatPokemonName';
 
 interface PokemonAnimationModalProps {
   animation: Pokemon3dSelection | null;
   onClose: () => void;
   onPokemonSound?: (pokemonId: number) => void;
+  hasCry?: boolean;
 }
 
-function createModelViewerHtml(animation: Pokemon3dSelection): string {
-  const modelUrl = JSON.stringify(animation.form.model);
-  const modelName = JSON.stringify(animation.form.name);
+function createModelViewerHtml(animation: Pokemon3dSelection, hasCry: boolean): string {
+  const forms = animation.forms;
+  // Start from the initially selected (random) form
+  const initialFormIndex = Math.max(
+    0,
+    forms.findIndex((f) => f.model === animation.form.model)
+  );
+  const formsJson = JSON.stringify(
+    forms.map((f: Pokemon3dForm) => ({ name: f.name, formName: f.formName, model: f.model }))
+  );
 
   return `
 <!doctype html>
@@ -38,39 +46,47 @@ function createModelViewerHtml(animation: Pokemon3dSelection): string {
 
       .controls {
         position: absolute;
-        left: 16px;
-        right: 16px;
-        bottom: 16px;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
         display: flex;
-        gap: 8px;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .controls-row {
+        display: flex;
+        gap: 6px;
         align-items: center;
       }
 
-      .animation-select,
-      .random-button,
-      .sound-button,
-      .status {
-        padding: 10px 12px;
+      select, button {
+        padding: 9px 10px;
         border-radius: 8px;
-        background: rgba(255, 255, 255, 0.88);
+        background: rgba(255, 255, 255, 0.92);
         color: #1f2937;
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 700;
         border: 1px solid rgba(209, 213, 219, 0.9);
-      }
-
-      .animation-select {
         flex: 1;
-      }
-
-      .random-button {
-        flex: 0 0 auto;
       }
 
       .sound-button {
         flex: 0 0 auto;
         background: rgba(59, 76, 202, 0.95);
         color: #ffffff;
+        border-color: rgba(59, 76, 202, 0.95);
+      }
+
+      .sound-button.disabled {
+        background: rgba(156, 163, 175, 0.7);
+        color: rgba(255,255,255,0.6);
+        border-color: rgba(156, 163, 175, 0.5);
+        cursor: not-allowed;
+      }
+
+      .random-button {
+        flex: 0 0 auto;
       }
 
       .status {
@@ -78,27 +94,31 @@ function createModelViewerHtml(animation: Pokemon3dSelection): string {
         left: 16px;
         right: 16px;
         bottom: 16px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.92);
+        color: #1f2937;
+        font-size: 12px;
+        font-weight: 700;
+        border: 1px solid rgba(209, 213, 219, 0.9);
         text-align: center;
       }
 
-      body.is-loaded .status {
-        display: none;
-      }
+      body.is-loaded .status { display: none; }
 
-      body:not(.is-loaded) .controls,
-      body.is-error .controls {
-        display: none;
-      }
+      /* During initial load (before any attempt): hide controls, show status */
+      body.loading .controls { display: none; }
 
-      body:not(.has-animations) .animation-select,
-      body:not(.has-animations) .random-button {
-        display: none;
-      }
+      /* On error: hide animation row (no animations), keep form row visible */
+      body.is-error .animation-row { display: none; }
 
-      body.is-error model-viewer {
-        display: none;
-      }
+      /* Hide animation row when model has no animations */
+      body:not(.has-animations) .animation-row { display: none; }
 
+      /* Hide form row when only one form */
+      body.single-form .form-row { display: none; }
+
+      body.is-error model-viewer { display: none; }
       body.is-error .status {
         display: block;
         top: 50%;
@@ -110,8 +130,6 @@ function createModelViewerHtml(animation: Pokemon3dSelection): string {
   <body>
     <model-viewer
       id="pokemon-model"
-      src=${modelUrl}
-      alt=${modelName}
       camera-controls
       auto-rotate
       autoplay
@@ -121,97 +139,154 @@ function createModelViewerHtml(animation: Pokemon3dSelection): string {
     ></model-viewer>
     <div class="status" id="status">Ladowanie modelu 3D</div>
     <div class="controls" id="controls">
-      <select class="animation-select" id="animation-select" aria-label="Animation"></select>
-      <button class="random-button" id="random-button" type="button">Losuj</button>
-      <button class="sound-button" id="sound-button" type="button">Dzwiek</button>
+      <!-- Row 1: Form picker -->
+      <div class="controls-row form-row" id="form-row">
+        <select id="form-select" aria-label="Forma"></select>
+        <button class="sound-button${hasCry ? '' : ' disabled'}" id="sound-button" type="button">♪</button>
+      </div>
+      <!-- Row 2: Animation picker + random -->
+      <div class="controls-row animation-row" id="animation-row">
+        <select id="animation-select" aria-label="Animacja"></select>
+        <button class="random-button" id="random-button" type="button">Losuj</button>
+      </div>
     </div>
     <script>
+      const HAS_CRY = ${hasCry ? 'true' : 'false'};
+      const FORMS = ${formsJson};
+      let currentFormIndex = ${initialFormIndex};
+      let animations = [];
+      let lastTouchSoundAt = 0;
+
       const viewer = document.getElementById('pokemon-model');
       const status = document.getElementById('status');
+      const formSelect = document.getElementById('form-select');
       const animationSelect = document.getElementById('animation-select');
       const randomButton = document.getElementById('random-button');
       const soundButton = document.getElementById('sound-button');
-      let lastTouchSoundAt = 0;
-      let animations = [];
 
       function notifyNative(type) {
         window.ReactNativeWebView?.postMessage(JSON.stringify({ type }));
       }
 
-      function playAnimation(animationName) {
-        if (!animationName) {
-          return;
-        }
-
-        viewer.animationName = animationName;
-        viewer.setAttribute('animation-name', animationName);
-        viewer.play();
-        status.textContent = animationName;
-        animationSelect.value = animationName;
-      }
-
-      function pickRandomAnimation() {
-        if (animations.length === 0) {
-          return;
-        }
-
-        const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
-        playAnimation(randomAnimation);
-      }
-
       function notifyTouchSound() {
+        if (!HAS_CRY) return;
         const now = Date.now();
-        if (now - lastTouchSoundAt < 650) {
-          return;
-        }
-
+        if (now - lastTouchSoundAt < 650) return;
         lastTouchSoundAt = now;
         notifyNative('model-press');
       }
 
+      // Populate form dropdown
+      function buildFormSelect() {
+        formSelect.replaceChildren(
+          ...FORMS.map((form, i) => {
+            const opt = document.createElement('option');
+            opt.value = String(i);
+            opt.textContent = form.formName || form.name;
+            return opt;
+          })
+        );
+        formSelect.value = String(currentFormIndex);
+        if (FORMS.length <= 1) {
+          document.body.classList.add('single-form');
+        }
+      }
+
+      function playAnimation(animationName) {
+        if (!animationName) return;
+        viewer.animationName = animationName;
+        viewer.setAttribute('animation-name', animationName);
+        viewer.play();
+        animationSelect.value = animationName;
+      }
+
+      function pickRandomAnimation() {
+        if (animations.length === 0) return;
+        const pick = animations[Math.floor(Math.random() * animations.length)];
+        playAnimation(pick);
+      }
+
+      function loadForm(index) {
+        currentFormIndex = index;
+        const form = FORMS[index];
+        if (!form) return;
+
+        // Reset state for new form load
+        animations = [];
+        animationSelect.replaceChildren();
+        document.body.classList.remove('is-loaded', 'is-error', 'has-animations');
+        document.body.classList.add('loading');
+        status.textContent = 'Ladowanie modelu 3D';
+
+        viewer.src = form.model;
+        viewer.alt = form.name;
+      }
+
       viewer.addEventListener('load', () => {
+        document.body.classList.remove('loading');
         document.body.classList.add('is-loaded');
         animations = viewer.availableAnimations || [];
+
         if (animations.length > 0) {
           document.body.classList.add('has-animations');
           animationSelect.replaceChildren(
-            ...animations.map((animationName) => {
-              const option = document.createElement('option');
-              option.value = animationName;
-              option.textContent = animationName;
-              return option;
+            ...animations.map((name) => {
+              const opt = document.createElement('option');
+              opt.value = name;
+              opt.textContent = name;
+              return opt;
             })
           );
+          // Always start from random animation
           pickRandomAnimation();
         } else {
-          status.textContent = 'Model 3D';
+          animationSelect.replaceChildren();
         }
 
         notifyNative('model-ready');
       });
 
-      viewer.addEventListener('click', notifyTouchSound);
-      viewer.addEventListener('touchstart', notifyTouchSound, { passive: true });
-      animationSelect.addEventListener('change', (event) => {
-        playAnimation(event.target.value);
-      });
-      randomButton.addEventListener('click', pickRandomAnimation);
-      soundButton.addEventListener('click', () => notifyNative('sound-button'));
-
       viewer.addEventListener('error', () => {
+        document.body.classList.remove('loading');
         document.body.classList.add('is-error');
         status.textContent = 'Model niedostepny';
       });
+
+      viewer.addEventListener('click', notifyTouchSound);
+      viewer.addEventListener('touchstart', notifyTouchSound, { passive: true });
+
+      formSelect.addEventListener('change', (e) => {
+        loadForm(Number(e.target.value));
+      });
+
+      animationSelect.addEventListener('change', (e) => {
+        playAnimation(e.target.value);
+      });
+
+      randomButton.addEventListener('click', pickRandomAnimation);
+
+      soundButton.addEventListener('click', () => {
+        if (HAS_CRY) notifyNative('sound-button');
+      });
+
+      // Initial load
+      buildFormSelect();
+      document.body.classList.add('loading');
+      loadForm(currentFormIndex);
     </script>
   </body>
 </html>`;
 }
 
-export function PokemonAnimationModal({ animation, onClose, onPokemonSound }: PokemonAnimationModalProps) {
-  const html = useMemo(() => (animation ? createModelViewerHtml(animation) : ''), [animation]);
+export function PokemonAnimationModal({ animation, onClose, onPokemonSound, hasCry = true }: PokemonAnimationModalProps) {
+  const html = useMemo(
+    () => (animation ? createModelViewerHtml(animation, hasCry) : ''),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [animation?.id, animation?.form.model, hasCry]
+  );
 
   const handleWebViewMessage = (event: { nativeEvent: { data: string } }) => {
-    if (!animation) {
+    if (!animation || !hasCry) {
       return;
     }
 
@@ -239,7 +314,7 @@ export function PokemonAnimationModal({ animation, onClose, onPokemonSound }: Po
             </View>
 
             <Pressable style={({ pressed }) => [styles.closeButton, pressed && styles.pressed]} onPress={onClose}>
-              <Text style={styles.closeText}>X</Text>
+              <Text style={styles.closeText}>✕</Text>
             </Pressable>
           </View>
 
@@ -313,14 +388,14 @@ const styles = StyleSheet.create({
   },
   closeText: {
     color: '#1f2937',
-    fontSize: 28,
-    lineHeight: 30,
+    fontSize: 20,
+    lineHeight: 22,
   },
   pressed: {
     opacity: 0.72,
   },
   webView: {
-    height: 376,
+    height: 400,
     backgroundColor: '#f8f9fa',
   },
 });

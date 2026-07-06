@@ -81,3 +81,8 @@ export async function fetchRandomPokemon3dForm(id: number): Promise<Pokemon3dFor
 
   return selectRandomPokemon3dForm(id);
 }
+
+export async function fetchAllPokemon3dForms(id: number): Promise<Pokemon3dForm[]> {
+  const index = await fetchPokemon3dIndex();
+  return index.get(id)?.forms.filter((form) => Boolean(form.model)) ?? [];
+}

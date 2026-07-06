@@ -1,36 +1,40 @@
-import { useCallback, useEffect, useRef } from 'react';
-import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
-import type { AudioPlayer } from 'expo-audio';
+import { useCallback, useRef } from 'react';
+import { WebView } from 'react-native-webview';
 import { getPokemonCryUrl } from '../../../shared/utils/getPokemonCryUrl';
 
+/**
+ * Hook that returns a hidden WebView ref and a play function.
+ * iOS does not support OGG natively; we use a WebView with HTML5 Audio
+ * so the browser engine (WKWebView) handles OGG decoding.
+ */
 export function usePokemonCryPlayer() {
-  const playerRef = useRef<AudioPlayer | null>(null);
+  const webViewRef = useRef<WebView | null>(null);
 
-  useEffect(() => {
-    setAudioModeAsync({ playsInSilentMode: true }).catch((error) => {
-      console.warn('Nie udało się ustawić trybu audio:', error);
-    });
-
-    playerRef.current = createAudioPlayer(null);
-
-    return () => {
-      playerRef.current?.release();
-      playerRef.current = null;
-    };
+  const playPokemonCry = useCallback((pokemonId: number) => {
+    const url = getPokemonCryUrl(pokemonId);
+    // Inject JavaScript into the hidden WebView to play the audio
+    const js = `
+      (function() {
+        if (window._cryAudio) {
+          window._cryAudio.pause();
+          window._cryAudio.src = '';
+        }
+        var audio = new Audio(${JSON.stringify(url)});
+        audio.volume = 1.0;
+        audio.play().catch(function(e) { console.warn('cry play error', e); });
+        window._cryAudio = audio;
+      })();
+      true;
+    `;
+    webViewRef.current?.injectJavaScript(js);
   }, []);
 
-  return useCallback((pokemonId: number) => {
-    const player = playerRef.current;
-    if (!player) {
-      return;
-    }
+  return { webViewRef, playPokemonCry };
+}
 
-    try {
-      player.pause();
-      player.replace({ uri: getPokemonCryUrl(pokemonId) });
-      player.play();
-    } catch (error) {
-      console.warn('Nie udało się odtworzyć cry Pokémona:', error);
-    }
-  }, []);
+/**
+ * Returns the HTML for the hidden audio WebView.
+ */
+export function getCryPlayerHtml(): string {
+  return `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"/></head><body style="margin:0;padding:0;background:transparent;"></body></html>`;
 }

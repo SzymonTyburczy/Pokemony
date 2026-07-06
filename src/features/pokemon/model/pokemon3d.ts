@@ -13,4 +13,5 @@ export interface Pokemon3dSelection {
   id: number;
   pokemonName: string;
   form: Pokemon3dForm;
+  forms: Pokemon3dForm[];
 }

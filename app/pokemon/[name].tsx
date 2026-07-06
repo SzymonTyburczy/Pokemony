@@ -1,10 +1,13 @@
 import React from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { WebView } from 'react-native-webview';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { usePokemonDetails } from '../../src/features/pokemon/hooks/usePokemonDetails';
 import { PokemonDetailsCard } from '../../src/features/pokemon/ui/PokemonDetailsCard';
 import { usePokemonShowcase } from '../../src/features/pokemon/hooks/usePokemonShowcase';
 import { PokemonAnimationModal } from '../../src/features/pokemon/ui/PokemonAnimationModal';
+import { usePokemonCryExists } from '../../src/features/pokemon/hooks/usePokemonCryExists';
+import { getCryPlayerHtml } from '../../src/features/pokemon/hooks/usePokemonCryPlayer';
 
 export default function PokemonDetailsScreen() {
   const router = useRouter();
@@ -12,7 +15,8 @@ export default function PokemonDetailsScreen() {
   const pokemonName = Array.isArray(name) ? name[0] : name;
 
   const { pokemon, isLoading, error } = usePokemonDetails(pokemonName);
-  const { selectedAnimation, playPokemonCry, showPokemonById, closeAnimation } = usePokemonShowcase();
+  const { selectedAnimation, playPokemonCry, webViewRef, showPokemonById, closeAnimation } = usePokemonShowcase();
+  const hasCry = usePokemonCryExists(pokemon?.id);
 
   if (isLoading) {
     return (
@@ -34,8 +38,20 @@ export default function PokemonDetailsScreen() {
     );
   }
 
+  const cryAvailable = hasCry === true;
+
   return (
     <>
+      {/* Hidden WebView for OGG audio playback (iOS doesn't support OGG natively) */}
+      <WebView
+        ref={webViewRef}
+        source={{ html: getCryPlayerHtml() }}
+        style={styles.hiddenWebView}
+        javaScriptEnabled
+        mediaPlaybackRequiresUserAction={false}
+        allowsInlineMediaPlayback
+      />
+
       <ScrollView contentContainerStyle={styles.container}>
         <Pressable style={styles.backButton} onPress={() => router.back()}>
           <Text style={styles.backButtonText}>Wróć</Text>
@@ -44,20 +60,27 @@ export default function PokemonDetailsScreen() {
         <PokemonDetailsCard
           pokemon={pokemon}
           onImagePress={() => showPokemonById(pokemon.id, pokemon.name)}
-          onSoundPress={() => playPokemonCry(pokemon.id)}
+          onSoundPress={cryAvailable ? () => playPokemonCry(pokemon.id) : undefined}
+          hasCry={cryAvailable}
         />
       </ScrollView>
 
       <PokemonAnimationModal
         animation={selectedAnimation}
         onClose={closeAnimation}
-        onPokemonSound={playPokemonCry}
+        onPokemonSound={cryAvailable ? playPokemonCry : undefined}
+        hasCry={cryAvailable}
       />
     </>
   );
 }
 
 const styles = StyleSheet.create({
+  hiddenWebView: {
+    width: 0,
+    height: 0,
+    position: 'absolute',
+  },
   container: {
     flexGrow: 1,
     backgroundColor: '#fff',

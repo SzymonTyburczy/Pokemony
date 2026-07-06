@@ -8,17 +8,19 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import { WebView } from 'react-native-webview';
 import { useRouter } from 'expo-router';
 import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
 import { getPokemonImageUrl } from '../../src/shared/utils/getPokemonImageUrl';
 import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
 import { usePokemonShowcase } from '../../src/features/pokemon/hooks/usePokemonShowcase';
 import { PokemonAnimationModal } from '../../src/features/pokemon/ui/PokemonAnimationModal';
+import { getCryPlayerHtml } from '../../src/features/pokemon/hooks/usePokemonCryPlayer';
 
 export default function FavouritesScreen() {
   const router = useRouter();
   const { favourites, isLoaded, removeFavourite } = useFavouritesContext();
-  const { selectedAnimation, playPokemonCry, showPokemon, closeAnimation } = usePokemonShowcase();
+  const { selectedAnimation, playPokemonCry, webViewRef, showPokemon, closeAnimation } = usePokemonShowcase();
   const [currentIndex, setCurrentIndex] = useState(0);
   const { width } = useWindowDimensions();
 
@@ -109,16 +111,31 @@ export default function FavouritesScreen() {
         </Pressable>
       </View>
 
+      <WebView
+        ref={webViewRef}
+        source={{ html: getCryPlayerHtml() }}
+        style={styles.hiddenWebView}
+        javaScriptEnabled
+        mediaPlaybackRequiresUserAction={false}
+        allowsInlineMediaPlayback
+      />
+
       <PokemonAnimationModal
         animation={selectedAnimation}
         onClose={closeAnimation}
         onPokemonSound={playPokemonCry}
+        hasCry
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  hiddenWebView: {
+    width: 0,
+    height: 0,
+    position: 'absolute',
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',
