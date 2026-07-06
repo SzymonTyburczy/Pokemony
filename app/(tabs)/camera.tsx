@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View, Pressable, ImageBackground, Dimensions, Alert } from 'react-native';
-import { Camera, useCameraPermission, useCameraDevice, useFrameProcessor } from 'react-native-vision-camera';
+import { Camera, useCameraPermission, useCameraDevice, useFrameOutput, useAsyncRunner } from 'react-native-vision-camera';
 import { useFaceDetector } from 'react-native-vision-camera-face-detector';
 import { Worklets } from 'react-native-worklets-core';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
@@ -36,10 +36,10 @@ export default function CameraScreen() {
   const faceDetected = useSharedValue(false);
 
   // --- DETEKTOR TWARZY ---
-  const { detectFaces } = useFaceDetector({
+  const faceDetector = useFaceDetector({
     performanceMode: 'fast',
-    contourMode: 'none',
-    landmarkMode: 'none',
+    runContours: false,
+    runLandmarks: false,
   });
 
   const handleFaces = Worklets.createRunOnJS((faces: any[], frameWidth: number, frameHeight: number) => {
@@ -63,11 +63,22 @@ export default function CameraScreen() {
     }
   });
 
-  const frameProcessor = useFrameProcessor((frame) => {
-    'worklet';
-    const faces = detectFaces(frame);
-    handleFaces(faces, frame.width, frame.height);
-  }, [detectFaces]);
+  const asyncRunner = useAsyncRunner();
+
+  const frameOutput = useFrameOutput({
+    onFrame: (frame) => {
+      'worklet';
+      const wasHandled = asyncRunner.runAsync(() => {
+        'worklet';
+        const faces = faceDetector.detectFaces(frame);
+        handleFaces(faces, frame.width, frame.height);
+        frame.dispose();
+      });
+      if (!wasHandled) {
+        frame.dispose();
+      }
+    }
+  });
 
   // --- UPRAWNIENIA ---
   useEffect(() => {
@@ -192,7 +203,7 @@ export default function CameraScreen() {
         device={device}
         isActive={true}
         photo={true}
-        frameProcessor={frameProcessor}
+        outputs={[frameOutput]}
       />
       
       {activePokemon ? (
