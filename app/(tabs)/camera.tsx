@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View, Pressable, ImageBackground, Dimensions, Alert } from 'react-native';
-import { Camera, useCameraPermission, useCameraDevice, useFrameOutput, useAsyncRunner } from 'react-native-vision-camera';
+import { Camera, CameraRef, useCameraPermission, useCameraDevice, useFrameOutput, useAsyncRunner, usePhotoOutput } from 'react-native-vision-camera';
 import { useFaceDetector } from 'react-native-vision-camera-face-detector';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS } from 'react-native-reanimated';
 import * as MediaLibrary from 'expo-media-library';
@@ -20,7 +20,8 @@ export default function CameraScreen() {
   const [hasLocationPermission, setHasLocationPermission] = useState(false);
   
   const device = useCameraDevice('front');
-  const cameraRef = useRef<Camera>(null);
+  const cameraRef = useRef<CameraRef>(null);
+  const photoOutput = usePhotoOutput();
   const viewShotRef = useRef<ViewShot>(null);
 
   const { favourites } = useFavouritesContext();
@@ -106,11 +107,9 @@ export default function CameraScreen() {
 
   // --- ROBIENIE ZDJĘCIA ---
   const takePhoto = async () => {
-    if (cameraRef.current) {
+    if (photoOutput) {
       try {
-        const photo = await cameraRef.current.takePhoto({
-          qualityPrioritization: 'speed',
-        });
+        const photo = await photoOutput.takePhoto();
         setPreviewPhoto(`file://${photo.path}`);
       } catch (e) {
         Alert.alert('Błąd', 'Nie udało się zrobić zdjęcia.');
@@ -201,8 +200,7 @@ export default function CameraScreen() {
         style={StyleSheet.absoluteFill}
         device={device}
         isActive={true}
-        photo={true}
-        outputs={[frameOutput]}
+        outputs={[frameOutput, photoOutput]}
       />
       
       {activePokemon ? (
