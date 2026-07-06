@@ -20,7 +20,7 @@ import { Pokemon } from '../../src/features/pokemon/model/types';
 import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
 import { getPokemonImageUrl } from '../../src/shared/utils/getPokemonImageUrl';
 
-type SheetMode = 'pin-details' | 'pokemon-picker' | 'empty-favourites';
+type SheetMode = 'pin-details' | 'pokemon-picker' | 'empty-favourites' | 'pin-list';
 
 const INITIAL_REGION: Region = {
   latitude: 52.2297,
@@ -31,6 +31,7 @@ const INITIAL_REGION: Region = {
 
 const MIN_DELTA = 0.002;
 const MAX_DELTA = 80;
+const PIN_FOCUS_DELTA = 0.02;
 const USER_LOCATION_DELTA = 0.02;
 
 function clampDelta(delta: number): number {
@@ -68,7 +69,7 @@ export default function MapScreen() {
     [pins]
   );
 
-  const visiblePins = useMemo(
+  const listedPins = useMemo(
     () => (selectedPokemonFilter ? pins.filter((pin) => pin.pokemonName === selectedPokemonFilter) : pins),
     [pins, selectedPokemonFilter]
   );
@@ -83,6 +84,16 @@ export default function MapScreen() {
     setRegion(nextRegion);
     mapRef.current?.animateToRegion(nextRegion, 250);
   }, []);
+
+  const getPinFocusRegion = useCallback(
+    (pin: PokemonMapPin): Region => ({
+      latitude: pin.latitude,
+      longitude: pin.longitude,
+      latitudeDelta: Math.min(region.latitudeDelta, PIN_FOCUS_DELTA),
+      longitudeDelta: Math.min(region.longitudeDelta, PIN_FOCUS_DELTA),
+    }),
+    [region.latitudeDelta, region.longitudeDelta]
+  );
 
   const openSheet = useCallback((mode: SheetMode) => {
     setSheetMode(mode);
@@ -161,15 +172,35 @@ export default function MapScreen() {
     [favourites.length, movingPinId, openSheet, pins, updatePinLocation]
   );
 
-  const handleMarkerPress = useCallback(
+  const handleOpenPinList = useCallback(
+    (pokemonName: string | null) => {
+      setSelectedPokemonFilter(pokemonName);
+      setSelectedPin(null);
+      setPendingLocation(null);
+      setEditingPinId(null);
+      setMovingPinId(null);
+      openSheet('pin-list');
+    },
+    [openSheet]
+  );
+
+  const handleSelectListedPin = useCallback(
     (pin: PokemonMapPin) => {
+      animateToRegion(getPinFocusRegion(pin));
       setSelectedPin(pin);
       setPendingLocation(null);
       setEditingPinId(null);
       setMovingPinId(null);
       openSheet('pin-details');
     },
-    [openSheet]
+    [animateToRegion, getPinFocusRegion, openSheet]
+  );
+
+  const handleMarkerPress = useCallback(
+    (pin: PokemonMapPin) => {
+      handleSelectListedPin(pin);
+    },
+    [handleSelectListedPin]
   );
 
   const handleChoosePokemon = useCallback(
@@ -262,7 +293,7 @@ export default function MapScreen() {
         onRegionChangeComplete={setRegion}
         showsUserLocation={isUserLocationVisible}
       >
-        {visiblePins.map((pin) => {
+        {pins.map((pin) => {
           const isSelected = selectedPin?.id === pin.id;
 
           return (
@@ -286,9 +317,7 @@ export default function MapScreen() {
 
       <View style={styles.header}>
         <Text style={styles.title}>Mapa Pokémonów</Text>
-        <Text style={styles.subtitle}>
-          {visiblePins.length} / {pins.length} zapisanych pinów
-        </Text>
+        <Text style={styles.subtitle}>{pins.length} zapisanych pinów</Text>
       </View>
 
       {pokemonFilterOptions.length > 0 && (
@@ -304,7 +333,7 @@ export default function MapScreen() {
               !selectedPokemonFilter && styles.filterChipActive,
               pressed && styles.pressed,
             ]}
-            onPress={() => setSelectedPokemonFilter(null)}
+            onPress={() => handleOpenPinList(null)}
           >
             <Text style={[styles.filterText, !selectedPokemonFilter && styles.filterTextActive]}>Wszystkie</Text>
           </Pressable>
@@ -320,7 +349,7 @@ export default function MapScreen() {
                   isActive && styles.filterChipActive,
                   pressed && styles.pressed,
                 ]}
-                onPress={() => setSelectedPokemonFilter(isActive ? null : pokemonName)}
+                onPress={() => handleOpenPinList(pokemonName)}
               >
                 <Text style={[styles.filterText, isActive && styles.filterTextActive]}>
                   {formatPokemonName(pokemonName)}
@@ -421,6 +450,33 @@ export default function MapScreen() {
               </Pressable>
             </View>
           </BottomSheetView>
+        )}
+
+        {sheetMode === 'pin-list' && (
+          <BottomSheetScrollView contentContainerStyle={styles.sheetContent}>
+            <Text style={styles.sheetTitle}>
+              {selectedPokemonFilter ? formatPokemonName(selectedPokemonFilter) : 'Wszystkie lokalizacje'}
+            </Text>
+            <Text style={styles.sheetText}>Wybierz pozycję, żeby przesunąć mapę na zapisane miejsce.</Text>
+
+            <View style={styles.pinList}>
+              {listedPins.map((pin) => (
+                <Pressable
+                  key={pin.id}
+                  style={({ pressed }) => [styles.pinListItem, pressed && styles.pressed]}
+                  onPress={() => handleSelectListedPin(pin)}
+                >
+                  <Image source={{ uri: getPokemonImageUrl(pin.pokemonUrl) }} style={styles.pinListImage} />
+                  <View style={styles.pinListContent}>
+                    <Text style={styles.pinListName}>{formatPokemonName(pin.pokemonName)}</Text>
+                    <Text style={styles.pinListCoordinates}>
+                      {pin.latitude.toFixed(4)}, {pin.longitude.toFixed(4)}
+                    </Text>
+                  </View>
+                </Pressable>
+              ))}
+            </View>
+          </BottomSheetScrollView>
         )}
 
         {sheetMode === 'empty-favourites' && (
@@ -657,6 +713,38 @@ const styles = StyleSheet.create({
     height: 110,
     alignSelf: 'center',
     marginBottom: 8,
+  },
+  pinList: {
+    gap: 10,
+  },
+  pinListItem: {
+    minHeight: 72,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: '#f8f9fa',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+  },
+  pinListImage: {
+    width: 52,
+    height: 52,
+  },
+  pinListContent: {
+    flex: 1,
+  },
+  pinListName: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1f2937',
+  },
+  pinListCoordinates: {
+    marginTop: 3,
+    fontSize: 13,
+    color: '#6b7280',
   },
   actionsGrid: {
     flexDirection: 'row',
