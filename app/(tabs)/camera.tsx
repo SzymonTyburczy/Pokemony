@@ -2,8 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View, Pressable, ImageBackground, Dimensions, Alert } from 'react-native';
 import { Camera, useCameraPermission, useCameraDevice, useFrameOutput, useAsyncRunner } from 'react-native-vision-camera';
 import { useFaceDetector } from 'react-native-vision-camera-face-detector';
-import { Worklets } from 'react-native-worklets-core';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS } from 'react-native-reanimated';
 import * as MediaLibrary from 'expo-media-library';
 import * as Location from 'expo-location';
 import ViewShot from 'react-native-view-shot';
@@ -42,7 +41,7 @@ export default function CameraScreen() {
     runLandmarks: false,
   });
 
-  const handleFaces = Worklets.createRunOnJS((faces: any[], frameWidth: number, frameHeight: number) => {
+  const handleFaces = (faces: any[], frameWidth: number, frameHeight: number) => {
     if (faces.length > 0) {
       const face = faces[0];
       
@@ -61,7 +60,7 @@ export default function CameraScreen() {
     } else {
       faceDetected.value = false;
     }
-  });
+  };
 
   const asyncRunner = useAsyncRunner();
 
@@ -71,7 +70,7 @@ export default function CameraScreen() {
       const wasHandled = asyncRunner.runAsync(() => {
         'worklet';
         const faces = faceDetector.detectFaces(frame);
-        handleFaces(faces, frame.width, frame.height);
+        runOnJS(handleFaces)(faces, frame.width, frame.height);
         frame.dispose();
       });
       if (!wasHandled) {
