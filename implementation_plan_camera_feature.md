@@ -570,3 +570,53 @@ graph TD
 | `snapToIndex(-1)` vs `close()` | Użyj `bottomSheetRef.current?.close()` do zamknięcia |
 | Android: biała mapa | Potrzebujesz Google Maps API Key |
 | Reanimated warning | `npx expo start --clear` po zmianie babel.config.js |
+
+---
+---
+
+# Plan Implementacji: Crazy Vision Camera (Wersja: MLKit Face Detector + Reanimated)
+
+Zrozumiałem! Chcesz zachować w pełni **automatyczne wykrywanie twarzy** przy pomocy `react-native-vision-camera` oraz wtyczki `react-native-vision-camera-face-detector`, ale ominąć żmudne, imperatywne pisanie modelu rysowania na płótnie (Skia). 
+
+To fantastyczny kompromis. Zbudujemy to za pomocą zoptymalizowanych widoków React Native i biblioteki Reanimated, a zrzut ekranu wykonamy w bezpieczny sposób.
+
+## Goal Description
+1. **Podgląd na żywo:** Uruchomimy aparat przy użyciu `react-native-vision-camera`.
+2. **Detekcja Twarzy w locie:** Użyjemy `react-native-vision-camera-face-detector` w potoku *Frame Processor*. Algorytm będzie wyliczał pozycję czoła (z pozycji oczu).
+3. **Płynne śledzenie (Reanimated):** Zamiast rysować po klatkach (Skia), będziemy aktualizować współrzędne (Shared Values) dla zwykłego komponentu `<Animated.Image>`. Dzięki Reanimated, obrazek Pokémona będzie "przyklejony" do czoła użytkownika na ekranie bez lagów na moście JS.
+4. **Zrobienie zdjęcia i Zapis (Bezpieczny zrzut):** Aby uniknąć bugów z czarnym ekranem podczas robienia zrzutów z kamery na żywo:
+   - Zrobimy sprzętowe zdjęcie `takePhoto()`.
+   - Zatrzymamy podgląd i pokażemy zrobione zdjęcie na ekranie jako zwykły `<ImageBackground>` z nałożonym Pokémonem.
+   - Następnie użyjemy `react-native-view-shot`, aby bezpiecznie zrzucić ten statyczny widok do jednego obrazka.
+5. **Zapis i Mapa:** Zapiszemy wynik w galerii (`expo-media-library`) oraz powiążemy z koordynatami GPS (`expo-location`), dodając pin do `AsyncStorage`.
+
+## User Review Required
+> [!IMPORTANT]  
+> Ten model wymaga instalacji wtyczki `react-native-vision-camera-face-detector`, która pod maską używa Google MLKit. Może to wymagać przebudowania Twojego Expo Dev Clienta (`npx expo prebuild` i odpalenie go w XCode / Android Studio lub przez `npm run ios`).  
+> Akceptujesz taki wariant?
+
+## Proposed Changes
+
+### Instalacja brakujących zależności
+```bash
+npm install react-native-vision-camera-face-detector react-native-worklets-core react-native-view-shot expo-media-library
+```
+*(Uwaga: `react-native-worklets-core` jest zazwyczaj wymagany do Frame Processors w Vision Camera)*
+
+### [MODIFY] `app/(tabs)/camera.tsx`
+1. **Stan uprawnień:** Zarządzanie uprawnieniami do kamery, mikrofonu i lokalizacji.
+2. **Frame Processor:** Inicjalizacja `useFaceDetector()`. Obliczanie punktu czoła na podstawie `leftEyePosition` i `rightEyePosition`.
+3. **Konwersja układu współrzędnych:** Przeskalowanie wyników z matrycy do fizycznych rozmiarów ekranu, aby Pokémon trafiał w punkt.
+4. **UI Śledzenia:** Zwykły `<Camera>` obłożony przez `<Animated.Image>` sterowany wartościami SharedValues.
+5. **Proces robienia zdjęcia:**
+   - Przechwytujemy zdjęcie matrycy.
+   - Pokażemy "Podgląd" (Preview) – renderujemy zdjęcie i Pokémona we wspólnym kontenerze `<View>`.
+   - `captureRef()` z `react-native-view-shot` robi snap.
+   - `MediaLibrary.saveToLibraryAsync()` zapisuje zdjęcie.
+   - `addPin` z `useMapPins()` wysyła je na mapę.
+
+## Verification Plan
+1. Zainstalowanie paczek, wykonanie `npx expo prebuild` i odpalenie aplikacji.
+2. Wycelowanie przedniego aparatu w twarz.
+3. Pokémon z listy Ulubionych powinien pojawić się na czole i płynnie podążać za ruchem głowy.
+4. Kliknięcie "Zrób Zdjęcie" -> wygenerowanie podglądu, a po zatwierdzeniu -> zapis do galerii i przypięcie pinezki na ekranie Mapy.
