@@ -58,10 +58,40 @@ export function useMapPins() {
     setPins((prev) => prev.filter((pin) => pin.id !== id));
   }, []);
 
+  const updatePinPokemon = useCallback((id: string, pokemon: Pokemon) => {
+    setPins((prev) =>
+      prev.map((pin) =>
+        pin.id === id
+          ? {
+              ...pin,
+              pokemonName: pokemon.name,
+              pokemonUrl: pokemon.url,
+            }
+          : pin
+      )
+    );
+  }, []);
+
+  const updatePinLocation = useCallback((id: string, location: PendingMapPinLocation) => {
+    setPins((prev) =>
+      prev.map((pin) =>
+        pin.id === id
+          ? {
+              ...pin,
+              latitude: location.latitude,
+              longitude: location.longitude,
+            }
+          : pin
+      )
+    );
+  }, []);
+
   return {
     pins,
     isLoaded,
     addPin,
     removePin,
+    updatePinPokemon,
+    updatePinLocation,
   };
 }
