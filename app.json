@@ -14,7 +14,9 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSCameraUsageDescription": "$(PRODUCT_NAME) potrzebuje dostępu do kamery, aby pozwolić na robienie zdjęć Pokémonów.",
-        "NSMicrophoneUsageDescription": "$(PRODUCT_NAME) potrzebuje dostępu do mikrofonu, aby nagrywać dźwięk."
+        "NSMicrophoneUsageDescription": "$(PRODUCT_NAME) potrzebuje dostępu do mikrofonu, aby nagrywać dźwięk.",
+        "NSPhotoLibraryUsageDescription": "Aplikacja potrzebuje dostępu do galerii, aby zapisywać zdjęcia Pokémonów.",
+        "NSPhotoLibraryAddUsageDescription": "Aplikacja potrzebuje dostępu do galerii, aby zapisywać zdjęcia Pokémonów."
       },
       "bundleIdentifier": "com.anonymous.pokemonapp"
     },
