@@ -16,9 +16,12 @@
     "react-native": "0.86.0",
     "react-native-gesture-handler": "~2.32.0",
     "react-native-maps": "1.27.2",
+    "react-native-nitro-image": "^0.15.1",
+    "react-native-nitro-modules": "^0.36.1",
     "react-native-reanimated": "4.5.0",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "4.25.2",
+    "react-native-vision-camera": "^5.1.0",
     "react-native-webview": "13.16.1",
     "react-native-worklets": "0.10.0"
   },
