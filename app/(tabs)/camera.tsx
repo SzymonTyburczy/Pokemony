@@ -1,16 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View, Pressable, ImageBackground, Dimensions, Alert } from 'react-native';
-import { Camera, CameraRef, useCameraPermission, useCameraDevice, useFrameOutput, useAsyncRunner, usePhotoOutput } from 'react-native-vision-camera';
-import { useFaceDetector } from 'react-native-vision-camera-face-detector';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS } from 'react-native-reanimated';
+import { Camera, CameraRef, useCameraPermission, useCameraDevice, usePhotoOutput } from 'react-native-vision-camera';
+import { Face, useFaceDetectorOutput } from 'react-native-vision-camera-face-detector';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import * as MediaLibrary from 'expo-media-library';
 import * as Location from 'expo-location';
-import ViewShot from 'react-native-view-shot';
+import ViewShot, { ViewShotRef } from 'react-native-view-shot';
 
 import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
 import { useMapPins } from '../../src/features/map/hooks/useMapPins';
 import { getPokemonImageUrl } from '../../src/shared/utils/getPokemonImageUrl';
-import { PokemonPin } from '../../src/features/map/types/PokemonPin';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -22,7 +21,7 @@ export default function CameraScreen() {
   const device = useCameraDevice('front');
   const cameraRef = useRef<CameraRef>(null);
   const photoOutput = usePhotoOutput();
-  const viewShotRef = useRef<ViewShot>(null);
+  const viewShotRef = useRef<ViewShotRef>(null);
 
   const { favourites } = useFavouritesContext();
   const { addPin } = useMapPins();
@@ -36,49 +35,38 @@ export default function CameraScreen() {
   const faceDetected = useSharedValue(false);
 
   // --- DETEKTOR TWARZY ---
-  const faceDetector = useFaceDetector({
+  const faceDetectorOutput = useFaceDetectorOutput({
     performanceMode: 'fast',
     runContours: false,
     runLandmarks: false,
+    autoMode: true,
+    cameraFacing: 'front',
+    windowWidth: SCREEN_WIDTH,
+    windowHeight: SCREEN_HEIGHT,
+    onError: () => {
+      faceDetected.value = false;
+    },
+    onFacesDetected: (faces: Face[]) => {
+      handleFaces(faces);
+    },
   });
 
-  const handleFaces = (faces: any[], frameWidth: number, frameHeight: number) => {
+  const handleFaces = (faces: Face[]) => {
     if (faces.length > 0) {
       const face = faces[0];
-      
-      // Proste przeskalowanie z matrycy wideo do wymiarów ekranu telefonu
-      // Uwaga: Dla przedniej kamery w portrecie współrzędne mogą wymagać lustrzanego odbicia
-      const scaleX = SCREEN_WIDTH / frameWidth;
-      const scaleY = SCREEN_HEIGHT / frameHeight;
-      
+
       const centerX = face.bounds.x + face.bounds.width / 2;
-      const foreheadY = face.bounds.y; // Góra bounding boxa jako czoło
-      
-      // Przypisanie do shared values z lekkim offsetem by obrazek był wycentrowany (-50 to połowa rozmiaru pokemona)
-      faceX.value = centerX * scaleX - 50;
-      faceY.value = foreheadY * scaleY - 50;
+      const foreheadY = face.bounds.y;
+
+      // Face detector output is auto-scaled to the preview, so these coordinates
+      // can be applied directly to the overlay.
+      faceX.value = centerX - 50;
+      faceY.value = foreheadY - 50;
       faceDetected.value = true;
     } else {
       faceDetected.value = false;
     }
   };
-
-  const asyncRunner = useAsyncRunner();
-
-  const frameOutput = useFrameOutput({
-    onFrame: (frame) => {
-      'worklet';
-      const wasHandled = asyncRunner.runAsync(() => {
-        'worklet';
-        const faces = faceDetector.detectFaces(frame);
-        runOnJS(handleFaces)(faces, frame.width, frame.height);
-        frame.dispose();
-      });
-      if (!wasHandled) {
-        frame.dispose();
-      }
-    }
-  });
 
   // --- UPRAWNIENIA ---
   useEffect(() => {
@@ -109,8 +97,8 @@ export default function CameraScreen() {
   const takePhoto = async () => {
     if (photoOutput) {
       try {
-        const photo = await photoOutput.takePhoto();
-        setPreviewPhoto(`file://${photo.path}`);
+        const photo = await photoOutput.capturePhotoToFile({}, {});
+        setPreviewPhoto(`file://${photo.filePath}`);
       } catch (e) {
         Alert.alert('Błąd', 'Nie udało się zrobić zdjęcia.');
       }
@@ -138,16 +126,7 @@ export default function CameraScreen() {
       }
 
       // 4. Zapis do AsyncStorage na Mapę
-      const newPin: PokemonPin = {
-        id: Date.now().toString(),
-        coordinate: coords,
-        pokemon: {
-          name: activePokemon.name,
-          url: activePokemon.url,
-        },
-        createdAt: Date.now(),
-      };
-      addPin(newPin);
+      addPin(coords, activePokemon);
 
       Alert.alert('Sukces!', 'Zdjęcie zapisane w galerii i dodane na mapę!');
       setPreviewPhoto(null); // Zamknięcie podglądu
@@ -200,7 +179,7 @@ export default function CameraScreen() {
         style={StyleSheet.absoluteFill}
         device={device}
         isActive={true}
-        outputs={[frameOutput, photoOutput]}
+        outputs={[faceDetectorOutput, photoOutput]}
       />
       
       {activePokemon ? (
