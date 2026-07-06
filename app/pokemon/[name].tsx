@@ -3,6 +3,8 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { usePokemonDetails } from '../../src/features/pokemon/hooks/usePokemonDetails';
 import { PokemonDetailsCard } from '../../src/features/pokemon/ui/PokemonDetailsCard';
+import { usePokemonShowcase } from '../../src/features/pokemon/hooks/usePokemonShowcase';
+import { PokemonAnimationModal } from '../../src/features/pokemon/ui/PokemonAnimationModal';
 
 export default function PokemonDetailsScreen() {
   const router = useRouter();
@@ -10,6 +12,7 @@ export default function PokemonDetailsScreen() {
   const pokemonName = Array.isArray(name) ? name[0] : name;
 
   const { pokemon, isLoading, error } = usePokemonDetails(pokemonName);
+  const { selectedAnimation, playPokemonCry, showPokemonById, closeAnimation } = usePokemonShowcase();
 
   if (isLoading) {
     return (
@@ -32,13 +35,25 @@ export default function PokemonDetailsScreen() {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Pressable style={styles.backButton} onPress={() => router.back()}>
-        <Text style={styles.backButtonText}>Wróć</Text>
-      </Pressable>
+    <>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Pressable style={styles.backButton} onPress={() => router.back()}>
+          <Text style={styles.backButtonText}>Wróć</Text>
+        </Pressable>
 
-      <PokemonDetailsCard pokemon={pokemon} />
-    </ScrollView>
+        <PokemonDetailsCard
+          pokemon={pokemon}
+          onImagePress={() => showPokemonById(pokemon.id, pokemon.name)}
+          onSoundPress={() => playPokemonCry(pokemon.id)}
+        />
+      </ScrollView>
+
+      <PokemonAnimationModal
+        animation={selectedAnimation}
+        onClose={closeAnimation}
+        onPokemonSound={playPokemonCry}
+      />
+    </>
   );
 }
 

@@ -1,22 +1,38 @@
 import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { PokemonDetails } from '../model/types';
 import { formatPokemonName } from '../../../shared/utils/formatPokemonName';
 
 interface PokemonDetailsCardProps {
   pokemon: PokemonDetails;
+  onImagePress?: () => void;
+  onSoundPress?: () => void;
 }
 
-export function PokemonDetailsCard({ pokemon }: PokemonDetailsCardProps) {
+export function PokemonDetailsCard({ pokemon, onImagePress, onSoundPress }: PokemonDetailsCardProps) {
   const imageUrl =
     pokemon.sprites.other?.['official-artwork']?.front_default || pokemon.sprites.front_default || null;
 
   return (
     <>
-      {imageUrl ? <Image source={{ uri: imageUrl }} style={styles.image} /> : null}
+      {imageUrl ? (
+        <Pressable
+          style={({ pressed }) => [styles.imageButton, pressed && styles.imagePressed]}
+          onPress={onImagePress}
+          disabled={!onImagePress}
+        >
+          <Image source={{ uri: imageUrl }} style={styles.image} />
+        </Pressable>
+      ) : null}
 
       <Text style={styles.name}>{formatPokemonName(pokemon.name)}</Text>
       <Text style={styles.subtitle}>#{pokemon.id}</Text>
+
+      {onSoundPress ? (
+        <Pressable style={({ pressed }) => [styles.soundButton, pressed && styles.soundPressed]} onPress={onSoundPress}>
+          <Text style={styles.soundButtonText}>♪ Odtworz dzwiek</Text>
+        </Pressable>
+      ) : null}
 
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>Informacje</Text>
@@ -49,11 +65,17 @@ export function PokemonDetailsCard({ pokemon }: PokemonDetailsCardProps) {
 }
 
 const styles = StyleSheet.create({
+  imageButton: {
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+  imagePressed: {
+    opacity: 0.75,
+    transform: [{ scale: 0.97 }],
+  },
   image: {
     width: 220,
     height: 220,
-    alignSelf: 'center',
-    marginBottom: 20,
   },
   name: {
     fontSize: 30,
@@ -65,7 +87,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     color: '#6b7280',
+    marginBottom: 12,
+  },
+  soundButton: {
+    alignSelf: 'center',
+    backgroundColor: '#3b4cca',
+    borderRadius: 14,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
     marginBottom: 20,
+  },
+  soundPressed: {
+    opacity: 0.75,
+    transform: [{ scale: 0.97 }],
+  },
+  soundButtonText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '800',
   },
   card: {
     backgroundColor: '#f8f9fa',

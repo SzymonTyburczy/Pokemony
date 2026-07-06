@@ -12,10 +12,13 @@ import { useRouter } from 'expo-router';
 import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
 import { getPokemonImageUrl } from '../../src/shared/utils/getPokemonImageUrl';
 import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
+import { usePokemonShowcase } from '../../src/features/pokemon/hooks/usePokemonShowcase';
+import { PokemonAnimationModal } from '../../src/features/pokemon/ui/PokemonAnimationModal';
 
 export default function FavouritesScreen() {
   const router = useRouter();
   const { favourites, isLoaded, removeFavourite } = useFavouritesContext();
+  const { selectedAnimation, playPokemonCry, showPokemon, closeAnimation } = usePokemonShowcase();
   const [currentIndex, setCurrentIndex] = useState(0);
   const { width } = useWindowDimensions();
 
@@ -59,18 +62,24 @@ export default function FavouritesScreen() {
       </Text>
 
       {/* Karta pokémona */}
-      <View style={[styles.card, { width: width - 48 }]}>
+      <Pressable
+        style={({ pressed }) => [styles.card, { width: width - 48 }, pressed && styles.cardPressed]}
+        onPress={() => showPokemon(pokemon)}
+      >
         <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="contain" />
         <Text style={styles.pokemonName}>{formatPokemonName(pokemon.name)}</Text>
 
         {/* Przycisk usunięcia */}
         <Pressable
           style={({ pressed }) => [styles.removeButton, pressed && styles.removeButtonPressed]}
-          onPress={() => removeFavourite(pokemon.name)}
+          onPress={(e) => {
+            e.stopPropagation?.();
+            removeFavourite(pokemon.name);
+          }}
         >
           <Text style={styles.removeButtonText}>💔 Usuń z ulubionych</Text>
         </Pressable>
-      </View>
+      </Pressable>
 
       {/* Nawigacja */}
       <View style={styles.navRow}>
@@ -99,6 +108,12 @@ export default function FavouritesScreen() {
           <Text style={[styles.navArrow, !hasNext && styles.navArrowDisabled]}>→</Text>
         </Pressable>
       </View>
+
+      <PokemonAnimationModal
+        animation={selectedAnimation}
+        onClose={closeAnimation}
+        onPokemonSound={playPokemonCry}
+      />
     </View>
   );
 }
@@ -140,6 +155,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 12,
     elevation: 4,
+  },
+  cardPressed: {
+    opacity: 0.82,
   },
   image: {
     width: 200,

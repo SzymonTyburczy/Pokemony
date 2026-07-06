@@ -10,6 +10,7 @@ interface PokemonListItemProps {
   onPress: () => void;
   isFavourite?: boolean;
   onToggleFavourite?: (pokemon: Pokemon) => void;
+  onPlayCry?: (pokemon: Pokemon) => void;
 }
 
 export function PokemonListItem({
@@ -18,6 +19,7 @@ export function PokemonListItem({
   onPress,
   isFavourite = false,
   onToggleFavourite,
+  onPlayCry,
 }: PokemonListItemProps) {
   const imageUrl = getPokemonImageUrl(item.url);
 
@@ -31,9 +33,22 @@ export function PokemonListItem({
         )}
       </View>
       <Text style={styles.pokemonName}>{formatPokemonName(item.name)}</Text>
+      {onPlayCry && (
+        <Pressable
+          accessibilityLabel={`Odtworz dzwiek ${formatPokemonName(item.name)}`}
+          style={({ pressed }) => [styles.cryButton, pressed && styles.actionPressed]}
+          onPress={(e) => {
+            e.stopPropagation?.();
+            onPlayCry(item);
+          }}
+          hitSlop={8}
+        >
+          <Text style={styles.cryButtonText}>♪</Text>
+        </Pressable>
+      )}
       {onToggleFavourite && (
         <Pressable
-          style={({ pressed }) => [styles.heartButton, pressed && styles.heartPressed]}
+          style={({ pressed }) => [styles.heartButton, pressed && styles.actionPressed]}
           onPress={(e) => {
             e.stopPropagation?.();
             onToggleFavourite(item);
@@ -85,10 +100,24 @@ const styles = StyleSheet.create({
     height: 50,
     marginRight: 15,
   },
+  cryButton: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#e8edff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 6,
+  },
+  cryButtonText: {
+    color: '#3b4cca',
+    fontSize: 19,
+    fontWeight: '800',
+  },
   heartButton: {
     padding: 6,
   },
-  heartPressed: {
+  actionPressed: {
     opacity: 0.6,
     transform: [{ scale: 0.85 }],
   },

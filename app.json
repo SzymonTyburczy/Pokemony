@@ -33,6 +33,15 @@
         {
           "locationWhenInUsePermission": "Aplikacja potrzebuje lokalizacji, aby wycentrować mapę na Twoim położeniu."
         }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false,
+          "recordAudioAndroid": false,
+          "enableBackgroundPlayback": false,
+          "enableBackgroundRecording": false
+        }
       ]
     ]
   }

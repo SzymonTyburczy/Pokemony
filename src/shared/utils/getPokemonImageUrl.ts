@@ -1,5 +1,10 @@
+import { getPokemonIdFromUrl } from './getPokemonIdFromUrl';
+
 export function getPokemonImageUrl(url: string): string {
-  const parts = url.split('/');
-  const pokemonId = parts[parts.length - 2];
+  const pokemonId = getPokemonIdFromUrl(url);
+  if (!pokemonId) {
+    return '';
+  }
+
   return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`;
 }

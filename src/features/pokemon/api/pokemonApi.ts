@@ -2,6 +2,7 @@ import { PokemonDetailsDto, PokemonListResponseDto } from '../model/dto';
 
 export const PAGE_LIMIT = 20;
 export const INITIAL_POKEMON_URL = `https://pokeapi.co/api/v2/pokemon?limit=${PAGE_LIMIT}&offset=0`;
+export const ALL_POKEMON_URL = 'https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0';
 
 export async function fetchPokemonListByUrl(url: string, signal?: AbortSignal): Promise<PokemonListResponseDto> {
   const response = await fetch(url, { signal });
@@ -9,6 +10,10 @@ export async function fetchPokemonListByUrl(url: string, signal?: AbortSignal): 
     throw new Error(`HTTP error! status: ${response.status}`);
   }
   return response.json();
+}
+
+export function fetchAllPokemon(signal?: AbortSignal): Promise<PokemonListResponseDto> {
+  return fetchPokemonListByUrl(ALL_POKEMON_URL, signal);
 }
 
 export async function fetchPokemonDetails(name: string, signal?: AbortSignal): Promise<PokemonDetailsDto> {
