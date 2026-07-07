@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, View, Pressable, ImageBackground, Dimensions, Alert } from 'react-native';
+import { StyleSheet, Text, View, Pressable, ImageBackground, Dimensions, Alert, FlatList, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Camera, CameraRef, useCameraPermission, useCameraDevice, usePhotoOutput } from 'react-native-vision-camera';
 import { Face, useFaceDetectorOutput } from 'react-native-vision-camera-face-detector';
@@ -18,7 +18,7 @@ export default function CameraScreen() {
   const { hasPermission: cameraPermission, requestPermission: requestCameraPermission } = useCameraPermission();
   const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState(false);
   const [hasLocationPermission, setHasLocationPermission] = useState(false);
-  
+
   const [cameraFacing, setCameraFacing] = useState<'front' | 'back'>('front');
   const device = useCameraDevice(cameraFacing);
   const cameraRef = useRef<CameraRef>(null);
@@ -27,7 +27,16 @@ export default function CameraScreen() {
 
   const { favourites } = useFavouritesContext();
   const { addPin } = useMapPins();
-  const activePokemon = favourites[0] ?? null;
+
+  const [activePokemonIndex, setActivePokemonIndex] = useState(0);
+  const activePokemon = favourites[activePokemonIndex] ?? favourites[0] ?? null;
+  const [showPokemonSelector, setShowPokemonSelector] = useState(false);
+
+  useEffect(() => {
+    if (activePokemonIndex >= favourites.length) {
+      setActivePokemonIndex(Math.max(0, favourites.length - 1));
+    }
+  }, [favourites.length, activePokemonIndex]);
 
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
 
@@ -79,10 +88,10 @@ export default function CameraScreen() {
   useEffect(() => {
     (async () => {
       if (!cameraPermission) await requestCameraPermission();
-      
+
       const mediaStatus = await requestPermissionsAsync();
       setHasMediaLibraryPermission(mediaStatus.status === 'granted');
-      
+
       const locStatus = await Location.requestForegroundPermissionsAsync();
       setHasLocationPermission(locStatus.status === 'granted');
     })();
@@ -115,11 +124,11 @@ export default function CameraScreen() {
   // --- ZAPIS (Zrzut ViewShot + Galeria + Mapa) ---
   const saveCompositePhoto = async () => {
     if (!viewShotRef.current || !previewPhoto || !activePokemon) return;
-    
+
     try {
       // 1. Zrzut ekranu widoku
       const uri = await viewShotRef.current.capture();
-      
+
       // 2. Zapis do galerii
       if (hasMediaLibraryPermission) {
         await Asset.create(uri);
@@ -155,28 +164,28 @@ export default function CameraScreen() {
     return (
       <View style={styles.container}>
         <ViewShot ref={viewShotRef} options={{ format: 'jpg', quality: 0.9 }} style={styles.container}>
-          <ImageBackground 
-            source={{ uri: previewPhoto }} 
+          <ImageBackground
+            source={{ uri: previewPhoto }}
             style={styles.container}
             imageStyle={{ transform: [{ scaleX: cameraFacing === 'front' ? -1 : 1 }] }}
           >
-             {activePokemon && (
-               <Animated.Image 
-                 source={{ uri: getPokemonImageUrl(activePokemon.url) }} 
-                 style={pokemonStyle} 
-                 resizeMode="contain" 
-               />
-             )}
+            {activePokemon && (
+              <Animated.Image
+                source={{ uri: getPokemonImageUrl(activePokemon.url) }}
+                style={pokemonStyle}
+                resizeMode="contain"
+              />
+            )}
           </ImageBackground>
         </ViewShot>
 
         <View style={styles.previewControls}>
-           <Pressable style={[styles.btn, styles.btnSecondary]} onPress={() => setPreviewPhoto(null)}>
-             <Text style={styles.btnText}>Odrzuć</Text>
-           </Pressable>
-           <Pressable style={styles.btn} onPress={saveCompositePhoto}>
-             <Text style={styles.btnText}>Zapisz 📍</Text>
-           </Pressable>
+          <Pressable style={[styles.btn, styles.btnSecondary]} onPress={() => setPreviewPhoto(null)}>
+            <Text style={styles.btnText}>Odrzuć</Text>
+          </Pressable>
+          <Pressable style={styles.btn} onPress={saveCompositePhoto}>
+            <Text style={styles.btnText}>Zapisz 📍</Text>
+          </Pressable>
         </View>
 
       </View>
@@ -193,12 +202,12 @@ export default function CameraScreen() {
         isActive={true}
         outputs={[faceDetectorOutput, photoOutput]}
       />
-      
+
       {activePokemon ? (
-        <Animated.Image 
-          source={{ uri: getPokemonImageUrl(activePokemon.url) }} 
-          style={pokemonStyle} 
-          resizeMode="contain" 
+        <Animated.Image
+          source={{ uri: getPokemonImageUrl(activePokemon.url) }}
+          style={pokemonStyle}
+          resizeMode="contain"
         />
       ) : (
         <View style={styles.noPokemonWarning}>
@@ -206,9 +215,41 @@ export default function CameraScreen() {
         </View>
       )}
 
+      {favourites.length > 1 && showPokemonSelector && (
+        <View style={styles.pokemonSelector}>
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.selectorContent}
+            data={favourites}
+            keyExtractor={(item) => item.name}
+            renderItem={({ item, index }) => {
+              const isActive = index === activePokemonIndex;
+              return (
+                <Pressable
+                  style={[styles.selectorItem, isActive && styles.selectorItemActive]}
+                  onPress={() => setActivePokemonIndex(index)}
+                >
+                  <Image
+                    source={{ uri: getPokemonImageUrl(item.url) }}
+                    style={styles.selectorImage}
+                    resizeMode="contain"
+                  />
+                </Pressable>
+              );
+            }}
+          />
+        </View>
+      )}
+
       <View style={styles.controls}>
-        {/* Placeholder lewy - dla symetrii */}
-        <View style={styles.sideBtn} />
+        {favourites.length > 1 ? (
+          <Pressable style={styles.sideBtn} onPress={() => setShowPokemonSelector(prev => !prev)}>
+            <Ionicons name="paw-outline" size={24} color="#fff" />
+          </Pressable>
+        ) : (
+          <View style={styles.sideBtn} />
+        )}
         <Pressable style={styles.captureBtn} onPress={takePhoto}>
           <View style={styles.captureBtnInner} />
         </Pressable>
@@ -251,7 +292,34 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.35)',
     justifyContent: 'center', alignItems: 'center',
   },
-  // flipIcon style no longer needed (replaced by Ionicons)
+  pokemonSelector: {
+    position: 'absolute',
+    bottom: 200,
+    left: 0,
+    right: 0,
+  },
+  selectorContent: {
+    paddingHorizontal: 24,
+    gap: 16,
+  },
+  selectorItem: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  selectorItemActive: {
+    borderColor: '#fff',
+    backgroundColor: 'rgba(255,255,255,0.4)',
+  },
+  selectorImage: {
+    width: 40,
+    height: 40,
+  },
   previewControls: {
     position: 'absolute', bottom: 100, left: 20, right: 20,
     flexDirection: 'row', justifyContent: 'space-between'
