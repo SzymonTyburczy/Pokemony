@@ -17,8 +17,8 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export default function CameraScreen() {
   const insets = useSafeAreaInsets();
-  // Controls sit above the bottom nav/home indicator + some breathing room
-  const controlsBottom = insets.bottom - 25;
+  // Sit above the bottom home indicator / nav bar with breathing room
+  const controlsBottom = Math.max(insets.bottom, 16) + 8;
   const selectorBottom = controlsBottom + 92; // 72px capture btn + 20px gap
   const { hasPermission: cameraPermission, requestPermission: requestCameraPermission } = useCameraPermission();
   const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState(false);

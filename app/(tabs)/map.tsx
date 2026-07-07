@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -95,7 +96,9 @@ export default function MapScreen() {
       }
 
       if (sheetMode === 'pin-details') {
-        return [Math.round(usableHeight * 0.46)];
+        // iOS needs more room because of home indicator & larger safe-area insets
+        const pct = Platform.OS === 'ios' ? 0.54 : 0.46;
+        return [Math.round(usableHeight * pct)];
       }
 
       if (sheetMode === 'pin-list') {
@@ -415,12 +418,12 @@ export default function MapScreen() {
                 onPress={() => handleOpenPinList(pokemonName)}
               >
                 <Text
-                    style={[styles.filterText, isActive && styles.filterTextActive]}
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                  >
-                    {formatPokemonName(pokemonName)}
-                  </Text>
+                  style={[styles.filterText, isActive && styles.filterTextActive]}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {formatPokemonName(pokemonName)}
+                </Text>
               </Pressable>
             );
           })}
