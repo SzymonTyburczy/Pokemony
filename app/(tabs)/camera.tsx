@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
-import { StyleSheet, Text, View, Pressable, ImageBackground, Dimensions, Alert, ScrollView, Image } from 'react-native';
+import { StyleSheet, Text, View, Pressable, ImageBackground, Dimensions, Alert, ScrollView, Image, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Camera, CameraRef, useCameraPermission, useCameraDevice, usePhotoOutput } from 'react-native-vision-camera';
 import { Face, useFaceDetectorOutput } from 'react-native-vision-camera-face-detector';
@@ -165,15 +165,19 @@ export default function CameraScreen() {
 
   // --- WIDOK PODGLĄDU ZROBIONEGO ZDJĘCIA ---
   if (previewPhoto) {
-    return (
-      <View style={styles.container}>
-        <ViewShot ref={viewShotRef} options={{ format: 'jpg', quality: 0.9 }} style={styles.container}>
-          <ImageBackground
-            source={{ uri: previewPhoto }}
-            style={styles.container}
-            imageStyle={{ transform: [{ scaleX: cameraFacing === 'front' ? -1 : 1 }] }}
-          >
-            {activePokemon && (
+      return (
+        <View style={styles.container}>
+          <ViewShot ref={viewShotRef} options={{ format: 'jpg', quality: 0.9 }} style={styles.container}>
+            <ImageBackground
+              source={{ uri: previewPhoto }}
+              style={styles.container}
+              imageStyle={{ 
+                transform: [{ 
+                  scaleX: cameraFacing === 'front' ? (Platform.OS === 'ios' ? -1 : 1) : 1 
+                }] 
+              }}
+            >
+              {activePokemon && (
               <Animated.Image
                 source={{ uri: getPokemonImageUrl(activePokemon.url) }}
                 style={pokemonStyle}

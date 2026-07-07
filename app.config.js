@@ -1,4 +1,4 @@
-{
+export default {
   "expo": {
     "name": "pokemon-app",
     "slug": "pokemon-app",
@@ -37,7 +37,12 @@
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
-      "package": "com.anonymous.pokemonapp"
+      "package": "com.anonymous.pokemonapp",
+      "config": {
+        "googleMaps": {
+          "apiKey": process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY
+        }
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
