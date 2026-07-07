@@ -15,6 +15,7 @@ import { getPokemonImageUrl } from '../../src/shared/utils/getPokemonImageUrl';
 import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
 import { usePokemonShowcase } from '../../src/features/pokemon/hooks/usePokemonShowcase';
 import { PokemonAnimationModal } from '../../src/features/pokemon/ui/PokemonAnimationModal';
+import { PokemonDescription } from '../../src/features/pokemon/ui/PokemonDescription';
 import { getCryPlayerHtml } from '../../src/features/pokemon/hooks/usePokemonCryPlayer';
 
 export default function FavouritesScreen() {
@@ -109,6 +110,10 @@ export default function FavouritesScreen() {
         >
           <Text style={[styles.navArrow, !hasNext && styles.navArrowDisabled]}>→</Text>
         </Pressable>
+      </View>
+
+      <View style={styles.descriptionContainer}>
+        <PokemonDescription pokemonName={pokemon.name} />
       </View>
 
       <WebView
@@ -247,6 +252,11 @@ const styles = StyleSheet.create({
   dotActive: {
     backgroundColor: '#3b4cca',
     width: 20,
+  },
+  descriptionContainer: {
+    marginTop: 24,
+    paddingHorizontal: 20,
+    width: '100%',
   },
   // Empty state
   emptyIcon: {

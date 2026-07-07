@@ -23,3 +23,24 @@ export async function fetchPokemonDetails(name: string, signal?: AbortSignal): P
   }
   return response.json();
 }
+
+export async function fetchPokemonSpecies(name: string, signal?: AbortSignal): Promise<any> {
+  const response = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${name}`, { signal });
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  return response.json();
+}
+
+export async function translateTextToPolish(text: string, signal?: AbortSignal): Promise<string> {
+  const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=pl&dt=t&q=${encodeURIComponent(text)}`;
+  const response = await fetch(url, { signal });
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  const data = await response.json();
+  if (data && data[0]) {
+    return data[0].map((item: any) => item[0]).join('');
+  }
+  return text;
+}

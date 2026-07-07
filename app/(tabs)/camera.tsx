@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Camera, CameraRef, useCameraPermission, useCameraDevice, usePhotoOutput } from 'react-native-vision-camera';
 import { Face, useFaceDetectorOutput } from 'react-native-vision-camera-face-detector';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
-import * as MediaLibrary from 'expo-media-library';
+import { Asset, requestPermissionsAsync } from 'expo-media-library';
 import * as Location from 'expo-location';
 import ViewShot, { ViewShotRef } from 'react-native-view-shot';
 
@@ -80,7 +80,7 @@ export default function CameraScreen() {
     (async () => {
       if (!cameraPermission) await requestCameraPermission();
       
-      const mediaStatus = await MediaLibrary.requestPermissionsAsync();
+      const mediaStatus = await requestPermissionsAsync();
       setHasMediaLibraryPermission(mediaStatus.status === 'granted');
       
       const locStatus = await Location.requestForegroundPermissionsAsync();
@@ -122,7 +122,7 @@ export default function CameraScreen() {
       
       // 2. Zapis do galerii
       if (hasMediaLibraryPermission) {
-        await MediaLibrary.saveToLibraryAsync(uri);
+        await Asset.create(uri);
       }
 
       // 3. Pobranie lokalizacji
@@ -155,7 +155,11 @@ export default function CameraScreen() {
     return (
       <View style={styles.container}>
         <ViewShot ref={viewShotRef} options={{ format: 'jpg', quality: 0.9 }} style={styles.container}>
-          <ImageBackground source={{ uri: previewPhoto }} style={styles.container}>
+          <ImageBackground 
+            source={{ uri: previewPhoto }} 
+            style={styles.container}
+            imageStyle={{ transform: [{ scaleX: cameraFacing === 'front' ? -1 : 1 }] }}
+          >
              {activePokemon && (
                <Animated.Image 
                  source={{ uri: getPokemonImageUrl(activePokemon.url) }} 
