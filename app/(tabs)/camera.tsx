@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { StyleSheet, Text, View, Pressable, ImageBackground, Dimensions, Alert, ScrollView, Image, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Camera, CameraRef, useCameraPermission, useCameraDevice, usePhotoOutput } from 'react-native-vision-camera';
 import { Face, useFaceDetectorOutput } from 'react-native-vision-camera-face-detector';
@@ -15,6 +16,10 @@ import { getPokemonImageUrl } from '../../src/shared/utils/getPokemonImageUrl';
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export default function CameraScreen() {
+  const insets = useSafeAreaInsets();
+  // Controls sit above the bottom nav/home indicator + some breathing room
+  const controlsBottom = insets.bottom - 25;
+  const selectorBottom = controlsBottom + 92; // 72px capture btn + 20px gap
   const { hasPermission: cameraPermission, requestPermission: requestCameraPermission } = useCameraPermission();
   const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState(false);
   const [hasLocationPermission, setHasLocationPermission] = useState(false);
@@ -22,19 +27,21 @@ export default function CameraScreen() {
   const [cameraFacing, setCameraFacing] = useState<'front' | 'back'>('front');
   const device = useCameraDevice(cameraFacing);
   const cameraRef = useRef<CameraRef>(null);
+  const [cameraError, setCameraError] = useState<string | null>(null);
   const photoOutput = usePhotoOutput();
   const viewShotRef = useRef<ViewShotRef>(null);
 
   const { favourites } = useFavouritesContext();
   const { addPin } = useMapPins();
 
-  const [activePokemonIndex, setActivePokemonIndex] = useState(0);
-  const activePokemon = favourites[activePokemonIndex] ?? favourites[0] ?? null;
+  const [activePokemonIndex, setActivePokemonIndex] = useState<number | null>(0);
+  const activePokemon =
+    activePokemonIndex !== null ? (favourites[activePokemonIndex] ?? favourites[0] ?? null) : null;
   const [showPokemonSelector, setShowPokemonSelector] = useState(false);
 
   useEffect(() => {
-    if (activePokemonIndex >= favourites.length) {
-      setActivePokemonIndex(Math.max(0, favourites.length - 1));
+    if (activePokemonIndex !== null && activePokemonIndex >= favourites.length) {
+      setActivePokemonIndex(favourites.length > 0 ? favourites.length - 1 : null);
     }
   }, [favourites.length, activePokemonIndex]);
 
@@ -47,6 +54,7 @@ export default function CameraScreen() {
 
   // --- FLIP KAMERY ---
   const flipCamera = () => {
+    setCameraError(null);
     setCameraFacing((prev) => (prev === 'front' ? 'back' : 'front'));
   };
 
@@ -88,10 +96,10 @@ export default function CameraScreen() {
   useEffect(() => {
     (async () => {
       if (!cameraPermission) await requestCameraPermission();
-      
+
       const mediaStatus = await requestPermissionsAsync();
       setHasMediaLibraryPermission(mediaStatus.status === 'granted');
-      
+
       const locStatus = await Location.requestForegroundPermissionsAsync();
       setHasLocationPermission(locStatus.status === 'granted');
     })();
@@ -127,7 +135,7 @@ export default function CameraScreen() {
 
   // --- ZAPIS (Zrzut ViewShot + Galeria + Mapa) ---
   const saveCompositePhoto = async () => {
-    if (!viewShotRef.current || !previewPhoto || !activePokemon) return;
+    if (!viewShotRef.current || !previewPhoto) return;
 
     try {
       // 1. Zrzut ekranu widoku
@@ -138,18 +146,20 @@ export default function CameraScreen() {
         await Asset.create(uri);
       }
 
-      // 3. Pobranie lokalizacji
-      let coords = { latitude: 52.2297, longitude: 21.0122 }; // Fallback (Warszawa)
-      if (hasLocationPermission) {
-        const loc = await Location.getCurrentPositionAsync({});
-        coords = loc.coords;
+      if (activePokemon) {
+        // 3. Pobranie lokalizacji i zapis pina tylko gdy wybrany pokemon
+        let coords = { latitude: 52.2297, longitude: 21.0122 };
+        if (hasLocationPermission) {
+          const loc = await Location.getCurrentPositionAsync({});
+          coords = loc.coords;
+        }
+        addPin(coords, activePokemon);
+        Alert.alert('Sukces!', 'Zdjęcie zapisane w galerii i dodane na mapę!');
+      } else {
+        Alert.alert('Sukces!', 'Zdjęcie zapisane w galerii!');
       }
 
-      // 4. Zapis do AsyncStorage na Mapę
-      addPin(coords, activePokemon);
-
-      Alert.alert('Sukces!', 'Zdjęcie zapisane w galerii i dodane na mapę!');
-      setPreviewPhoto(null); // Zamknięcie podglądu
+      setPreviewPhoto(null);
     } catch (e) {
       Alert.alert('Błąd', 'Nie udało się zapisać zrzutu.');
     }
@@ -163,21 +173,40 @@ export default function CameraScreen() {
     );
   }
 
+  if (cameraError) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.errorIcon}>📷</Text>
+        <Text style={styles.errorTitle}>Kamera niedostępna</Text>
+        <Text style={styles.errorMessage}>{cameraError}</Text>
+        <Pressable
+          style={styles.retryBtn}
+          onPress={() => {
+            setCameraError(null);
+            setCameraFacing('back');
+          }}
+        >
+          <Text style={styles.retryBtnText}>Spróbuj ponownie</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
   // --- WIDOK PODGLĄDU ZROBIONEGO ZDJĘCIA ---
   if (previewPhoto) {
-      return (
-        <View style={styles.container}>
-          <ViewShot ref={viewShotRef} options={{ format: 'jpg', quality: 0.9 }} style={styles.container}>
-            <ImageBackground
-              source={{ uri: previewPhoto }}
-              style={styles.container}
-              imageStyle={{ 
-                transform: [{ 
-                  scaleX: cameraFacing === 'front' ? (Platform.OS === 'ios' ? -1 : 1) : 1 
-                }] 
-              }}
-            >
-              {activePokemon && (
+    return (
+      <View style={styles.container}>
+        <ViewShot ref={viewShotRef} options={{ format: 'jpg', quality: 0.9 }} style={styles.container}>
+          <ImageBackground
+            source={{ uri: previewPhoto }}
+            style={styles.container}
+            imageStyle={{
+              transform: [{
+                scaleX: cameraFacing === 'front' ? (Platform.OS === 'ios' ? -1 : 1) : 1
+              }]
+            }}
+          >
+            {activePokemon && (
               <Animated.Image
                 source={{ uri: getPokemonImageUrl(activePokemon.url) }}
                 style={pokemonStyle}
@@ -187,7 +216,7 @@ export default function CameraScreen() {
           </ImageBackground>
         </ViewShot>
 
-        <View style={styles.previewControls}>
+        <View style={[styles.previewControls, { bottom: controlsBottom }]}>
           <Pressable style={[styles.btn, styles.btnSecondary]} onPress={() => setPreviewPhoto(null)}>
             <Text style={styles.btnText}>Odrzuć</Text>
           </Pressable>
@@ -207,8 +236,22 @@ export default function CameraScreen() {
         ref={cameraRef}
         style={StyleSheet.absoluteFill}
         device={device}
-        isActive={true}
+        isActive={!cameraError}
         outputs={cameraOutputs}
+        onError={(error) => {
+          const msg = error.message ?? String(error);
+          if (
+            msg.includes('device policy') ||
+            msg.includes('Camera is disabled') ||
+            msg.includes('fatal Camera error')
+          ) {
+            setCameraError(
+              'Kamera jest wyłączona przez politykę urządzenia lub emulator nie obsługuje kamery.\n\nSprawdź uprawnienia lub użyj fizycznego telefonu.'
+            );
+          } else {
+            setCameraError(`Błąd kamery: ${msg}`);
+          }
+        }}
       />
 
       {activePokemon ? (
@@ -223,20 +266,28 @@ export default function CameraScreen() {
         </View>
       )}
 
-      {favourites.length > 1 && (
-        <View style={[styles.pokemonSelector, { display: showPokemonSelector ? 'flex' : 'none' }]}>
+      {favourites.length > 0 && (
+        <View style={[styles.pokemonSelector, { bottom: selectorBottom, display: showPokemonSelector ? 'flex' : 'none' }]}>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.selectorContent}
           >
+            {/* Opcja: brak pokémona */}
+            <Pressable
+              style={[styles.selectorItem, activePokemonIndex === null && styles.selectorItemActive]}
+              onPress={() => { setActivePokemonIndex(null); setShowPokemonSelector(false); }}
+            >
+              <Text style={styles.selectorNoneText}>✕</Text>
+            </Pressable>
+
             {favourites.map((item, index) => {
               const isActive = index === activePokemonIndex;
               return (
                 <Pressable
                   key={item.name}
                   style={[styles.selectorItem, isActive && styles.selectorItemActive]}
-                  onPress={() => setActivePokemonIndex(index)}
+                  onPress={() => { setActivePokemonIndex(index); setShowPokemonSelector(false); }}
                 >
                   <Image
                     source={{ uri: getPokemonImageUrl(item.url) }}
@@ -250,10 +301,10 @@ export default function CameraScreen() {
         </View>
       )}
 
-      <View style={styles.controls}>
-        {favourites.length > 1 ? (
+      <View style={[styles.controls, { bottom: controlsBottom }]}>
+        {favourites.length > 0 ? (
           <Pressable style={styles.sideBtn} onPress={() => setShowPokemonSelector(prev => !prev)}>
-            <Ionicons name="paw-outline" size={24} color="#fff" />
+            <Ionicons name="paw-outline" size={24} color={activePokemonIndex === null ? 'rgba(255,255,255,0.4)' : '#fff'} />
           </Pressable>
         ) : (
           <View style={styles.sideBtn} />
@@ -271,14 +322,19 @@ export default function CameraScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#000' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24, backgroundColor: '#111' },
+  errorIcon: { fontSize: 64, marginBottom: 16 },
+  errorTitle: { fontSize: 22, fontWeight: 'bold', color: '#fff', marginBottom: 8, textAlign: 'center' },
+  errorMessage: { fontSize: 14, color: '#aaa', textAlign: 'center', marginBottom: 24, lineHeight: 20 },
+  retryBtn: { backgroundColor: '#3b4cca', paddingVertical: 12, paddingHorizontal: 28, borderRadius: 10 },
+  retryBtnText: { color: '#fff', fontWeight: '600', fontSize: 15 },
   noPokemonWarning: {
     position: 'absolute', top: 60, left: 20, right: 20,
     backgroundColor: 'rgba(255,255,255,0.8)', padding: 10, borderRadius: 8, alignItems: 'center'
   },
   warningText: { color: '#000', fontWeight: 'bold' },
   controls: {
-    position: 'absolute', bottom: 100, left: 0, right: 0,
+    position: 'absolute', left: 0, right: 0,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -302,7 +358,6 @@ const styles = StyleSheet.create({
   },
   pokemonSelector: {
     position: 'absolute',
-    bottom: 200,
     left: 0,
     right: 0,
   },
@@ -328,8 +383,14 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
   },
+  selectorNoneText: {
+    color: '#fff',
+    fontSize: 22,
+    fontWeight: '700',
+    lineHeight: 26,
+  },
   previewControls: {
-    position: 'absolute', bottom: 100, left: 20, right: 20,
+    position: 'absolute', left: 20, right: 20,
     flexDirection: 'row', justifyContent: 'space-between'
   },
   btn: {

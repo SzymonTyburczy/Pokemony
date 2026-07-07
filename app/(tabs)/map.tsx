@@ -45,10 +45,10 @@ export default function MapScreen() {
   const router = useRouter();
   const { height: SCREEN_HEIGHT } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  // Dynamic top offset based on safe area (status bar differs between devices)
+  // The header renders at insets.top + 8 (safe-area aware)
   const headerTop = insets.top + 8;
-  const filterBarTop = headerTop + 72; // header height ~72
-  const controlsTop = filterBarTop + 46; // filter bar height ~46
+  // Measured bottom of the header — set after first layout; falls back to headerTop + 72
+  const [headerBottom, setHeaderBottom] = useState(headerTop + 72);
   const mapRef = useRef<MapView>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
   const { favourites, isLoaded: areFavouritesLoaded } = useFavouritesContext();
@@ -84,33 +84,33 @@ export default function MapScreen() {
 
   const snapPoints = useMemo(
     () => {
+      // Usable height: exclude status bar and bottom nav/home indicator
+      const usableHeight = SCREEN_HEIGHT - insets.top - insets.bottom;
+
       if (sheetMode === 'pokemon-picker') {
         if (favourites.length >= 3) {
-          return [Math.round(SCREEN_HEIGHT * 0.45), Math.round(SCREEN_HEIGHT * 0.90)];
+          return [Math.round(usableHeight * 0.45), Math.round(usableHeight * 0.90)];
         }
-        return [Math.round(SCREEN_HEIGHT * 0.35), Math.round(SCREEN_HEIGHT * 0.50), Math.round(SCREEN_HEIGHT * 0.90)];
+        return [Math.round(usableHeight * 0.35), Math.round(usableHeight * 0.50), Math.round(usableHeight * 0.90)];
       }
 
       if (sheetMode === 'pin-details') {
-        return [Math.round(SCREEN_HEIGHT * 0.46)];
+        return [Math.round(usableHeight * 0.46)];
       }
 
       if (sheetMode === 'pin-list') {
-
         if (listedPins.length == 1) {
-          return [Math.round(SCREEN_HEIGHT * 0.31)];
-        }
-        else if (listedPins.length == 2) {
-          return [Math.round(SCREEN_HEIGHT * 0.4)];
-        }
-        else if (listedPins.length >= 3) {
-          return [Math.round(SCREEN_HEIGHT * 0.5)];
+          return [Math.round(usableHeight * 0.31)];
+        } else if (listedPins.length == 2) {
+          return [Math.round(usableHeight * 0.4)];
+        } else if (listedPins.length >= 3) {
+          return [Math.round(usableHeight * 0.5)];
         }
       }
 
-      return [Math.round(SCREEN_HEIGHT * 0.3), Math.round(SCREEN_HEIGHT * 0.5), Math.round(SCREEN_HEIGHT * 0.8)];
+      return [Math.round(usableHeight * 0.3), Math.round(usableHeight * 0.5), Math.round(usableHeight * 0.8)];
     },
-    [sheetMode, favourites.length, listedPins.length]
+    [sheetMode, favourites.length, listedPins.length, SCREEN_HEIGHT, insets.top, insets.bottom]
   );
 
   useEffect(() => {
@@ -366,7 +366,13 @@ export default function MapScreen() {
         })}
       </MapView>
 
-      <View style={[styles.header, { top: headerTop }]}>
+      <View
+        style={[styles.header, { top: headerTop }]}
+        onLayout={(e) => {
+          const { y, height } = e.nativeEvent.layout;
+          setHeaderBottom(y + height + 8);
+        }}
+      >
         <Text style={styles.title}>Mapa Pokémonów</Text>
         <Text style={styles.subtitle}>{pins.length} zapisanych pinów</Text>
       </View>
@@ -375,7 +381,7 @@ export default function MapScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          style={[styles.filterBar, { top: filterBarTop }]}
+          style={[styles.filterBar, { top: headerBottom }]}
           contentContainerStyle={styles.filterContent}
         >
           <Pressable
@@ -430,7 +436,7 @@ export default function MapScreen() {
         </View>
       )}
 
-      <View style={[styles.controlsColumn, { top: controlsTop }]}>
+      <View style={[styles.controlsColumn, { top: headerBottom + 46 }]}>
         <Pressable style={({ pressed }) => [styles.mapControlButton, pressed && styles.pressed]} onPress={() => handleZoom('in')}>
           <Text style={styles.mapControlText}>+</Text>
         </Pressable>

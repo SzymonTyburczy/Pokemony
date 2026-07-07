@@ -1,5 +1,6 @@
 import React from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { usePokemonDetails } from '../../src/features/pokemon/hooks/usePokemonDetails';
@@ -11,6 +12,7 @@ import { getCryPlayerHtml } from '../../src/features/pokemon/hooks/usePokemonCry
 
 export default function PokemonDetailsScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { name } = useLocalSearchParams<{ name: string | string[] }>();
   const pokemonName = Array.isArray(name) ? name[0] : name;
 
@@ -38,7 +40,9 @@ export default function PokemonDetailsScreen() {
     );
   }
 
-  const cryAvailable = hasCry === true;
+  // null = still loading → treat as available to avoid flashing disabled state.
+  // Only disable when we KNOW the cry doesn't exist (hasCry === false).
+  const cryAvailable = hasCry !== false;
 
   return (
     <>
@@ -52,7 +56,7 @@ export default function PokemonDetailsScreen() {
         allowsInlineMediaPlayback
       />
 
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView contentContainerStyle={[styles.container, { paddingTop: insets.top + 16 }]}>
         <Pressable style={styles.backButton} onPress={() => router.back()}>
           <Text style={styles.backButtonText}>Wróć</Text>
         </Pressable>
@@ -85,7 +89,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: '#fff',
     padding: 20,
-    paddingTop: 60,
   },
   center: {
     flex: 1,
