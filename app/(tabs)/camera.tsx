@@ -2,12 +2,15 @@ import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { StyleSheet, Text, View, Pressable, ImageBackground, Dimensions, Alert, ScrollView, Image, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { Camera, CameraRef, useCameraPermission, useCameraDevice, usePhotoOutput, useFrameProcessor } from 'react-native-vision-camera';
+import { Camera, CameraRef, useCameraPermission, useCameraDevice, usePhotoOutput, useFrameOutput } from 'react-native-vision-camera';
 import { Face, useFaceDetectorOutput } from 'react-native-vision-camera-face-detector';
-import { useTensorflowModel } from 'react-native-fast-tflite';
-import { useResizePlugin } from 'react-native-vision-camera-resizer';
+import { loadTensorflowModel, type TfliteModel } from 'react-native-fast-tflite';
+import { useResizer } from 'react-native-vision-camera-resizer';
+
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS } from 'react-native-reanimated';
-import { Asset, requestPermissionsAsync } from 'expo-media-library';
+
+import { Asset as MediaAsset, requestPermissionsAsync } from 'expo-media-library';
+import { Asset as ExpoAsset } from 'expo-asset';
 import * as Location from 'expo-location';
 import ViewShot, { ViewShotRef } from 'react-native-view-shot';
 
@@ -59,12 +62,19 @@ export default function CameraScreen() {
   const [isObjectMode, setIsObjectMode] = useState(false);
   const [detectedObjName, setDetectedObjName] = useState<string | null>(null);
   const [lockedObj, setLockedObj] = useState(false);
+  // Shared values dostępne w worklecie
+  const isObjectModeShared = useSharedValue(false);
+  const lockedObjShared = useSharedValue(false);
 
   // --- FLIP KAMERY ---
   const flipCamera = () => {
     setCameraError(null);
     setCameraFacing((prev) => (prev === 'front' ? 'back' : 'front'));
   };
+
+  // Synchronizacja stanów React ze shared values workletu
+  useEffect(() => { isObjectModeShared.value = isObjectMode; }, [isObjectMode]);
+  useEffect(() => { lockedObjShared.value = lockedObj; }, [lockedObj]);
 
   // --- DETEKTOR TWARZY ---
   const faceDetectorOutput = useFaceDetectorOutput({
@@ -95,74 +105,135 @@ export default function CameraScreen() {
   });
 
   // --- DETEKTOR OBIEKTÓW TFLITE ---
-  const objectModel = useTensorflowModel(require('../../assets/ssd_mobilenet.tflite'));
-  const actualModel = objectModel.state === 'loaded' ? objectModel.model : undefined;
-  const { resize } = useResizePlugin();
+  // Ręczne ładowanie modelu: expo-asset pobiera plik na dysk,
+  // potem loadTensorflowModel ładuje go z file:// URI.
+  // Model trzymany w stanie React — VisionCamera v5 aktualizuje
+  // callback workletu przy każdym re-renderze przez setOnFrameCallback.
+  const [actualModel, setActualModel] = useState<TfliteModel | undefined>(undefined);
+  const [modelState, setModelState] = useState<'loading' | 'loaded' | 'error'>('loading');
 
-  const handleObjectDetectionJS = (classIdxStr: string, x: number, y: number) => {
-    if (lockedObj) return;
-    const classIdx = parseInt(classIdxStr, 10);
-    const englishName = COCO_CLASSES[classIdx + 1]; // +1 for 0-indexed bg in standard TFHub model, or maybe not. Will test. Let's try raw index first. Actually MobileNet v1 TFHub model class 0 is person or bg? Wait, in many models class 0 is bg. Let's assume standard COCO mapping.
-    
-    // Safety check
-    if (!englishName && !COCO_CLASSES[classIdx]) return;
-    const nameToTranslate = COCO_CLASSES[classIdx] ? COCO_CLASSES[classIdx] : COCO_CLASSES[classIdx + 1];
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        setModelState('loading');
+        const [asset] = await ExpoAsset.loadAsync(
+          require('../../assets/ssd_mobilenet.tflite')
+        );
+        const localUri = asset.localUri;
+        if (!localUri || cancelled) return;
 
+        console.log('TFLite model localUri:', localUri);
+        const model = await loadTensorflowModel({ url: localUri }, []);
+        if (!cancelled) {
+          setActualModel(model);
+          setModelState('loaded');
+          console.log('TFLite model loaded successfully!');
+        }
+      } catch (e) {
+        console.error('Failed to load TFLite model:', e);
+        if (!cancelled) setModelState('error');
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Funkcje JS wywoływane z workletu przez runOnJS
+  const onObjectFound = (classIdx: number, centerX: number, centerY: number) => {
+    if (lockedObjShared.value) return;
+    const nameToTranslate = COCO_CLASSES[classIdx] ?? COCO_CLASSES[classIdx + 1];
+    if (!nameToTranslate) return;
     const polishName = getTranslation(nameToTranslate);
     setDetectedObjName(polishName);
-    targetX.value = x - 50;
-    targetY.value = y - 50;
+    targetX.value = centerX - 50;
+    targetY.value = centerY - 50;
     targetDetected.value = true;
   };
 
-  const clearObjectDetectionJS = () => {
-    if (lockedObj) return;
+  const onObjectLost = () => {
+    if (lockedObjShared.value) return;
     setDetectedObjName(null);
     targetDetected.value = false;
   };
 
-  const objectFrameProcessor = useFrameProcessor((frame) => {
-    'worklet';
-    if (!isObjectMode || !actualModel) return;
+  const onFrameError = (msg: string) => {
+    console.warn('Frame processing error:', msg);
+  };
 
-    try {
-      const resized = resize(frame, { scale: { width: 300, height: 300 }, pixelFormat: 'rgb', dataType: 'uint8' });
-      const outputs = actualModel.runSync([resized]);
+  // Resizer konwertuje klatkę kamery do formatu akceptowanego przez TFLite.
+  // SSD MobileNet v1 oczekuje 300x300 RGB uint8 input.
+  const { resizer } = useResizer({
+    width: 300,
+    height: 300,
+    channelOrder: 'rgb',
+    dataType: 'uint8',
+    scaleMode: 'cover',
+    pixelLayout: 'interleaved',
+  });
 
-      if (!outputs || outputs.length < 4) return;
+  const objectFrameOutput = useFrameOutput({
+    pixelFormat: 'native',
+    onFrame(frame) {
+      'worklet';
+      if (!isObjectModeShared.value || !actualModel || !resizer) {
+        frame.dispose();
+        return;
+      }
 
-      const boxes = new Float32Array(outputs[0]);
-      const classes = new Float32Array(outputs[1]);
-      const scores = new Float32Array(outputs[2]);
-      const numDetectionsArr = new Float32Array(outputs[3]);
-      const numDetections = numDetectionsArr.length > 0 ? numDetectionsArr[0] : 0;
+      try {
+        // Resize klatki do 300x300 RGB uint8 ArrayBuffer
+        const resized = resizer.resize(frame);
+        const pixelBuffer = resized.getPixelBuffer();
 
-      let found = false;
-      for (let i = 0; i < numDetections; i++) {
-        if (scores[i] > 0.6) {
-          const classIdx = classes[i];
-          const ymin = boxes[i * 4];
-          const xmin = boxes[i * 4 + 1];
-          const ymax = boxes[i * 4 + 2];
-          const xmax = boxes[i * 4 + 3];
+        // WAŻNE: pixelBuffer jest ważny tylko dopóki resized żyje!
+        // Nie wolno dispose() przed runSync().
+        const outputs = actualModel.runSync([pixelBuffer]);
 
-          // Przybliżone współrzędne środka ekranu (zakładając aspect fill)
-          const centerX = ((xmin + xmax) / 2) * SCREEN_WIDTH;
-          const centerY = ((ymin + ymax) / 2) * SCREEN_HEIGHT;
+        // Teraz można zwolnić GPUFrame
+        resized.dispose();
 
-          runOnJS(handleObjectDetectionJS)(String(classIdx), centerX, centerY);
-          found = true;
-          break; // bierzemy tylko najpewniejszy obiekt
+        if (outputs && outputs.length >= 4) {
+          const boxes = new Float32Array(outputs[0]);
+          const classes = new Float32Array(outputs[1]);
+          const scores = new Float32Array(outputs[2]);
+          const numDetectionsArr = new Float32Array(outputs[3]);
+          const numDetections = numDetectionsArr.length > 0 ? numDetectionsArr[0] : 0;
+
+          let found = false;
+          for (let i = 0; i < numDetections; i++) {
+            if (scores[i] > 0.3) {
+              const classIdx = Math.round(classes[i]);
+              const ymin = boxes[i * 4];
+              const xmin = boxes[i * 4 + 1];
+              const ymax = boxes[i * 4 + 2];
+              const xmax = boxes[i * 4 + 3];
+              const centerX = ((xmin + xmax) / 2) * SCREEN_WIDTH;
+              const centerY = ((ymin + ymax) / 2) * SCREEN_HEIGHT;
+
+              if (!lockedObjShared.value) {
+                targetX.value = centerX - 50;
+                targetY.value = centerY - 50;
+                targetDetected.value = true;
+                runOnJS(onObjectFound)(classIdx, centerX, centerY);
+              }
+              found = true;
+              break;
+            }
+          }
+          if (!found && !lockedObjShared.value) {
+            targetDetected.value = false;
+            runOnJS(onObjectLost)();
+          }
         }
+      } catch (e) {
+        runOnJS(onFrameError)(String(e));
       }
 
-      if (!found) {
-        runOnJS(clearObjectDetectionJS)();
-      }
-    } catch (e) {
-      // Ignorujemy błędy klatki w worklecie
+      frame.dispose();
     }
-  }, [isObjectMode, actualModel]);
+  });
+
+
 
   // --- UPRAWNIENIA ---
   useEffect(() => {
@@ -179,11 +250,13 @@ export default function CameraScreen() {
 
   const cameraOutputs = useMemo(() => {
     const outs: any[] = photoOutput ? [photoOutput] : [];
-    if (!isObjectMode && faceDetectorOutput) {
+    if (isObjectMode) {
+      outs.push(objectFrameOutput);
+    } else if (faceDetectorOutput) {
       outs.push(faceDetectorOutput);
     }
     return outs;
-  }, [faceDetectorOutput, photoOutput, isObjectMode]);
+  }, [faceDetectorOutput, photoOutput, isObjectMode, objectFrameOutput]);
 
   // --- STYL ANIMOWANY POKEMONA ---
   const pokemonStyle = useAnimatedStyle(() => {
@@ -215,7 +288,7 @@ export default function CameraScreen() {
     try {
       const uri = await viewShotRef.current.capture();
       if (hasMediaLibraryPermission) {
-        await Asset.create(uri);
+        await MediaAsset.create(uri);
       }
       if (activePokemon) {
         let coords = { latitude: 52.2297, longitude: 21.0122 };
@@ -306,7 +379,6 @@ export default function CameraScreen() {
         device={device}
         isActive={!cameraError}
         outputs={cameraOutputs}
-        frameProcessor={isObjectMode ? objectFrameProcessor : undefined}
         onError={(error) => {
           const msg = error.message ?? String(error);
           if (
@@ -326,7 +398,7 @@ export default function CameraScreen() {
       {isObjectMode && (
         <View style={styles.modeIndicator}>
           <Text style={styles.modeIndicatorText}>
-            {objectModel.state === 'loading' ? 'Ładowanie modelu AI...' : 'Szukam obiektów (banan, laptop...)'}
+            {modelState === 'loading' ? 'Ładowanie modelu AI...' : modelState === 'error' ? 'Błąd ładowania modelu AI' : 'Szukam obiektów (banan, laptop...)'}
           </Text>
         </View>
       )}
