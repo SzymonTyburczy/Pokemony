@@ -28,8 +28,7 @@ async function fetchPokemon3dIndex(): Promise<Map<number, Pokemon3dEntry>> {
 }
 
 async function selectRandomPokemon3dForm(id: number): Promise<Pokemon3dForm | null> {
-  const index = await fetchPokemon3dIndex();
-  const forms = index.get(id)?.forms.filter((form) => Boolean(form.model)) ?? [];
+  const forms = await fetchAllPokemon3dForms(id);
   if (forms.length === 0) {
     return null;
   }
@@ -46,7 +45,7 @@ function warmModelAsset(modelUrl: string) {
       return response.arrayBuffer();
     })
     .catch((error) => {
-      console.warn('Nie udało się rozpocząć preloadu modelu 3D:', error);
+      console.log('Preload modelu 3D zignorowany:', error.message);
     });
 }
 
@@ -84,5 +83,20 @@ export async function fetchRandomPokemon3dForm(id: number): Promise<Pokemon3dFor
 
 export async function fetchAllPokemon3dForms(id: number): Promise<Pokemon3dForm[]> {
   const index = await fetchPokemon3dIndex();
-  return index.get(id)?.forms.filter((form) => Boolean(form.model)) ?? [];
+  const allForms = index.get(id)?.forms.filter((form) => Boolean(form.model)) ?? [];
+
+  const validFormsPromises = allForms.map(async (form) => {
+    try {
+      const response = await fetch(form.model, { method: 'HEAD' });
+      return response.ok ? form : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const validForms = (await Promise.all(validFormsPromises)).filter(
+    (form): form is Pokemon3dForm => form !== null
+  );
+
+  return validForms;
 }
