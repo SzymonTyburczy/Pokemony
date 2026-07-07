@@ -13,7 +13,7 @@ import {
 import BottomSheet, { BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
-import MapView, { LongPressEvent, Marker, Region } from 'react-native-maps';
+import MapView, { LongPressEvent, MapPressEvent, Marker, Region } from 'react-native-maps';
 import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
 import { useMapPins } from '../../src/features/map/hooks/useMapPins';
 import { PendingMapPinLocation, PokemonMapPin } from '../../src/features/map/model/types';
@@ -45,10 +45,6 @@ export default function MapScreen() {
   const router = useRouter();
   const mapRef = useRef<MapView>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(
-    () => [Math.round(SCREEN_HEIGHT * 0.35), Math.round(SCREEN_HEIGHT * 0.65), Math.round(SCREEN_HEIGHT * 0.90)],
-    []
-  );
   const { favourites, isLoaded: areFavouritesLoaded } = useFavouritesContext();
   const {
     pins,
@@ -67,6 +63,21 @@ export default function MapScreen() {
   const [selectedPokemonFilter, setSelectedPokemonFilter] = useState<string | null>(null);
   const [isLocating, setIsLocating] = useState(false);
   const [isUserLocationVisible, setIsUserLocationVisible] = useState(false);
+
+  const snapPoints = useMemo(
+    () => {
+      if (sheetMode === 'pokemon-picker') {
+        return [Math.round(SCREEN_HEIGHT * 0.35), Math.round(SCREEN_HEIGHT * 0.50), Math.round(SCREEN_HEIGHT * 0.90)];
+      }
+
+      if (sheetMode === 'pin-details') {
+        return [Math.round(SCREEN_HEIGHT * 0.45)];
+      }
+
+      return [Math.round(SCREEN_HEIGHT * 0.65)];
+    },
+    [sheetMode]
+  );
 
   const isLoaded = areFavouritesLoaded && arePinsLoaded;
 
@@ -265,6 +276,17 @@ export default function MapScreen() {
     setMovingPinId(null);
   }, []);
 
+  // Zamknięcie bottom sheeta po kliknięciu na mapę (pin pozostaje zapisany)
+  const handleMapPress = useCallback(
+    (_event: MapPressEvent) => {
+      if (selectedPin) {
+        setSelectedPin(null);
+        bottomSheetRef.current?.close();
+      }
+    },
+    [selectedPin]
+  );
+
   const handleRemoveSelectedPin = useCallback(() => {
     if (!selectedPin) {
       return;
@@ -295,6 +317,7 @@ export default function MapScreen() {
         ref={mapRef}
         style={styles.map}
         initialRegion={INITIAL_REGION}
+        onPress={handleMapPress}
         onLongPress={handleLongPress}
         onRegionChangeComplete={setRegion}
         showsUserLocation={isUserLocationVisible}
