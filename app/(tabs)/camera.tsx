@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, View, Pressable, ImageBackground, Dimensions, Alert, FlatList, Image } from 'react-native';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
+import { StyleSheet, Text, View, Pressable, ImageBackground, Dimensions, Alert, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Camera, CameraRef, useCameraPermission, useCameraDevice, usePhotoOutput } from 'react-native-vision-camera';
 import { Face, useFaceDetectorOutput } from 'react-native-vision-camera-face-detector';
@@ -88,14 +88,18 @@ export default function CameraScreen() {
   useEffect(() => {
     (async () => {
       if (!cameraPermission) await requestCameraPermission();
-
+      
       const mediaStatus = await requestPermissionsAsync();
       setHasMediaLibraryPermission(mediaStatus.status === 'granted');
-
+      
       const locStatus = await Location.requestForegroundPermissionsAsync();
       setHasLocationPermission(locStatus.status === 'granted');
     })();
   }, [cameraPermission, requestCameraPermission]);
+
+  const cameraOutputs = useMemo(() => {
+    return photoOutput ? [faceDetectorOutput, photoOutput] : [faceDetectorOutput];
+  }, [faceDetectorOutput, photoOutput]);
 
   // --- STYL ANIMOWANY POKEMONA ---
   const pokemonStyle = useAnimatedStyle(() => {
@@ -200,7 +204,7 @@ export default function CameraScreen() {
         style={StyleSheet.absoluteFill}
         device={device}
         isActive={true}
-        outputs={[faceDetectorOutput, photoOutput]}
+        outputs={cameraOutputs}
       />
 
       {activePokemon ? (
@@ -215,18 +219,18 @@ export default function CameraScreen() {
         </View>
       )}
 
-      {favourites.length > 1 && showPokemonSelector && (
-        <View style={styles.pokemonSelector}>
-          <FlatList
+      {favourites.length > 1 && (
+        <View style={[styles.pokemonSelector, { display: showPokemonSelector ? 'flex' : 'none' }]}>
+          <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.selectorContent}
-            data={favourites}
-            keyExtractor={(item) => item.name}
-            renderItem={({ item, index }) => {
+          >
+            {favourites.map((item, index) => {
               const isActive = index === activePokemonIndex;
               return (
                 <Pressable
+                  key={item.name}
                   style={[styles.selectorItem, isActive && styles.selectorItemActive]}
                   onPress={() => setActivePokemonIndex(index)}
                 >
@@ -237,8 +241,8 @@ export default function CameraScreen() {
                   />
                 </Pressable>
               );
-            }}
-          />
+            })}
+          </ScrollView>
         </View>
       )}
 
