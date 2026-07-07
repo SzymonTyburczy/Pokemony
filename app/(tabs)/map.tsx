@@ -64,24 +64,6 @@ export default function MapScreen() {
   const [isLocating, setIsLocating] = useState(false);
   const [isUserLocationVisible, setIsUserLocationVisible] = useState(false);
 
-  const snapPoints = useMemo(
-    () => {
-      if (sheetMode === 'pokemon-picker') {
-        if (favourites.length >= 3) {
-          return [Math.round(SCREEN_HEIGHT * 0.45), Math.round(SCREEN_HEIGHT * 0.90)];
-        }
-        return [Math.round(SCREEN_HEIGHT * 0.35), Math.round(SCREEN_HEIGHT * 0.50), Math.round(SCREEN_HEIGHT * 0.90)];
-      }
-
-      if (sheetMode === 'pin-details') {
-        return [Math.round(SCREEN_HEIGHT * 0.45)];
-      }
-
-      return [Math.round(SCREEN_HEIGHT * 0.3)];
-    },
-    [sheetMode, favourites.length]
-  );
-
   const isLoaded = areFavouritesLoaded && arePinsLoaded;
 
   const pokemonFilterOptions = useMemo(
@@ -92,6 +74,37 @@ export default function MapScreen() {
   const listedPins = useMemo(
     () => (selectedPokemonFilter ? pins.filter((pin) => pin.pokemonName === selectedPokemonFilter) : pins),
     [pins, selectedPokemonFilter]
+  );
+
+  const snapPoints = useMemo(
+    () => {
+      if (sheetMode === 'pokemon-picker') {
+        if (favourites.length >= 3) {
+          return [Math.round(SCREEN_HEIGHT * 0.45), Math.round(SCREEN_HEIGHT * 0.90)];
+        }
+        return [Math.round(SCREEN_HEIGHT * 0.35), Math.round(SCREEN_HEIGHT * 0.50), Math.round(SCREEN_HEIGHT * 0.90)];
+      }
+
+      if (sheetMode === 'pin-details') {
+        return [Math.round(SCREEN_HEIGHT * 0.46)];
+      }
+
+      if (sheetMode === 'pin-list') {
+
+        if (listedPins.length == 1) {
+          return [Math.round(SCREEN_HEIGHT * 0.31)];
+        }
+        else if (listedPins.length == 2) {
+          return [Math.round(SCREEN_HEIGHT * 0.4)];
+        }
+        else if (listedPins.length >= 3) {
+          return [Math.round(SCREEN_HEIGHT * 0.5)];
+        }
+      }
+
+      return [Math.round(SCREEN_HEIGHT * 0.3), Math.round(SCREEN_HEIGHT * 0.5), Math.round(SCREEN_HEIGHT * 0.8)];
+    },
+    [sheetMode, favourites.length, listedPins.length]
   );
 
   useEffect(() => {
