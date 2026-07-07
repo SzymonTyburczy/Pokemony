@@ -2,14 +2,15 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ActivityIndicator,
   Alert,
-  Dimensions,
   Image,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BottomSheet, { BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
@@ -39,10 +40,15 @@ function clampDelta(delta: number): number {
   return Math.min(MAX_DELTA, Math.max(MIN_DELTA, delta));
 }
 
-const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 export default function MapScreen() {
   const router = useRouter();
+  const { height: SCREEN_HEIGHT } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  // Dynamic top offset based on safe area (status bar differs between devices)
+  const headerTop = insets.top + 8;
+  const filterBarTop = headerTop + 72; // header height ~72
+  const controlsTop = filterBarTop + 46; // filter bar height ~46
   const mapRef = useRef<MapView>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
   const { favourites, isLoaded: areFavouritesLoaded } = useFavouritesContext();
@@ -360,7 +366,7 @@ export default function MapScreen() {
         })}
       </MapView>
 
-      <View style={styles.header}>
+      <View style={[styles.header, { top: headerTop }]}>
         <Text style={styles.title}>Mapa Pokémonów</Text>
         <Text style={styles.subtitle}>{pins.length} zapisanych pinów</Text>
       </View>
@@ -369,7 +375,7 @@ export default function MapScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          style={styles.filterBar}
+          style={[styles.filterBar, { top: filterBarTop }]}
           contentContainerStyle={styles.filterContent}
         >
           <Pressable
@@ -380,7 +386,13 @@ export default function MapScreen() {
             ]}
             onPress={() => handleOpenPinList(null)}
           >
-            <Text style={[styles.filterText, !selectedPokemonFilter && styles.filterTextActive]}>Wszystkie</Text>
+            <Text
+              style={[styles.filterText, !selectedPokemonFilter && styles.filterTextActive]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              Wszystkie
+            </Text>
           </Pressable>
 
           {pokemonFilterOptions.map((pokemonName) => {
@@ -396,9 +408,13 @@ export default function MapScreen() {
                 ]}
                 onPress={() => handleOpenPinList(pokemonName)}
               >
-                <Text style={[styles.filterText, isActive && styles.filterTextActive]}>
-                  {formatPokemonName(pokemonName)}
-                </Text>
+                <Text
+                    style={[styles.filterText, isActive && styles.filterTextActive]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {formatPokemonName(pokemonName)}
+                  </Text>
               </Pressable>
             );
           })}
@@ -414,7 +430,7 @@ export default function MapScreen() {
         </View>
       )}
 
-      <View style={styles.controlsColumn}>
+      <View style={[styles.controlsColumn, { top: controlsTop }]}>
         <Pressable style={({ pressed }) => [styles.mapControlButton, pressed && styles.pressed]} onPress={() => handleZoom('in')}>
           <Text style={styles.mapControlText}>+</Text>
         </Pressable>
@@ -558,7 +574,6 @@ const styles = StyleSheet.create({
   },
   header: {
     position: 'absolute',
-    top: 52,
     left: 20,
     right: 20,
     backgroundColor: 'rgba(255,255,255,0.94)',
@@ -580,7 +595,6 @@ const styles = StyleSheet.create({
   },
   filterBar: {
     position: 'absolute',
-    top: 126,
     left: 0,
     right: 0,
   },
@@ -641,7 +655,6 @@ const styles = StyleSheet.create({
   controlsColumn: {
     position: 'absolute',
     right: 20,
-    top: 178,
     gap: 8,
   },
   mapControlButton: {
