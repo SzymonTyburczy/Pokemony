@@ -67,6 +67,9 @@ export default function MapScreen() {
   const snapPoints = useMemo(
     () => {
       if (sheetMode === 'pokemon-picker') {
+        if (favourites.length >= 3) {
+          return [Math.round(SCREEN_HEIGHT * 0.45), Math.round(SCREEN_HEIGHT * 0.90)];
+        }
         return [Math.round(SCREEN_HEIGHT * 0.35), Math.round(SCREEN_HEIGHT * 0.50), Math.round(SCREEN_HEIGHT * 0.90)];
       }
 
@@ -74,9 +77,9 @@ export default function MapScreen() {
         return [Math.round(SCREEN_HEIGHT * 0.45)];
       }
 
-      return [Math.round(SCREEN_HEIGHT * 0.65)];
+      return [Math.round(SCREEN_HEIGHT * 0.3)];
     },
-    [sheetMode]
+    [sheetMode, favourites.length]
   );
 
   const isLoaded = areFavouritesLoaded && arePinsLoaded;
