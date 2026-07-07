@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ActivityIndicator,
   Alert,
+  Dimensions,
   Image,
   Pressable,
   ScrollView,
@@ -38,11 +39,16 @@ function clampDelta(delta: number): number {
   return Math.min(MAX_DELTA, Math.max(MIN_DELTA, delta));
 }
 
+const SCREEN_HEIGHT = Dimensions.get('window').height;
+
 export default function MapScreen() {
   const router = useRouter();
   const mapRef = useRef<MapView>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ['38%', '68%'], []);
+  const snapPoints = useMemo(
+    () => [Math.round(SCREEN_HEIGHT * 0.35), Math.round(SCREEN_HEIGHT * 0.65), Math.round(SCREEN_HEIGHT * 0.90)],
+    []
+  );
   const { favourites, isLoaded: areFavouritesLoaded } = useFavouritesContext();
   const {
     pins,
@@ -389,6 +395,7 @@ export default function MapScreen() {
         ref={bottomSheetRef}
         index={-1}
         snapPoints={snapPoints}
+        enableDynamicSizing={false}
         enablePanDownToClose
         backgroundStyle={styles.sheetBackground}
         handleIndicatorStyle={styles.sheetIndicator}
@@ -666,6 +673,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#9ca3af',
   },
   sheetContent: {
+    paddingTop: 8,
     paddingHorizontal: 20,
     paddingBottom: 28,
   },

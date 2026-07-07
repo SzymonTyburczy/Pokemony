@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View, Pressable, ImageBackground, Dimensions, Alert } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Camera, CameraRef, useCameraPermission, useCameraDevice, usePhotoOutput } from 'react-native-vision-camera';
 import { Face, useFaceDetectorOutput } from 'react-native-vision-camera-face-detector';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
@@ -18,7 +19,8 @@ export default function CameraScreen() {
   const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState(false);
   const [hasLocationPermission, setHasLocationPermission] = useState(false);
   
-  const device = useCameraDevice('front');
+  const [cameraFacing, setCameraFacing] = useState<'front' | 'back'>('front');
+  const device = useCameraDevice(cameraFacing);
   const cameraRef = useRef<CameraRef>(null);
   const photoOutput = usePhotoOutput();
   const viewShotRef = useRef<ViewShotRef>(null);
@@ -34,13 +36,18 @@ export default function CameraScreen() {
   const faceY = useSharedValue(SCREEN_HEIGHT / 2 - 50);
   const faceDetected = useSharedValue(false);
 
+  // --- FLIP KAMERY ---
+  const flipCamera = () => {
+    setCameraFacing((prev) => (prev === 'front' ? 'back' : 'front'));
+  };
+
   // --- DETEKTOR TWARZY ---
   const faceDetectorOutput = useFaceDetectorOutput({
     performanceMode: 'fast',
     runContours: false,
     runLandmarks: false,
     autoMode: true,
-    cameraFacing: 'front',
+    cameraFacing: cameraFacing,
     windowWidth: SCREEN_WIDTH,
     windowHeight: SCREEN_HEIGHT,
     onError: () => {
@@ -167,6 +174,7 @@ export default function CameraScreen() {
              <Text style={styles.btnText}>Zapisz 📍</Text>
            </Pressable>
         </View>
+
       </View>
     );
   }
@@ -195,8 +203,13 @@ export default function CameraScreen() {
       )}
 
       <View style={styles.controls}>
+        {/* Placeholder lewy - dla symetrii */}
+        <View style={styles.sideBtn} />
         <Pressable style={styles.captureBtn} onPress={takePhoto}>
           <View style={styles.captureBtnInner} />
+        </Pressable>
+        <Pressable style={styles.sideBtn} onPress={flipCamera}>
+          <Ionicons name="camera-reverse-outline" size={26} color="#fff" />
         </Pressable>
       </View>
     </View>
@@ -212,20 +225,31 @@ const styles = StyleSheet.create({
   },
   warningText: { color: '#000', fontWeight: 'bold' },
   controls: {
-    position: 'absolute', bottom: 40, left: 0, right: 0,
-    alignItems: 'center'
+    position: 'absolute', bottom: 100, left: 0, right: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    gap: 24,
   },
   captureBtn: {
-    width: 70, height: 70, borderRadius: 35,
+    width: 72, height: 72, borderRadius: 36,
     backgroundColor: 'rgba(255,255,255,0.3)',
-    justifyContent: 'center', alignItems: 'center'
+    justifyContent: 'center', alignItems: 'center',
+    borderWidth: 3, borderColor: 'rgba(255,255,255,0.7)',
   },
   captureBtnInner: {
-    width: 54, height: 54, borderRadius: 27,
+    width: 56, height: 56, borderRadius: 28,
     backgroundColor: '#fff'
   },
+  sideBtn: {
+    width: 50, height: 50, borderRadius: 25,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    justifyContent: 'center', alignItems: 'center',
+  },
+  // flipIcon style no longer needed (replaced by Ionicons)
   previewControls: {
-    position: 'absolute', bottom: 40, left: 20, right: 20,
+    position: 'absolute', bottom: 100, left: 20, right: 20,
     flexDirection: 'row', justifyContent: 'space-between'
   },
   btn: {
