@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Pokemon } from '../../pokemon/model/types';
 import { getFavourites, saveFavourites } from '../storage/favouritesStorage';
+import { Alert } from 'react-native';
 
 export function useFavourites() {
   const [favourites, setFavourites] = useState<Pokemon[]>([]);
@@ -35,17 +36,25 @@ export function useFavourites() {
     }
   }, [favourites, isLoaded]);
 
-  const toggleFavourite = useCallback(
-    (pokemon: Pokemon) => {
-      setFavourites((prev) => {
-        const exists = prev.some((p) => p.name === pokemon.name);
-        return exists
-          ? prev.filter((p) => p.name !== pokemon.name)
-          : [...prev, pokemon];
-      });
-    },
-    []
-  );
+  const toggleFavourite = useCallback((pokemon: Pokemon) => {
+  setFavourites((prev) => {
+    const exists = prev.some((p) => p.name === pokemon.name);
+
+    if (exists) {
+      return prev.filter((p) => p.name !== pokemon.name);
+    }
+
+    if (prev.length >= 7) {
+      Alert.alert(
+        'Ograniczenie ulubionych Pokémonów',
+        'Możesz mieć maksymalnie 7 ulubionych Pokémonów.'
+      );
+      return prev;
+    }
+
+    return [...prev, pokemon];
+  });
+}, []);
 
   const removeFavourite = useCallback(
     (name: string) => {

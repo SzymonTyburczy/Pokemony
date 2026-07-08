@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Pokemon } from '../../pokemon/model/types';
+import { Alert } from 'react-native';
 
 const STORAGE_KEY = 'favourites_pokemon';
 
@@ -33,6 +34,10 @@ export async function getFavourites(): Promise<Pokemon[]> {
 }
 
 export async function saveFavourites(favourites: Pokemon[]): Promise<void> {
+  if (favourites.length > 7) {
+    Alert.alert('Ograniczenie ulubionych Pokémonów', 'Możesz mieć maksymalnie 7 ulubionych Pokémonów.');
+    return;
+  }
   try {
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(favourites));
   } catch (error) {
