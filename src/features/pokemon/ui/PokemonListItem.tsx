@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Pokemon } from '../model/types';
 import { getPokemonImageUrl } from '../../../shared/utils/getPokemonImageUrl';
@@ -13,7 +13,7 @@ interface PokemonListItemProps {
   onPlayCry?: (pokemon: Pokemon) => void;
 }
 
-export function PokemonListItem({
+export const PokemonListItem = memo(function PokemonListItem({
   item,
   isImageVisible,
   onPress,
@@ -60,7 +60,7 @@ export function PokemonListItem({
       )}
     </Pressable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   itemRow: {

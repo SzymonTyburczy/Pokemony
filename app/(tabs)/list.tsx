@@ -1,5 +1,5 @@
 import { FlatList, Text, View, StyleSheet, ActivityIndicator, Button, ViewToken, TextInput } from 'react-native';
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { WebView } from 'react-native-webview';
 import { useRouter } from 'expo-router';
 import { usePokemonList } from '../../src/features/pokemon/hooks/usePokemonList';
@@ -34,34 +34,31 @@ const ListScreen = () => {
     );
   }).current;
 
-  const renderPokemonItem = ({ item }: { item: Pokemon }) => {
+  const renderPokemonItem = useCallback(({ item }: { item: Pokemon }) => {
     const isImageVisible = visiblePokemonNames.has(item.name);
+    const pokemonId = getPokemonIdFromUrl(item.url);
 
     return (
       <PokemonListItem
         item={item}
         isImageVisible={isImageVisible}
         onPress={() => {
-          const pokemonId = getPokemonIdFromUrl(item.url);
           if (pokemonId) {
             preloadRandomPokemon3dForm(pokemonId).catch((error) => {
               console.warn('Nie udało się przygotować modelu 3D:', error);
             });
           }
-
           router.push(`/pokemon/${item.name}`);
         }}
         isFavourite={isFavourite(item.name)}
         onToggleFavourite={toggleFavourite}
         onPlayCry={(pokemon) => {
-          const pokemonId = getPokemonIdFromUrl(pokemon.url);
-          if (pokemonId) {
-            playPokemonCry(pokemonId);
-          }
+          const id = getPokemonIdFromUrl(pokemon.url);
+          if (id) playPokemonCry(id);
         }}
       />
     );
-  };
+  }, [visiblePokemonNames, isFavourite, toggleFavourite, playPokemonCry, router]);
 
   const renderFooter = () => {
     if (isSearchActive || !isLoadingMore) return null;
