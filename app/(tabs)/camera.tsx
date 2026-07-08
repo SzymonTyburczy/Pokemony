@@ -21,6 +21,29 @@ import { COCO_CLASSES, getTranslation } from '../../src/features/camera/model/co
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
+type FaceDetectorOutputOptions = {
+  performanceMode: 'fast' | 'accurate';
+  runContours: boolean;
+  runLandmarks: boolean;
+  autoMode: boolean;
+  cameraFacing: 'front' | 'back';
+  windowWidth: number;
+  windowHeight: number;
+  onError: () => void;
+  onFacesDetected: (faces: Face[]) => void;
+};
+
+type UseFaceDetectorOutput = (options: FaceDetectorOutputOptions) => unknown | null;
+
+const useOptionalFaceDetectorOutput: UseFaceDetectorOutput = (() => {
+  try {
+    return require('react-native-vision-camera-face-detector').useFaceDetectorOutput;
+  } catch (error) {
+    console.warn('Face detector native module is unavailable in this build:', error);
+    return () => null;
+  }
+})();
+
 export default function CameraScreen() {
   const insets = useSafeAreaInsets();
   const controlsBottom = Math.max(insets.bottom, 16) + 8;
@@ -77,7 +100,7 @@ export default function CameraScreen() {
   useEffect(() => { lockedObjShared.value = lockedObj; }, [lockedObj]);
 
   // --- DETEKTOR TWARZY ---
-  const faceDetectorOutput = useFaceDetectorOutput({
+  const faceDetectorOutput = useOptionalFaceDetectorOutput({
     performanceMode: 'fast',
     runContours: false,
     runLandmarks: false,
@@ -378,7 +401,7 @@ export default function CameraScreen() {
         style={StyleSheet.absoluteFill}
         device={device}
         isActive={!cameraError}
-        outputs={cameraOutputs}
+        outputs={cameraOutputs as any}
         onError={(error) => {
           const msg = error.message ?? String(error);
           if (

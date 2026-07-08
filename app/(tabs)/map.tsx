@@ -22,8 +22,9 @@ import { PendingMapPinLocation, PokemonMapPin } from '../../src/features/map/mod
 import { Pokemon } from '../../src/features/pokemon/model/types';
 import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
 import { getPokemonImageUrl } from '../../src/shared/utils/getPokemonImageUrl';
+import { MapPokemonDetailsSheetContent } from '../../src/features/map/ui/MapPokemonDetailsSheetContent';
 
-type SheetMode = 'pin-details' | 'pokemon-picker' | 'empty-favourites' | 'pin-list';
+type SheetMode = 'pin-details' | 'pokemon-picker' | 'empty-favourites' | 'pin-list' | 'pokemon-full-details';
 
 const INITIAL_REGION: Region = {
   latitude: 52.2297,
@@ -63,6 +64,7 @@ export default function MapScreen() {
   } = useMapPins();
   const [region, setRegion] = useState<Region>(INITIAL_REGION);
   const [sheetMode, setSheetMode] = useState<SheetMode>('empty-favourites');
+  const [isMainSheetVisible, setIsMainSheetVisible] = useState(false);
   const [pendingLocation, setPendingLocation] = useState<PendingMapPinLocation | null>(null);
   const [selectedPin, setSelectedPin] = useState<PokemonMapPin | null>(null);
   const [editingPinId, setEditingPinId] = useState<string | null>(null);
@@ -99,6 +101,10 @@ export default function MapScreen() {
         // iOS needs more room because of home indicator & larger safe-area insets
         const pct = Platform.OS === 'ios' ? 0.54 : 0.46;
         return [Math.round(usableHeight * pct)];
+      }
+
+      if (sheetMode === 'pokemon-full-details') {
+        return [Math.round(usableHeight * 0.9)];
       }
 
       if (sheetMode === 'pin-list') {
@@ -139,6 +145,7 @@ export default function MapScreen() {
 
   const openSheet = useCallback((mode: SheetMode) => {
     setSheetMode(mode);
+    setIsMainSheetVisible(true);
     requestAnimationFrame(() => {
       bottomSheetRef.current?.snapToIndex(0);
     });
@@ -294,6 +301,7 @@ export default function MapScreen() {
 
     setMovingPinId(selectedPin.id);
     setPendingLocation(null);
+    setIsMainSheetVisible(false);
     bottomSheetRef.current?.close();
   }, [selectedPin]);
 
@@ -306,6 +314,7 @@ export default function MapScreen() {
     (_event: MapPressEvent) => {
       if (selectedPin) {
         setSelectedPin(null);
+        setIsMainSheetVisible(false);
         bottomSheetRef.current?.close();
       }
     },
@@ -319,14 +328,35 @@ export default function MapScreen() {
 
     removePin(selectedPin.id);
     setSelectedPin(null);
+    setIsMainSheetVisible(false);
     bottomSheetRef.current?.close();
   }, [removePin, selectedPin]);
 
   const handleOpenDetails = useCallback(() => {
     if (selectedPin) {
-      router.push(`/pokemon/${selectedPin.pokemonName}`);
+      openSheet('pokemon-full-details');
     }
-  }, [router, selectedPin]);
+  }, [openSheet, selectedPin]);
+
+  useEffect(() => {
+    if (!selectedPin) {
+      setIsMainSheetVisible(false);
+    }
+  }, [selectedPin]);
+
+  useEffect(() => {
+    const hasRenderableContent =
+      sheetMode === 'pokemon-picker' ||
+      sheetMode === 'empty-favourites' ||
+      sheetMode === 'pin-list' ||
+      sheetMode === 'pokemon-full-details' ||
+      (sheetMode === 'pin-details' && !!selectedPin);
+
+    if (!hasRenderableContent) {
+      setIsMainSheetVisible(false);
+      bottomSheetRef.current?.close();
+    }
+  }, [selectedPin, sheetMode]);
 
   if (!isLoaded) {
     return (
@@ -455,114 +485,123 @@ export default function MapScreen() {
         </Pressable>
       </View>
 
-      <BottomSheet
-        ref={bottomSheetRef}
-        index={-1}
-        snapPoints={snapPoints}
-        enableDynamicSizing={false}
-        enablePanDownToClose
-        backgroundStyle={styles.sheetBackground}
-        handleIndicatorStyle={styles.sheetIndicator}
-      >
-        {sheetMode === 'pokemon-picker' && (
-          <BottomSheetScrollView contentContainerStyle={styles.sheetContent}>
-            <Text style={styles.sheetTitle}>{editingPinId ? 'Zmień Pokémona' : 'Wybierz Pokémona'}</Text>
-            <Text style={styles.sheetText}>
-              {editingPinId
-                ? 'Ten Pokémon zastąpi aktualnie przypisanego do pina.'
-                : 'Ten Pokémon zostanie przypięty do wybranego miejsca.'}
-            </Text>
+      {isMainSheetVisible && (
+        <BottomSheet
+          ref={bottomSheetRef}
+          index={0}
+          snapPoints={snapPoints}
+          enableDynamicSizing={false}
+          enablePanDownToClose
+          backgroundStyle={styles.sheetBackground}
+          handleIndicatorStyle={styles.sheetIndicator}
+          onClose={() => setIsMainSheetVisible(false)}
+        >
+          {sheetMode === 'pokemon-picker' && (
+            <BottomSheetScrollView contentContainerStyle={styles.sheetContent}>
+              <Text style={styles.sheetTitle}>{editingPinId ? 'Zmień Pokémona' : 'Wybierz Pokémona'}</Text>
+              <Text style={styles.sheetText}>
+                {editingPinId
+                  ? 'Ten Pokémon zastąpi aktualnie przypisanego do pina.'
+                  : 'Ten Pokémon zostanie przypięty do wybranego miejsca.'}
+              </Text>
 
-            <View style={styles.pokemonGrid}>
-              {favourites.map((pokemon) => (
-                <Pressable
-                  key={pokemon.name}
-                  style={({ pressed }) => [styles.pokemonOption, pressed && styles.pressed]}
-                  onPress={() => handleChoosePokemon(pokemon)}
-                >
-                  <Image source={{ uri: getPokemonImageUrl(pokemon.url) }} style={styles.optionImage} />
-                  <Text style={styles.optionName}>{formatPokemonName(pokemon.name)}</Text>
+              <View style={styles.pokemonGrid}>
+                {favourites.map((pokemon) => (
+                  <Pressable
+                    key={pokemon.name}
+                    style={({ pressed }) => [styles.pokemonOption, pressed && styles.pressed]}
+                    onPress={() => handleChoosePokemon(pokemon)}
+                  >
+                    <Image source={{ uri: getPokemonImageUrl(pokemon.url) }} style={styles.optionImage} />
+                    <Text style={styles.optionName}>{formatPokemonName(pokemon.name)}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            </BottomSheetScrollView>
+          )}
+
+          {sheetMode === 'pin-details' && selectedPin && (
+            <BottomSheetView style={styles.sheetContent}>
+              <Image source={{ uri: getPokemonImageUrl(selectedPin.pokemonUrl) }} style={styles.detailsImage} />
+              <Text style={styles.sheetTitle}>{formatPokemonName(selectedPin.pokemonName)}</Text>
+              <Text style={styles.sheetText}>
+                Ten Pokémon został przypięty do miejsca: {selectedPin.latitude.toFixed(4)},{' '}
+                {selectedPin.longitude.toFixed(4)}.
+              </Text>
+
+              <View style={styles.actionsGrid}>
+                <Pressable style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]} onPress={handleOpenDetails}>
+                  <Text style={styles.primaryButtonText}>Szczegóły</Text>
                 </Pressable>
-              ))}
-            </View>
-          </BottomSheetScrollView>
-        )}
-
-        {sheetMode === 'pin-details' && selectedPin && (
-          <BottomSheetView style={styles.sheetContent}>
-            <Image source={{ uri: getPokemonImageUrl(selectedPin.pokemonUrl) }} style={styles.detailsImage} />
-            <Text style={styles.sheetTitle}>{formatPokemonName(selectedPin.pokemonName)}</Text>
-            <Text style={styles.sheetText}>
-              Ten Pokémon został przypięty do miejsca: {selectedPin.latitude.toFixed(4)},{' '}
-              {selectedPin.longitude.toFixed(4)}.
-            </Text>
-
-            <View style={styles.actionsGrid}>
-              <Pressable style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]} onPress={handleOpenDetails}>
-                <Text style={styles.primaryButtonText}>Szczegóły</Text>
-              </Pressable>
-              <Pressable
-                style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
-                onPress={handleEditSelectedPokemon}
-              >
-                <Text style={styles.secondaryButtonText}>Zmień</Text>
-              </Pressable>
-              <Pressable
-                style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
-                onPress={handleMoveSelectedPin}
-              >
-                <Text style={styles.secondaryButtonText}>Przenieś</Text>
-              </Pressable>
-              <Pressable
-                style={({ pressed }) => [styles.dangerButton, pressed && styles.pressed]}
-                onPress={handleRemoveSelectedPin}
-              >
-                <Text style={styles.dangerButtonText}>Usuń</Text>
-              </Pressable>
-            </View>
-          </BottomSheetView>
-        )}
-
-        {sheetMode === 'pin-list' && (
-          <BottomSheetScrollView contentContainerStyle={styles.sheetContent}>
-            <Text style={styles.sheetTitle}>
-              {selectedPokemonFilter ? formatPokemonName(selectedPokemonFilter) : 'Wszystkie lokalizacje'}
-            </Text>
-            <Text style={styles.sheetText}>Wybierz pozycję, żeby przesunąć mapę na zapisane miejsce.</Text>
-
-            <View style={styles.pinList}>
-              {listedPins.map((pin) => (
                 <Pressable
-                  key={pin.id}
-                  style={({ pressed }) => [styles.pinListItem, pressed && styles.pressed]}
-                  onPress={() => handleSelectListedPin(pin)}
+                  style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
+                  onPress={handleEditSelectedPokemon}
                 >
-                  <Image source={{ uri: getPokemonImageUrl(pin.pokemonUrl) }} style={styles.pinListImage} />
-                  <View style={styles.pinListContent}>
-                    <Text style={styles.pinListName}>{formatPokemonName(pin.pokemonName)}</Text>
-                    <Text style={styles.pinListCoordinates}>
-                      {pin.latitude.toFixed(4)}, {pin.longitude.toFixed(4)}
-                    </Text>
-                  </View>
+                  <Text style={styles.secondaryButtonText}>Zmień</Text>
                 </Pressable>
-              ))}
-            </View>
-          </BottomSheetScrollView>
-        )}
+                <Pressable
+                  style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
+                  onPress={handleMoveSelectedPin}
+                >
+                  <Text style={styles.secondaryButtonText}>Przenieś</Text>
+                </Pressable>
+                <Pressable
+                  style={({ pressed }) => [styles.dangerButton, pressed && styles.pressed]}
+                  onPress={handleRemoveSelectedPin}
+                >
+                  <Text style={styles.dangerButtonText}>Usuń</Text>
+                </Pressable>
+              </View>
+            </BottomSheetView>
+          )}
 
-        {sheetMode === 'empty-favourites' && (
-          <BottomSheetView style={styles.sheetContent}>
-            <Text style={styles.sheetTitle}>Brak ulubionych</Text>
-            <Text style={styles.sheetText}>Dodaj najpierw Pokémona do ulubionych, a potem przypnij go na mapie.</Text>
-            <Pressable
-              style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}
-              onPress={() => router.push('/(tabs)/list')}
-            >
-              <Text style={styles.primaryButtonText}>Przejdź do listy</Text>
-            </Pressable>
-          </BottomSheetView>
-        )}
-      </BottomSheet>
+          {sheetMode === 'pin-list' && (
+            <BottomSheetScrollView contentContainerStyle={styles.sheetContent}>
+              <Text style={styles.sheetTitle}>
+                {selectedPokemonFilter ? formatPokemonName(selectedPokemonFilter) : 'Wszystkie lokalizacje'}
+              </Text>
+              <Text style={styles.sheetText}>Wybierz pozycję, żeby przesunąć mapę na zapisane miejsce.</Text>
+
+              <View style={styles.pinList}>
+                {listedPins.map((pin) => (
+                  <Pressable
+                    key={pin.id}
+                    style={({ pressed }) => [styles.pinListItem, pressed && styles.pressed]}
+                    onPress={() => handleSelectListedPin(pin)}
+                  >
+                    <Image source={{ uri: getPokemonImageUrl(pin.pokemonUrl) }} style={styles.pinListImage} />
+                    <View style={styles.pinListContent}>
+                      <Text style={styles.pinListName}>{formatPokemonName(pin.pokemonName)}</Text>
+                      <Text style={styles.pinListCoordinates}>
+                        {pin.latitude.toFixed(4)}, {pin.longitude.toFixed(4)}
+                      </Text>
+                    </View>
+                  </Pressable>
+                ))}
+              </View>
+            </BottomSheetScrollView>
+          )}
+
+          {sheetMode === 'pokemon-full-details' && selectedPin && (
+            <BottomSheetScrollView contentContainerStyle={styles.sheetContent}>
+              <MapPokemonDetailsSheetContent pin={selectedPin} />
+            </BottomSheetScrollView>
+          )}
+
+          {sheetMode === 'empty-favourites' && (
+            <BottomSheetView style={styles.sheetContent}>
+              <Text style={styles.sheetTitle}>Brak ulubionych</Text>
+              <Text style={styles.sheetText}>Dodaj najpierw Pokémona do ulubionych, a potem przypnij go na mapie.</Text>
+              <Pressable
+                style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}
+                onPress={() => router.push('/(tabs)/list')}
+              >
+                <Text style={styles.primaryButtonText}>Przejdź do listy</Text>
+              </Pressable>
+            </BottomSheetView>
+          )}
+        </BottomSheet>
+      )}
     </View>
   );
 }

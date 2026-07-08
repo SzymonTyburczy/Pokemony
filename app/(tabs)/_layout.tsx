@@ -38,6 +38,14 @@ export default function TabsLayout() {
           />
           <NativeTabs.Trigger.Label>Kamera</NativeTabs.Trigger.Label>
         </NativeTabs.Trigger>
+
+        <NativeTabs.Trigger name="additional">
+          <NativeTabs.Trigger.Icon
+            sf={{ default: 'ellipsis.circle', selected: 'ellipsis.circle.fill' }}
+            selectedColor="#3b4cca"
+          />
+          <NativeTabs.Trigger.Label>Swipe</NativeTabs.Trigger.Label>
+        </NativeTabs.Trigger>
       </NativeTabs>
     );
   }
@@ -88,6 +96,20 @@ export default function TabsLayout() {
           title: 'Kamera',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'camera' : 'camera-outline'} size={24} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="additional"
+        options={{
+          title: 'Swipe',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? 'ellipsis-horizontal-circle' : 'ellipsis-horizontal-circle-outline'}
+              size={24}
+              color={color}
+            />
           ),
         }}
       />
