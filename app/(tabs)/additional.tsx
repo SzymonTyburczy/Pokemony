@@ -1,32 +1,91 @@
-import React, { useState } from 'react';
-import {
-  ActivityIndicator,
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  useWindowDimensions,
-  View,
-} from 'react-native';
-import { WebView } from 'react-native-webview';
+import React, { useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
-import { getPokemonImageUrl } from '../../src/shared/utils/getPokemonImageUrl';
+import { Pokemon } from '../../src/features/pokemon/model/types';
 import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
-import { usePokemonShowcase } from '../../src/features/pokemon/hooks/usePokemonShowcase';
-import { PokemonAnimationModal } from '../../src/features/pokemon/ui/PokemonAnimationModal';
-import { PokemonDescription } from '../../src/features/pokemon/ui/PokemonDescription';
-import { getCryPlayerHtml } from '../../src/features/pokemon/hooks/usePokemonCryPlayer';
+import { getPokemonImageUrl } from '../../src/shared/utils/getPokemonImageUrl';
 
-export default function FavouritesScreen() {
+function FavouriteRow({
+  pokemon,
+  onPress,
+  onRemove,
+}: {
+  pokemon: Pokemon;
+  onPress: () => void;
+  onRemove: () => void;
+}) {
+  const shouldIgnoreNextPressRef = useRef(false);
+  const [rowWidth, setRowWidth] = useState(0);
+  const imageUrl = useMemo(() => getPokemonImageUrl(pokemon.url), [pokemon.url]);
+  const deleteThreshold = rowWidth > 0 ? rowWidth * 0.55 : 140;
+
+  return (
+    <Swipeable
+      renderRightActions={() => (
+        <View style={[styles.deleteActionContainer, rowWidth > 0 && { width: rowWidth }]}>
+          <View style={styles.deleteAction}>
+            <Text style={styles.deleteActionText}>Usun</Text>
+          </View>
+        </View>
+      )}
+      onSwipeableOpenStartDrag={() => {
+        shouldIgnoreNextPressRef.current = true;
+      }}
+      onSwipeableCloseStartDrag={() => {
+        shouldIgnoreNextPressRef.current = true;
+      }}
+      onSwipeableOpen={(direction) => {
+        if (direction === 'left') {
+          onRemove();
+        }
+      }}
+      onSwipeableClose={() => {
+        requestAnimationFrame(() => {
+          shouldIgnoreNextPressRef.current = false;
+        });
+      }}
+      friction={1.2}
+      overshootRight={false}
+      overshootFriction={10}
+      rightThreshold={deleteThreshold}
+      dragOffsetFromRightEdge={20}
+      animationOptions={{
+        damping: 42,
+        stiffness: 220,
+        mass: 0.95,
+      }}
+    >
+      <Pressable
+        style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+        onLayout={(event) => {
+          const nextWidth = event.nativeEvent.layout.width;
+          if (nextWidth !== rowWidth) {
+            setRowWidth(nextWidth);
+          }
+        }}
+        onPress={() => {
+          if (shouldIgnoreNextPressRef.current) {
+            shouldIgnoreNextPressRef.current = false;
+            return;
+          }
+          onPress();
+        }}
+      >
+        <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="contain" />
+        <View style={styles.rowText}>
+          <Text style={styles.name}>{formatPokemonName(pokemon.name)}</Text>
+          <Text style={styles.hint}>Mocne pociagniecie albo przeciagniecie do konca usuwa z ulubionych</Text>
+        </View>
+      </Pressable>
+    </Swipeable>
+  );
+}
+
+export default function AdditionalScreen() {
   const router = useRouter();
   const { favourites, isLoaded, removeFavourite } = useFavouritesContext();
-  const { selectedAnimation, playPokemonCry, webViewRef, showPokemon, closeAnimation } = usePokemonShowcase();
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const { width } = useWindowDimensions();
-
-  // Clamp index synchronicznie podczas renderowania, nie przez useEffect
-  const safeIndex = favourites.length > 0 ? Math.min(currentIndex, favourites.length - 1) : 0;
 
   if (!isLoaded) {
     return (
@@ -36,254 +95,159 @@ export default function FavouritesScreen() {
     );
   }
 
-  if (favourites.length === 0) {
-    return (
-      <View style={styles.center}>
-        <Text style={styles.emptyIcon}>🤍</Text>
-        <Text style={styles.emptyTitle}>Brak ulubionych</Text>
-        <Text style={styles.emptySubtitle}>Dodaj Pokémona z listy, klikając ❤️</Text>
-        <Pressable style={styles.goToListButton} onPress={() => router.push('/(tabs)/list')}>
-          <Text style={styles.goToListText}>Przejdź do listy</Text>
-        </Pressable>
-      </View>
-    );
-  }
-
-  const pokemon = favourites[safeIndex];
-  if (!pokemon) return null;
-  const imageUrl = getPokemonImageUrl(pokemon.url);
-  const hasNext = safeIndex < favourites.length - 1;
-  const hasPrev = safeIndex > 0;
-
   return (
     <View style={styles.container}>
-      <Text style={styles.screenTitle}>Ulubione</Text>
+      <Text style={styles.title}>Ulubione</Text>
+      <Text style={styles.subtitle}>Przewijaj w dol, a swipe w lewo usuwa Pokemona z ulubionych.</Text>
 
-      {/* Licznik */}
-      <Text style={styles.counter}>
-        {safeIndex + 1} / {favourites.length}
-      </Text>
-
-      {/* Karta pokémona */}
-      <Pressable
-        style={({ pressed }) => [styles.card, { width: width - 48 }, pressed && styles.cardPressed]}
-        onPress={() => showPokemon(pokemon)}
-      >
-        <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="contain" />
-        <Text style={styles.pokemonName}>{formatPokemonName(pokemon.name)}</Text>
-
-        {/* Przycisk usunięcia */}
-        <Pressable
-          style={({ pressed }) => [styles.removeButton, pressed && styles.removeButtonPressed]}
-          onPress={(e) => {
-            e.stopPropagation?.();
-            removeFavourite(pokemon.name);
-          }}
-        >
-          <Text style={styles.removeButtonText}>💔 Usuń z ulubionych</Text>
-        </Pressable>
-      </Pressable>
-
-      {/* Nawigacja */}
-      <View style={styles.navRow}>
-        <Pressable
-          style={({ pressed }) => [styles.navButton, !hasPrev && styles.navButtonDisabled, pressed && styles.navPressed]}
-          onPress={() => setCurrentIndex((i) => i - 1)}
-          disabled={!hasPrev}
-        >
-          <Text style={[styles.navArrow, !hasPrev && styles.navArrowDisabled]}>←</Text>
-        </Pressable>
-
-        {/* Kropki */}
-        <View style={styles.dotsRow}>
-          {favourites.map((_, i) => (
-            <Pressable key={i} onPress={() => setCurrentIndex(i)}>
-              <View style={[styles.dot, i === safeIndex && styles.dotActive]} />
+      <FlatList
+        data={favourites}
+        keyExtractor={(item) => item.name}
+        contentContainerStyle={[styles.listContent, favourites.length === 0 && styles.emptyListContent]}
+        renderItem={({ item }) => (
+          <FavouriteRow
+            pokemon={item}
+            onPress={() => router.push(`/pokemon/${item.name}`)}
+            onRemove={() => removeFavourite(item.name)}
+          />
+        )}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        ListEmptyComponent={
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyTitle}>Brak ulubionych</Text>
+            <Text style={styles.emptyText}>Dodaj Pokemony w zakladce Lista i wroc tutaj.</Text>
+            <Pressable style={styles.goToListButton} onPress={() => router.push('/(tabs)/list')}>
+              <Text style={styles.goToListText}>Przejdz do listy</Text>
             </Pressable>
-          ))}
-        </View>
-
-        <Pressable
-          style={({ pressed }) => [styles.navButton, !hasNext && styles.navButtonDisabled, pressed && styles.navPressed]}
-          onPress={() => setCurrentIndex((i) => i + 1)}
-          disabled={!hasNext}
-        >
-          <Text style={[styles.navArrow, !hasNext && styles.navArrowDisabled]}>→</Text>
-        </Pressable>
-      </View>
-
-      <View style={styles.descriptionContainer}>
-        <PokemonDescription pokemonName={pokemon.name} />
-      </View>
-
-      <WebView
-        ref={webViewRef}
-        source={{ html: getCryPlayerHtml() }}
-        style={styles.hiddenWebView}
-        javaScriptEnabled
-        mediaPlaybackRequiresUserAction={false}
-        allowsInlineMediaPlayback
-      />
-
-      <PokemonAnimationModal
-        animation={selectedAnimation}
-        onClose={closeAnimation}
-        onPokemonSound={playPokemonCry}
-        hasCry
+          </View>
+        }
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  hiddenWebView: {
-    width: 0,
-    height: 0,
-    position: 'absolute',
-  },
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    paddingTop: 60,
+    paddingTop: 56,
   },
   center: {
     flex: 1,
-    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 24,
+    backgroundColor: '#fff',
   },
-  screenTitle: {
+  title: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: '800',
     color: '#3b4cca',
-    marginBottom: 4,
+    textAlign: 'center',
+    paddingHorizontal: 20,
   },
-  counter: {
+  subtitle: {
     fontSize: 14,
-    color: '#9ca3af',
-    marginBottom: 24,
+    lineHeight: 20,
+    color: '#6b7280',
+    textAlign: 'center',
+    paddingHorizontal: 24,
+    marginTop: 8,
+    marginBottom: 16,
   },
-  card: {
-    backgroundColor: '#f8f9fa',
+  listContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 28,
+  },
+  emptyListContent: {
+    flexGrow: 1,
+  },
+  row: {
+    backgroundColor: '#fbfbfc',
     borderRadius: 20,
     borderWidth: 1,
     borderColor: '#e9ecef',
+    flexDirection: 'row',
     alignItems: 'center',
-    padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    shadowColor: '#0f172a',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.05,
+    shadowRadius: 14,
+    elevation: 3,
   },
-  cardPressed: {
+  rowPressed: {
     opacity: 0.82,
   },
   image: {
-    width: 200,
-    height: 200,
-    marginBottom: 16,
+    width: 60,
+    height: 60,
+    marginRight: 14,
   },
-  pokemonName: {
-    fontSize: 28,
-    fontWeight: 'bold',
+  rowText: {
+    flex: 1,
+  },
+  name: {
+    fontSize: 19,
+    fontWeight: '700',
     color: '#1f2937',
-    marginBottom: 20,
-    textAlign: 'center',
   },
-  removeButton: {
-    backgroundColor: '#fee2e2',
-    borderRadius: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+  hint: {
+    marginTop: 5,
+    fontSize: 12,
+    color: '#6b7280',
+    lineHeight: 18,
   },
-  removeButtonPressed: {
-    opacity: 0.7,
-  },
-  removeButtonText: {
-    color: '#dc2626',
-    fontWeight: '600',
-    fontSize: 15,
-  },
-  navRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 32,
-    gap: 16,
-  },
-  navButton: {
-    backgroundColor: '#3b4cca',
-    borderRadius: 12,
-    width: 48,
-    height: 48,
+  deleteAction: {
+    flex: 1,
+    marginVertical: 2,
+    borderRadius: 20,
+    backgroundColor: '#dc2626',
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 24,
   },
-  navButtonDisabled: {
-    backgroundColor: '#e5e7eb',
+  deleteActionContainer: {
+    flex: 1,
   },
-  navPressed: {
-    opacity: 0.75,
-  },
-  navArrow: {
-    fontSize: 22,
+  deleteActionText: {
     color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: '700',
+    fontSize: 16,
+    letterSpacing: 0.2,
   },
-  navArrowDisabled: {
-    color: '#9ca3af',
+  separator: {
+    height: 12,
   },
-  dotsRow: {
-    flexDirection: 'row',
-    gap: 8,
+  emptyState: {
+    flex: 1,
     alignItems: 'center',
-    flexWrap: 'wrap',
-    maxWidth: 160,
     justifyContent: 'center',
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#d1d5db',
-  },
-  dotActive: {
-    backgroundColor: '#3b4cca',
-    width: 20,
-  },
-  descriptionContainer: {
-    marginTop: 24,
-    paddingHorizontal: 20,
-    width: '100%',
-  },
-  // Empty state
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
+    paddingHorizontal: 24,
   },
   emptyTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1f2937',
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#111827',
     marginBottom: 8,
+    textAlign: 'center',
   },
-  emptySubtitle: {
+  emptyText: {
     fontSize: 15,
     color: '#6b7280',
     textAlign: 'center',
-    marginBottom: 28,
+    lineHeight: 22,
+    marginBottom: 18,
   },
   goToListButton: {
     backgroundColor: '#3b4cca',
-    borderRadius: 14,
+    borderRadius: 12,
+    paddingHorizontal: 18,
     paddingVertical: 12,
-    paddingHorizontal: 28,
   },
   goToListText: {
     color: '#fff',
     fontWeight: '700',
-    fontSize: 16,
+    fontSize: 15,
   },
 });
