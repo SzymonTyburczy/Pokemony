@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, Pressable, ImageBackground, Dimensions, Alert, 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Camera, CameraRef, useCameraPermission, useCameraDevice, usePhotoOutput } from 'react-native-vision-camera';
-import { Face, useFaceDetectorOutput } from 'react-native-vision-camera-face-detector';
+import type { Face } from 'react-native-vision-camera-face-detector';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { Asset, requestPermissionsAsync } from 'expo-media-library';
 import * as Location from 'expo-location';
@@ -14,6 +14,29 @@ import { useMapPins } from '../../src/features/map/hooks/useMapPins';
 import { getPokemonImageUrl } from '../../src/shared/utils/getPokemonImageUrl';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+type FaceDetectorOutputOptions = {
+  performanceMode: 'fast' | 'accurate';
+  runContours: boolean;
+  runLandmarks: boolean;
+  autoMode: boolean;
+  cameraFacing: 'front' | 'back';
+  windowWidth: number;
+  windowHeight: number;
+  onError: () => void;
+  onFacesDetected: (faces: Face[]) => void;
+};
+
+type UseFaceDetectorOutput = (options: FaceDetectorOutputOptions) => unknown | null;
+
+const useOptionalFaceDetectorOutput: UseFaceDetectorOutput = (() => {
+  try {
+    return require('react-native-vision-camera-face-detector').useFaceDetectorOutput;
+  } catch (error) {
+    console.warn('Face detector native module is unavailable in this build:', error);
+    return () => null;
+  }
+})();
 
 export default function CameraScreen() {
   const insets = useSafeAreaInsets();
@@ -59,7 +82,7 @@ export default function CameraScreen() {
   };
 
   // --- DETEKTOR TWARZY ---
-  const faceDetectorOutput = useFaceDetectorOutput({
+  const faceDetectorOutput = useOptionalFaceDetectorOutput({
     performanceMode: 'fast',
     runContours: false,
     runLandmarks: false,
@@ -106,7 +129,7 @@ export default function CameraScreen() {
   }, [cameraPermission, requestCameraPermission]);
 
   const cameraOutputs = useMemo(() => {
-    return photoOutput ? [faceDetectorOutput, photoOutput] : [faceDetectorOutput];
+    return [faceDetectorOutput, photoOutput].filter(Boolean);
   }, [faceDetectorOutput, photoOutput]);
 
   // --- STYL ANIMOWANY POKEMONA ---
@@ -237,7 +260,7 @@ export default function CameraScreen() {
         style={StyleSheet.absoluteFill}
         device={device}
         isActive={!cameraError}
-        outputs={cameraOutputs}
+        outputs={cameraOutputs as any}
         onError={(error) => {
           const msg = error.message ?? String(error);
           if (
