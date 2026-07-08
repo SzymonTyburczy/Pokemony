@@ -3,16 +3,19 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BottomSheet, { BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
-import MapView, { LongPressEvent, Marker, Region } from 'react-native-maps';
+import MapView, { LongPressEvent, MapPressEvent, Marker, Region } from 'react-native-maps';
 import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
 import { useMapPins } from '../../src/features/map/hooks/useMapPins';
 import { PendingMapPinLocation, PokemonMapPin } from '../../src/features/map/model/types';
@@ -38,11 +41,17 @@ function clampDelta(delta: number): number {
   return Math.min(MAX_DELTA, Math.max(MIN_DELTA, delta));
 }
 
+
 export default function MapScreen() {
   const router = useRouter();
+  const { height: SCREEN_HEIGHT } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  // The header renders at insets.top + 8 (safe-area aware)
+  const headerTop = insets.top + 8;
+  // Measured bottom of the header — set after first layout; falls back to headerTop + 72
+  const [headerBottom, setHeaderBottom] = useState(headerTop + 72);
   const mapRef = useRef<MapView>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ['38%', '68%'], []);
   const { favourites, isLoaded: areFavouritesLoaded } = useFavouritesContext();
   const {
     pins,
@@ -72,6 +81,39 @@ export default function MapScreen() {
   const listedPins = useMemo(
     () => (selectedPokemonFilter ? pins.filter((pin) => pin.pokemonName === selectedPokemonFilter) : pins),
     [pins, selectedPokemonFilter]
+  );
+
+  const snapPoints = useMemo(
+    () => {
+      // Usable height: exclude status bar and bottom nav/home indicator
+      const usableHeight = SCREEN_HEIGHT - insets.top - insets.bottom;
+
+      if (sheetMode === 'pokemon-picker') {
+        if (favourites.length >= 3) {
+          return [Math.round(usableHeight * 0.45), Math.round(usableHeight * 0.90)];
+        }
+        return [Math.round(usableHeight * 0.35), Math.round(usableHeight * 0.50), Math.round(usableHeight * 0.90)];
+      }
+
+      if (sheetMode === 'pin-details') {
+        // iOS needs more room because of home indicator & larger safe-area insets
+        const pct = Platform.OS === 'ios' ? 0.54 : 0.46;
+        return [Math.round(usableHeight * pct)];
+      }
+
+      if (sheetMode === 'pin-list') {
+        if (listedPins.length == 1) {
+          return [Math.round(usableHeight * 0.31)];
+        } else if (listedPins.length == 2) {
+          return [Math.round(usableHeight * 0.4)];
+        } else if (listedPins.length >= 3) {
+          return [Math.round(usableHeight * 0.5)];
+        }
+      }
+
+      return [Math.round(usableHeight * 0.3), Math.round(usableHeight * 0.5), Math.round(usableHeight * 0.8)];
+    },
+    [sheetMode, favourites.length, listedPins.length, SCREEN_HEIGHT, insets.top, insets.bottom]
   );
 
   useEffect(() => {
@@ -259,6 +301,17 @@ export default function MapScreen() {
     setMovingPinId(null);
   }, []);
 
+  // Zamknięcie bottom sheeta po kliknięciu na mapę (pin pozostaje zapisany)
+  const handleMapPress = useCallback(
+    (_event: MapPressEvent) => {
+      if (selectedPin) {
+        setSelectedPin(null);
+        bottomSheetRef.current?.close();
+      }
+    },
+    [selectedPin]
+  );
+
   const handleRemoveSelectedPin = useCallback(() => {
     if (!selectedPin) {
       return;
@@ -289,6 +342,7 @@ export default function MapScreen() {
         ref={mapRef}
         style={styles.map}
         initialRegion={INITIAL_REGION}
+        onPress={handleMapPress}
         onLongPress={handleLongPress}
         onRegionChangeComplete={setRegion}
         showsUserLocation={isUserLocationVisible}
@@ -315,7 +369,13 @@ export default function MapScreen() {
         })}
       </MapView>
 
-      <View style={styles.header}>
+      <View
+        style={[styles.header, { top: headerTop }]}
+        onLayout={(e) => {
+          const { y, height } = e.nativeEvent.layout;
+          setHeaderBottom(y + height + 8);
+        }}
+      >
         <Text style={styles.title}>Mapa Pokémonów</Text>
         <Text style={styles.subtitle}>{pins.length} zapisanych pinów</Text>
       </View>
@@ -324,7 +384,7 @@ export default function MapScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          style={styles.filterBar}
+          style={[styles.filterBar, { top: headerBottom }]}
           contentContainerStyle={styles.filterContent}
         >
           <Pressable
@@ -335,7 +395,13 @@ export default function MapScreen() {
             ]}
             onPress={() => handleOpenPinList(null)}
           >
-            <Text style={[styles.filterText, !selectedPokemonFilter && styles.filterTextActive]}>Wszystkie</Text>
+            <Text
+              style={[styles.filterText, !selectedPokemonFilter && styles.filterTextActive]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              Wszystkie
+            </Text>
           </Pressable>
 
           {pokemonFilterOptions.map((pokemonName) => {
@@ -351,7 +417,11 @@ export default function MapScreen() {
                 ]}
                 onPress={() => handleOpenPinList(pokemonName)}
               >
-                <Text style={[styles.filterText, isActive && styles.filterTextActive]}>
+                <Text
+                  style={[styles.filterText, isActive && styles.filterTextActive]}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
                   {formatPokemonName(pokemonName)}
                 </Text>
               </Pressable>
@@ -369,7 +439,7 @@ export default function MapScreen() {
         </View>
       )}
 
-      <View style={styles.controlsColumn}>
+      <View style={[styles.controlsColumn, { top: headerBottom + 46 }]}>
         <Pressable style={({ pressed }) => [styles.mapControlButton, pressed && styles.pressed]} onPress={() => handleZoom('in')}>
           <Text style={styles.mapControlText}>+</Text>
         </Pressable>
@@ -389,6 +459,7 @@ export default function MapScreen() {
         ref={bottomSheetRef}
         index={-1}
         snapPoints={snapPoints}
+        enableDynamicSizing={false}
         enablePanDownToClose
         backgroundStyle={styles.sheetBackground}
         handleIndicatorStyle={styles.sheetIndicator}
@@ -512,7 +583,6 @@ const styles = StyleSheet.create({
   },
   header: {
     position: 'absolute',
-    top: 52,
     left: 20,
     right: 20,
     backgroundColor: 'rgba(255,255,255,0.94)',
@@ -534,7 +604,6 @@ const styles = StyleSheet.create({
   },
   filterBar: {
     position: 'absolute',
-    top: 126,
     left: 0,
     right: 0,
   },
@@ -595,7 +664,6 @@ const styles = StyleSheet.create({
   controlsColumn: {
     position: 'absolute',
     right: 20,
-    top: 178,
     gap: 8,
   },
   mapControlButton: {
@@ -666,6 +734,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#9ca3af',
   },
   sheetContent: {
+    paddingTop: 8,
     paddingHorizontal: 20,
     paddingBottom: 28,
   },

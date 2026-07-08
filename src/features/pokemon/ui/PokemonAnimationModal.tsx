@@ -252,9 +252,6 @@ function createModelViewerHtml(animation: Pokemon3dSelection, hasCry: boolean): 
         status.textContent = 'Model niedostepny';
       });
 
-      viewer.addEventListener('click', notifyTouchSound);
-      viewer.addEventListener('touchstart', notifyTouchSound, { passive: true });
-
       formSelect.addEventListener('change', (e) => {
         loadForm(Number(e.target.value));
       });
@@ -292,7 +289,7 @@ export function PokemonAnimationModal({ animation, onClose, onPokemonSound, hasC
 
     try {
       const message = JSON.parse(event.nativeEvent.data) as { type?: string };
-      if (message.type === 'model-ready' || message.type === 'model-press' || message.type === 'sound-button') {
+      if (message.type === 'model-ready' || message.type === 'sound-button') {
         onPokemonSound?.(animation.id);
       }
     } catch {

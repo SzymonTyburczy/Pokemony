@@ -1,0 +1,54 @@
+diff --git a/node_modules/react-native-vision-camera-face-detector/ios/HybridFaceDetectorOutput.swift b/node_modules/react-native-vision-camera-face-detector/ios/HybridFaceDetectorOutput.swift
+index c40c32b..83e8cf5 100644
+--- a/node_modules/react-native-vision-camera-face-detector/ios/HybridFaceDetectorOutput.swift
++++ b/node_modules/react-native-vision-camera-face-detector/ios/HybridFaceDetectorOutput.swift
+@@ -117,7 +117,7 @@ NativeCameraOutput {
+     }
+   }
+ 
+-  func configure(config: CameraOutputConfiguration) {
++  func configure(config: OutputConfiguration) {
+     guard let connection = self.output.connection(with: .video) else {
+       return
+     }
+diff --git a/node_modules/react-native-vision-camera-face-detector/lib/commonjs/hooks/useFaceDetectorOutput.js b/node_modules/react-native-vision-camera-face-detector/lib/commonjs/hooks/useFaceDetectorOutput.js
+index bcf140c..2adc070 100644
+--- a/node_modules/react-native-vision-camera-face-detector/lib/commonjs/hooks/useFaceDetectorOutput.js
++++ b/node_modules/react-native-vision-camera-face-detector/lib/commonjs/hooks/useFaceDetectorOutput.js
+@@ -48,7 +48,7 @@ function useFaceDetectorOutput({
+     },
+     outputResolution: outputResolution,
+     ...options
+-  }), [options]);
++  }), [JSON.stringify(options)]);
+ }
+ var _default = exports.default = useFaceDetectorOutput;
+ //# sourceMappingURL=useFaceDetectorOutput.js.map
+\ No newline at end of file
+diff --git a/node_modules/react-native-vision-camera-face-detector/lib/module/hooks/useFaceDetectorOutput.js b/node_modules/react-native-vision-camera-face-detector/lib/module/hooks/useFaceDetectorOutput.js
+index aeb959e..6e3f869 100644
+--- a/node_modules/react-native-vision-camera-face-detector/lib/module/hooks/useFaceDetectorOutput.js
++++ b/node_modules/react-native-vision-camera-face-detector/lib/module/hooks/useFaceDetectorOutput.js
+@@ -44,7 +44,7 @@ export function useFaceDetectorOutput({
+     },
+     outputResolution: outputResolution,
+     ...options
+-  }), [options]);
++  }), [JSON.stringify(options)]);
+ }
+ export default useFaceDetectorOutput;
+ //# sourceMappingURL=useFaceDetectorOutput.js.map
+\ No newline at end of file
+diff --git a/node_modules/react-native-vision-camera-face-detector/src/hooks/useFaceDetectorOutput.ts b/node_modules/react-native-vision-camera-face-detector/src/hooks/useFaceDetectorOutput.ts
+index c0efa73..fd74385 100644
+--- a/node_modules/react-native-vision-camera-face-detector/src/hooks/useFaceDetectorOutput.ts
++++ b/node_modules/react-native-vision-camera-face-detector/src/hooks/useFaceDetectorOutput.ts
+@@ -56,7 +56,7 @@ export function useFaceDetectorOutput( {
+       outputResolution: outputResolution,
+       ...options
+     } ),
+-    [ options ]
++    [ JSON.stringify(options) ]
+   )
+ }
+ 
