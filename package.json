@@ -8,6 +8,7 @@
     "@react-native-async-storage/async-storage": "2.2.0",
     "expo": "~57.0.4",
     "expo-audio": "~57.0.0",
+    "expo-build-properties": "~57.0.3",
     "expo-constants": "~57.0.2",
     "expo-dev-client": "~57.0.5",
     "expo-linking": "~57.0.2",
@@ -19,6 +20,7 @@
     "postinstall-postinstall": "^2.1.0",
     "react": "19.2.3",
     "react-native": "0.86.0",
+    "react-native-fast-tflite": "^3.0.1",
     "react-native-gesture-handler": "~2.32.0",
     "react-native-maps": "1.27.2",
     "react-native-nitro-image": "^0.15.1",
@@ -29,6 +31,7 @@
     "react-native-view-shot": "5.1.0",
     "react-native-vision-camera": "^5.1.0",
     "react-native-vision-camera-face-detector": "^2.0.2",
+    "react-native-vision-camera-resizer": "^5.1.0",
     "react-native-vision-camera-worklets": "^5.1.0",
     "react-native-webview": "13.16.1",
     "react-native-worklets": "0.10.0"

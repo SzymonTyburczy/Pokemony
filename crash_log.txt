@@ -1,0 +1,867 @@
+--------- beginning of crash
+06-01 13:04:37.669 16315 16388 E AndroidRuntime: FATAL EXCEPTION: DefaultDispatcher-worker-3
+06-01 13:04:37.669 16315 16388 E AndroidRuntime: java.lang.IllegalArgumentException: User's name must not be empty.
+06-02 13:55:50.468  6954  7049 E AndroidRuntime: FATAL EXCEPTION: DefaultDispatcher-worker-4
+06-02 13:55:50.468  6954  7049 E AndroidRuntime: java.lang.IllegalArgumentException: User's name must not be empty.
+06-03 18:56:14.058 23579 23579 E AndroidRuntime: FATAL EXCEPTION: main
+06-03 18:56:14.058 23579 23579 E AndroidRuntime: com.facebook.jni.CppException: Exception in HostFunction: com.facebook.react.bridge.RetryableMountingLayerException: Unable to find viewState for tag 36912. Surface stopped: false
+06-03 18:56:14.058 23579 23579 E AndroidRuntime: Error: Exception in HostFunction: com.facebook.react.bridge.RetryableMountingLayerException: Unable to find viewState for tag 36912. Surface stopped: false
+06-03 19:07:09.118  7910  7935 E AndroidRuntime: FATAL EXCEPTION: DefaultDispatcher-worker-3
+06-03 19:07:09.118  7910  7935 E AndroidRuntime: java.lang.IllegalArgumentException: User's name must not be empty.
+06-09 09:16:32.283 30005  2683 E AndroidRuntime: FATAL EXCEPTION: mqt_v_native
+06-09 09:16:32.283 30005  2683 E AndroidRuntime: com.facebook.react.common.JavascriptException: Error: No safe area value available. Make sure you are rendering `<SafeAreaProvider>` at the top of your app.
+06-09 09:16:32.283 30005  2683 E AndroidRuntime: 	at com.facebook.react.modules.core.ExceptionsManagerModule.reportException(r8-map-id-7cf9eeabdd75686436f41e6db1ad9481b47eb17d66cade808d372d324ef292ac:71)
+06-15 10:29:00.646  6920 14275 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 14275 (mqt_v_js), pid 6920 (im.filament.app)
+06-15 15:02:39.625 23713 25747 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 25747 (hades), pid 23713 (im.filament.app)
+06-15 16:14:02.909 15230 15306 E AndroidRuntime: FATAL EXCEPTION: DefaultDispatcher-worker-3
+06-15 16:14:02.909 15230 15306 E AndroidRuntime: java.lang.IllegalArgumentException: User's name must not be empty.
+06-16 11:22:34.055 23774 28446 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 28446 (mqt_v_js), pid 23774 (im.filament.app)
+06-16 11:24:49.529 31758 32627 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 32627 (hades), pid 31758 (im.filament.app)
+06-16 11:34:51.443 32398  2447 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 2447 (mqt_v_js), pid 32398 (im.filament.app)
+06-16 17:57:48.696 17763 21461 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 21461 (mqt_v_js), pid 17763 (im.filament.app)
+06-16 18:06:35.456 21631 23562 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 23562 (hades), pid 21631 (im.filament.app)
+06-16 18:22:17.497 26219 28570 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 28570 (hades), pid 26219 (im.filament.app)
+06-16 18:25:09.311 29329 30354 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 30354 (mqt_v_js), pid 29329 (im.filament.app)
+06-16 18:35:54.610  2100  3792 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 3792 (mqt_v_js), pid 2100 (im.filament.app)
+06-16 18:47:02.562  6918  8901 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 8901 (mqt_v_js), pid 6918 (im.filament.app)
+06-17 10:19:11.541 15542 17573 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 17573 (mqt_v_js), pid 15542 (im.filament.app)
+06-17 10:25:07.107 15541 18462 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 18462 (hades), pid 15541 (im.filament.app)
+06-17 10:48:44.538 18617 20207 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 20207 (mqt_v_js), pid 18617 (im.filament.app)
+06-17 13:57:55.619  2958  3114 E AndroidRuntime: FATAL EXCEPTION: DefaultDispatcher-worker-1
+06-17 13:57:55.619  2958  3114 E AndroidRuntime: java.lang.IllegalArgumentException: User's name must not be empty.
+06-17 15:52:05.486  7020  7766 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 7766 (hades), pid 7020 (im.filament.app)
+06-17 15:57:33.042 15051 16631 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 16631 (mqt_v_js), pid 15051 (im.filament.app)
+06-17 16:09:29.232 17129 19378 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 19378 (mqt_v_js), pid 17129 (im.filament.app)
+06-17 16:12:26.841 21614 23911 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 23911 (mqt_v_js), pid 21614 (im.filament.app)
+06-17 16:15:58.846 25294 28660 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 28660 (mqt_v_js), pid 25294 (im.filament.app)
+06-22 11:28:39.640 10326 10326 E AndroidRuntime: FATAL EXCEPTION: main
+06-22 11:28:39.640 10326 10326 E AndroidRuntime: java.lang.NullPointerException
+07-06 16:04:52.274 23195 25729 F libc    : Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x193020489040003 in tid 25729 (mqt_v_js), pid 23195 (st.exp.exponent)
+07-06 16:05:14.936 23793 26042 F libc    : Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x193020489040003 in tid 26042 (mqt_v_js), pid 23793 (st.exp.exponent)
+07-06 16:06:15.361 24768 26285 F libc    : Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x193020489040003 in tid 26285 (mqt_v_js), pid 24768 (st.exp.exponent)
+07-06 16:06:27.590 25679 26489 F libc    : Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x193020489040003 in tid 26489 (mqt_v_js), pid 25679 (st.exp.exponent)
+07-06 16:07:17.528 25969 27021 F libc    : Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x193020489040003 in tid 27021 (mqt_v_js), pid 25969 (st.exp.exponent)
+07-06 20:05:37.060  1859  2969 E ProcessManager: error write exception log
+07-06 20:05:37.143  1859  2969 E ProcessManager: error write exception log
+07-06 20:05:37.265  1859  2969 E ProcessManager: error write exception log
+07-06 20:05:37.388  1859  2969 E ProcessManager: error write exception log
+07-06 20:05:37.505  1859  2969 E ProcessManager: error write exception log
+07-06 20:05:37.590  1859  3164 D PowerManagerService: [xiaomi_power]acquireWakeLockInternal: lock=85946290, flags=0x1, tag="Application creation -> Application.onCreate -> Startup Listeners -> CrashStartupListener", ws=null, uid=10201, pid=431
+07-06 20:05:37.590  1859  3164 I PowerManagerServiceImpl: Partial wakeLock:[PARTIAL_WAKE_LOCK                 'Application creation -> Application.onCreate -> Startup Listeners -> CrashStartupListener' (uid=10201 pid=431 pkg=com.google.android.apps.tachyon)], disabled: true, procState: 19, reason: Process Priority
+07-06 20:05:37.597  1859  3651 D PowerManagerService: [xiaomi_power]releaseWakeLockInternal: lock=85946290 [Application creation -> Application.onCreate -> Startup Listeners -> CrashStartupListener], flags=0x0
+07-06 20:05:37.662  1859  2969 E ProcessManager: error write exception log
+07-06 20:05:37.728  1859  2969 E ProcessManager: error write exception log
+07-06 20:05:38.354  1859  2969 E ProcessManager: error write exception log
+07-06 20:05:38.859  1859  2969 E ProcessManager: error write exception log
+07-06 20:05:41.274  1859  2969 E ProcessManager: error write exception log
+07-06 20:05:41.709  1859  2969 E ProcessManager: error write exception log
+07-06 20:05:41.859  1859  2969 E ProcessManager: error write exception log
+07-06 20:05:41.961  1859  2969 E ProcessManager: error write exception log
+07-06 20:05:42.564  1859  2969 E ProcessManager: error write exception log
+07-06 20:05:42.693  1859  2969 E ProcessManager: error write exception log
+07-06 20:05:43.098  1859  2969 E ProcessManager: error write exception log
+07-06 20:05:43.257  1859  2969 E ProcessManager: error write exception log
+07-06 20:05:43.766  1859  2969 E ProcessManager: error write exception log
+07-06 20:05:43.914  1859  2969 E ProcessManager: error write exception log
+07-06 20:05:44.592  1859  2969 E ProcessManager: error write exception log
+07-06 20:15:54.330  1859  2937 E DeviceGuardManagerImpl: onBootPhase:PHASE_SYSTEM_SERVICES_READY init miguardservice failed. Exception e = 
+07-06 20:15:54.330  1859  2937 E DeviceGuardManagerImpl: java.util.NoSuchElementException
+07-06 20:15:56.972  1859  2937 E DeviceGuardManagerImpl: onBootPhase:PHASE_SYSTEM_SERVICES_READY init miguardservice failed. Exception e = 
+07-06 20:15:56.972  1859  2937 E DeviceGuardManagerImpl: java.util.NoSuchElementException
+07-06 20:16:12.975  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-06 20:16:12.975  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-06 20:16:13.140  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-06 20:16:13.140  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-06 20:16:13.297  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-06 20:16:13.297  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-06 21:00:42.996  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-06 21:00:42.996  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-06 21:00:43.219  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-06 21:00:43.219  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-06 21:00:43.371  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-06 21:00:43.371  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-06 21:00:43.654  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-06 21:00:43.654  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-06 21:00:43.765  1859  2969 E ProcessManager: error write exception log
+07-06 21:31:07.009  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-06 21:31:07.009  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-06 21:31:07.203  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-06 21:31:07.203  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-06 21:31:07.207  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-06 21:31:07.207  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-06 21:31:07.365  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-06 21:31:07.365  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-06 22:00:44.986  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-06 22:00:44.986  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-06 22:00:45.157  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-06 22:00:45.157  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-06 22:00:45.292  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-06 22:00:45.292  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-06 22:00:45.476  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-06 22:00:45.476  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-06 22:15:57.004  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-06 22:15:57.004  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-06 23:00:47.000  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-06 23:00:47.000  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-06 23:00:47.198  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-06 23:00:47.198  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-06 23:00:47.337  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-06 23:00:47.337  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-06 23:00:47.559  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-06 23:00:47.559  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-06 23:16:07.055  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-06 23:16:07.055  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-06 23:16:07.220  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-06 23:16:07.220  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-06 23:16:07.339  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-06 23:16:07.339  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 00:00:01.057  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 00:00:01.057  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 00:00:01.262  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 00:00:01.262  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 00:00:01.377  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 00:00:01.377  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 00:00:49.028  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 00:00:49.028  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 00:01:07.955  1859  2969 E ProcessManager: error write exception log
+07-07 00:01:08.069  1859  2969 E ProcessManager: error write exception log
+07-07 00:06:06.390  1859  2969 E ProcessManager: error write exception log
+07-07 00:06:06.513  1859  2969 E ProcessManager: error write exception log
+07-07 00:06:06.703  1859  2969 E ProcessManager: error write exception log
+07-07 00:06:07.226  1859  2969 E ProcessManager: error write exception log
+07-07 00:06:08.961  1859  2969 E ProcessManager: error write exception log
+07-07 00:06:09.755  1859  2969 E ProcessManager: error write exception log
+07-07 00:06:10.503  1859  2969 E ProcessManager: error write exception log
+07-07 00:06:10.582  1859  2969 E ProcessManager: error write exception log
+07-07 00:06:11.268  1859  2969 E ProcessManager: error write exception log
+07-07 00:06:27.904  1859  2969 E ProcessManager: error write exception log
+07-07 00:15:58.312  1859  2937 E DeviceGuardManagerImpl: onBootPhase:PHASE_SYSTEM_SERVICES_READY init miguardservice failed. Exception e = 
+07-07 00:15:58.312  1859  2937 E DeviceGuardManagerImpl: java.util.NoSuchElementException
+07-07 00:16:00.629  1859  2937 E DeviceGuardManagerImpl: onBootPhase:PHASE_SYSTEM_SERVICES_READY init miguardservice failed. Exception e = 
+07-07 00:16:00.629  1859  2937 E DeviceGuardManagerImpl: java.util.NoSuchElementException
+07-07 00:16:16.994  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 00:16:16.994  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 00:16:17.150  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 00:16:17.150  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 00:16:17.283  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 00:16:17.283  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 00:31:57.858  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 00:31:57.858  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 00:31:58.022  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 00:31:58.022  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 00:31:58.164  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 00:31:58.164  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 01:00:50.976  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 01:00:50.976  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 01:00:51.127  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 01:00:51.127  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 01:00:51.269  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 01:00:51.269  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 01:00:51.509  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 01:00:51.509  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 01:01:07.373  1859  2969 E ProcessManager: error write exception log
+07-07 02:00:52.974  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 02:00:52.974  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 02:00:53.187  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 02:00:53.187  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 02:00:53.320  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 02:00:53.320  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 02:00:53.509  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 02:00:53.509  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 02:46:08.102  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 02:46:08.102  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 02:46:08.299  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 02:46:08.299  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 02:46:08.437  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 02:46:08.437  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 02:46:08.573  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 02:46:08.573  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 03:00:54.978  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 03:00:54.978  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 03:00:55.131  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 03:00:55.131  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 03:00:55.281  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 03:00:55.281  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 04:00:56.982  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 04:00:56.982  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 04:00:57.245  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 04:00:57.245  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 04:00:57.456  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 04:00:57.456  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 04:00:57.634  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 04:00:57.634  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 04:16:02.177  1859  2937 E DeviceGuardManagerImpl: onBootPhase:PHASE_SYSTEM_SERVICES_READY init miguardservice failed. Exception e = 
+07-07 04:16:02.177  1859  2937 E DeviceGuardManagerImpl: java.util.NoSuchElementException
+07-07 04:16:04.429  1859  2937 E DeviceGuardManagerImpl: onBootPhase:PHASE_SYSTEM_SERVICES_READY init miguardservice failed. Exception e = 
+07-07 04:16:04.429  1859  2937 E DeviceGuardManagerImpl: java.util.NoSuchElementException
+07-07 04:16:21.022  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 04:16:21.022  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 04:16:21.209  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 04:16:21.209  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 04:16:21.385  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 04:16:21.385  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 05:00:57.995  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 05:00:57.995  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 05:00:58.168  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 05:00:58.168  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 05:00:58.321  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 05:00:58.321  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 05:00:58.720  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 05:00:58.720  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 06:00:59.993  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 06:00:59.993  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 06:01:00.167  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 06:01:00.167  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 06:01:00.313  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 06:01:00.313  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 06:01:00.638  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 06:01:00.638  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 06:06:38.629  1859  2969 E ProcessManager: error write exception log
+07-07 06:06:41.053  1859  2969 E ProcessManager: error write exception log
+07-07 06:06:41.159  1859  2969 E ProcessManager: error write exception log
+07-07 06:06:41.217  1859  2969 E ProcessManager: error write exception log
+07-07 06:06:41.385  1859  3249 D PowerManagerService: [xiaomi_power]acquireWakeLockInternal: lock=39481978, flags=0x1, tag="Application creation -> Application.onCreate -> Startup Listeners -> CrashStartupListener", ws=null, uid=10201, pid=5247
+07-07 06:06:41.385  1859  3249 I PowerManagerServiceImpl: Partial wakeLock:[PARTIAL_WAKE_LOCK                 'Application creation -> Application.onCreate -> Startup Listeners -> CrashStartupListener' (uid=10201 pid=5247 pkg=com.google.android.apps.tachyon)], disabled: true, procState: 19, reason: Process Priority
+07-07 06:06:41.396  1859  2969 E ProcessManager: error write exception log
+07-07 06:06:41.400  1859  3763 D PowerManagerService: [xiaomi_power]releaseWakeLockInternal: lock=39481978 [Application creation -> Application.onCreate -> Startup Listeners -> CrashStartupListener], flags=0x0
+07-07 06:06:41.579  1859  2969 E ProcessManager: error write exception log
+07-07 06:06:41.661  1859  2969 E ProcessManager: error write exception log
+07-07 06:06:41.965  1859  2969 E ProcessManager: error write exception log
+07-07 06:06:42.018  1859  2969 E ProcessManager: error write exception log
+07-07 06:06:42.055  1859  2969 E ProcessManager: error write exception log
+07-07 06:06:42.144  1859  2969 E ProcessManager: error write exception log
+07-07 06:06:42.177  1859  2969 E ProcessManager: error write exception log
+07-07 06:06:42.268  1859  2969 E ProcessManager: error write exception log
+07-07 06:06:42.626  1859  2969 E ProcessManager: error write exception log
+07-07 06:06:42.746  1859  2969 E ProcessManager: error write exception log
+07-07 06:06:42.933  1859  2969 E ProcessManager: error write exception log
+07-07 06:06:44.198  1859  2070 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10148/pid_5726/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 06:06:44.198  1859  2070 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 06:06:44.298  1859  2969 E ProcessManager: error write exception log
+07-07 06:06:44.485  1859  2969 E ProcessManager: error write exception log
+07-07 06:06:44.570  1859  2070 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10148/pid_5726/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 06:06:44.570  1859  2070 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 06:06:44.729  1859  2070 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10148/pid_5726/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 06:06:44.729  1859  2070 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 06:06:48.588  1859  2969 E ProcessManager: error write exception log
+07-07 06:06:49.603  1859  2969 E ProcessManager: error write exception log
+07-07 06:06:52.817  1859  2969 E ProcessManager: error write exception log
+07-07 06:06:52.973  1859  2969 E ProcessManager: error write exception log
+07-07 06:12:37.292  1859  2073 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10168/pid_31461/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 06:12:37.292  1859  2073 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 06:12:37.295  1859  2073 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10164/pid_6629/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 06:12:37.295  1859  2073 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 06:12:37.296  1859  2073 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10148/pid_5726/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 06:12:37.296  1859  2073 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 07:00:01.046  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 07:00:01.046  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 07:00:01.330  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 07:00:01.330  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 07:00:01.549  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 07:00:01.549  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 07:00:01.750  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 07:00:01.750  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 07:10:18.041  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 07:10:18.041  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 07:10:18.086  1859  2969 E ProcessManager: error write exception log
+07-07 07:10:18.193  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 07:10:18.193  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 07:10:18.293  1859  2969 E ProcessManager: error write exception log
+07-07 07:10:18.346  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 07:10:18.346  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 07:46:07.076  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 07:46:07.076  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 07:46:07.304  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 07:46:07.304  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 07:46:07.532  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 07:46:07.532  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 08:10:18.991  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 08:10:18.991  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 08:10:19.176  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 08:10:19.176  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 08:10:19.342  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 08:10:19.342  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 08:10:19.688  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 08:10:19.688  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 08:16:06.208  1859  2937 E DeviceGuardManagerImpl: onBootPhase:PHASE_SYSTEM_SERVICES_READY init miguardservice failed. Exception e = 
+07-07 08:16:06.208  1859  2937 E DeviceGuardManagerImpl: java.util.NoSuchElementException
+07-07 08:16:08.419  1859  2937 E DeviceGuardManagerImpl: onBootPhase:PHASE_SYSTEM_SERVICES_READY init miguardservice failed. Exception e = 
+07-07 08:16:08.419  1859  2937 E DeviceGuardManagerImpl: java.util.NoSuchElementException
+07-07 09:10:20.982  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 09:10:20.982  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 09:10:21.155  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 09:10:21.155  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 09:10:21.405  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 09:10:21.405  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 09:10:21.840  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 09:10:21.840  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 09:31:08.083  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 09:31:08.083  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 09:31:08.286  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 09:31:08.286  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 09:31:08.570  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 09:31:08.570  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 09:43:29.397  1859  2969 E ProcessManager: error write exception log
+07-07 10:10:21.823  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 10:10:21.823  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 10:10:22.014  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 10:10:22.014  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 10:10:22.214  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 10:10:22.214  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 10:10:22.446  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 10:10:22.446  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 10:20:56.645  1859  2969 E ProcessManager: error write exception log
+07-07 10:20:56.687  1859  2969 E ProcessManager: error write exception log
+07-07 10:20:56.825  1859  2969 E ProcessManager: error write exception log
+07-07 10:20:57.160  1859  2969 E ProcessManager: error write exception log
+07-07 10:20:57.516  1859  2969 E ProcessManager: error write exception log
+07-07 10:20:57.590  1859  2969 E ProcessManager: error write exception log
+07-07 10:20:57.754  1859  2969 E ProcessManager: error write exception log
+07-07 10:20:57.915  1859  2969 E ProcessManager: error write exception log
+07-07 10:20:57.967  1859  2969 E ProcessManager: error write exception log
+07-07 10:20:58.547  1859  2969 E ProcessManager: error write exception log
+07-07 10:20:58.699  1859  1859 E FaceUnlockTrack: org.json.JSONException: End of input at character 0 of 
+07-07 10:20:59.242  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:00.110  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:00.708  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:00.932  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:01.580  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:01.683  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:01.886  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:03.017  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:03.660  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:07.421  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:07.607  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:08.205  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:08.498  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:10.409  1859  5049 I PowerManagerServiceImpl: Partial wakeLock:[PARTIAL_WAKE_LOCK                 'Application creation -> Application.onCreate -> Startup Listeners -> CrashStartupListener' (uid=10201 pid=8892 pkg=com.google.android.apps.tachyon)], disabled: true, procState: 19, reason: Process Priority
+07-07 10:21:10.867  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:10.904  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:11.780  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:11.972  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:12.180  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:12.566  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:12.648  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:12.699  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:13.108  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:13.316  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:13.334  1859  3306 W ActivityManager: Exception when unbinding service com.android.vending/com.google.frameworks.client.data.android.server.play.BackgroundProcessEndpointService
+07-07 10:21:13.334  1859  3306 W ActivityManager: android.os.DeadObjectException
+07-07 10:21:13.480  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:13.494  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:13.550 26745 27576 E IWirelessSwitch: isWirelessChargingSupported transact failed. java.util.NoSuchElementException
+07-07 10:21:13.799  1859  5004 W ActivityManager: Exception when unbinding service com.android.chrome/org.chromium.chrome.browser.customtabs.CustomTabsConnectionService
+07-07 10:21:13.799  1859  5004 W ActivityManager: android.os.DeadObjectException
+07-07 10:21:13.913  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:14.001  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:14.068  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:14.238  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:14.426  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:14.428  1859  3763 W ActivityManager: Scheduling restart of crashed service com.xiaomi.simactivate.service/com.xiaomi.activate.ActivateService in 1000ms for connection
+07-07 10:21:14.658  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:14.684  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:14.982  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:15.092  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:15.238  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:15.465  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:15.475  1859  3762 W ActivityManager: Scheduling restart of crashed service com.miui.misightservice/.MiSightManagerService in 20000ms for start-requested
+07-07 10:21:15.510  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:15.604  1859  2056 W ActivityManager: Rescheduling restart of crashed service com.miui.misightservice/.MiSightManagerService in 29870ms for mem-pressure-event
+07-07 10:21:15.667  1859  2056 W ActivityManager: Rescheduling restart of crashed service com.miui.misightservice/.MiSightManagerService in 19808ms for mem-pressure-event
+07-07 10:21:16.176  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:16.298  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:16.362  1859  2056 W ActivityManager: Rescheduling restart of crashed service com.miui.misightservice/.MiSightManagerService in 113ms for mem-pressure-event
+07-07 10:21:16.936  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:16.944  1859  3651 W ActivityManager: Scheduling restart of crashed service com.xiaomi.simactivate.service/com.xiaomi.activate.ActivateService in 4000ms for connection
+07-07 10:21:16.988  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:18.050  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:18.249  1859  2132 E DeviceGuardManagerImpl: onBootPhase:PHASE_SYSTEM_SERVICES_READY init miguardservice failed. Exception e = 
+07-07 10:21:18.249  1859  2132 E DeviceGuardManagerImpl: java.util.NoSuchElementException
+07-07 10:21:18.701  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:19.226  1859  3250 E DeviceGuardManagerImpl: onBootPhase:PHASE_SYSTEM_SERVICES_READY init miguardservice failed. Exception e = 
+07-07 10:21:19.226  1859  3250 E DeviceGuardManagerImpl: java.util.NoSuchElementException
+07-07 10:21:19.456  1859  3306 W ActivityManager: Exception when unbinding service com.android.vending/com.google.frameworks.client.data.android.server.play.BackgroundProcessEndpointService
+07-07 10:21:19.456  1859  3306 W ActivityManager: android.os.DeadObjectException
+07-07 10:21:19.460  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:19.899  1859  3651 E DeviceGuardManagerImpl: onBootPhase:PHASE_SYSTEM_SERVICES_READY init miguardservice failed. Exception e = 
+07-07 10:21:19.899  1859  3651 E DeviceGuardManagerImpl: java.util.NoSuchElementException
+07-07 10:21:20.239  1859  4795 E DeviceGuardManagerImpl: onBootPhase:PHASE_SYSTEM_SERVICES_READY init miguardservice failed. Exception e = 
+07-07 10:21:20.239  1859  4795 E DeviceGuardManagerImpl: java.util.NoSuchElementException
+07-07 10:21:21.418  1859  4795 E DeviceGuardManagerImpl: onBootPhase:PHASE_SYSTEM_SERVICES_READY init miguardservice failed. Exception e = 
+07-07 10:21:21.418  1859  4795 E DeviceGuardManagerImpl: java.util.NoSuchElementException
+07-07 10:21:22.069  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:22.095  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:27.728  1859  2969 E ProcessManager: error write exception log
+07-07 10:21:57.748  1859  2073 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10168/pid_31461/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:21:57.748  1859  2073 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:21:57.752  1859  2073 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10164/pid_6629/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:21:57.752  1859  2073 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:21:57.769  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 10:21:57.769  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 10:22:17.718  1859  2969 E ProcessManager: error write exception log
+07-07 10:22:57.876  1859  1859 E FaceUnlockTrack: org.json.JSONException: End of input at character 0 of 
+07-07 10:23:58.961  1859  2969 E ProcessManager: error write exception log
+07-07 10:23:59.021  1859  2969 E ProcessManager: error write exception log
+07-07 10:23:59.227  1859  2969 E ProcessManager: error write exception log
+07-07 10:23:59.229  1859  2073 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10168/pid_31461/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:23:59.229  1859  2073 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:23:59.232  1859  2073 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10164/pid_6629/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:23:59.232  1859  2073 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:23:59.279  1859  2969 E ProcessManager: error write exception log
+07-07 10:23:59.435  1859  2969 E ProcessManager: error write exception log
+07-07 10:23:59.536  1859  2969 E ProcessManager: error write exception log
+07-07 10:23:59.663  1859  2969 E ProcessManager: error write exception log
+07-07 10:23:59.949  1859  2969 E ProcessManager: error write exception log
+07-07 10:24:00.300  1859  2969 E ProcessManager: error write exception log
+07-07 10:24:00.466  1859  2969 E ProcessManager: error write exception log
+07-07 10:24:01.011  1859  1859 E FaceUnlockTrack: org.json.JSONException: End of input at character 0 of 
+07-07 10:24:01.449  1859  2969 E ProcessManager: error write exception log
+07-07 10:24:01.671  1859  2969 E ProcessManager: error write exception log
+07-07 10:24:01.709  1859  2969 E ProcessManager: error write exception log
+07-07 10:24:03.194  1859  2969 E ProcessManager: error write exception log
+07-07 10:24:03.748  1859  2969 E ProcessManager: error write exception log
+07-07 10:24:03.843  1859  2070 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10151/pid_11925/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:24:03.843  1859  2070 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:24:03.982 11925 11925 W FileUtils: Failed to chmod(/data/user_de/0/com.google.android.gms/app_chimera): android.system.ErrnoException: chmod failed: ENOENT (No such file or directory)
+07-07 10:24:04.027  1859  2969 E ProcessManager: error write exception log
+07-07 10:24:04.182  1859  2969 E ProcessManager: error write exception log
+07-07 10:24:04.281  1859  2969 E ProcessManager: error write exception log
+07-07 10:24:04.391  1859  2070 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10151/pid_11925/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:24:04.391  1859  2070 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:24:04.414  1859  2969 E ProcessManager: error write exception log
+07-07 10:24:04.920  1859  2969 E ProcessManager: error write exception log
+07-07 10:24:05.020  1859  2969 E ProcessManager: error write exception log
+07-07 10:24:07.252  1859  2070 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10320/pid_12397/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:24:07.252  1859  2070 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:24:07.279  1859  2070 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10320/pid_12397/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:24:07.279  1859  2070 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:24:09.761  1859  3249 I PowerManagerServiceImpl: Partial wakeLock:[PARTIAL_WAKE_LOCK                 'Application creation -> Application.onCreate -> Startup Listeners -> CrashStartupListener' (uid=10201 pid=12725 pkg=com.google.android.apps.tachyon)], disabled: true, procState: 19, reason: Process Priority
+07-07 10:24:10.944  1859  2969 E ProcessManager: error write exception log
+07-07 10:24:28.043  1859  2969 E ProcessManager: error write exception log
+07-07 10:24:28.075  1859  2969 E ProcessManager: error write exception log
+07-07 10:24:28.120  1859  2969 E ProcessManager: error write exception log
+07-07 10:24:39.633  1859  2969 E ProcessManager: error write exception log
+07-07 10:24:39.679  1859  2969 E ProcessManager: error write exception log
+07-07 10:24:39.833  1859  2969 E ProcessManager: error write exception log
+07-07 10:24:39.878  1859  2969 E ProcessManager: error write exception log
+07-07 10:24:40.025  1859  3306 W ActivityManager: android.os.DeadObjectException
+07-07 10:24:40.026  1859  3306 W ActivityManager: android.os.DeadObjectException
+07-07 10:24:40.067  1859  2969 E ProcessManager: error write exception log
+07-07 10:24:40.468  1859  2969 E ProcessManager: error write exception log
+07-07 10:24:40.616  1859  2969 E ProcessManager: error write exception log
+07-07 10:24:40.658  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:15.722  8005 13819 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 13819 (mqt_v_js), pid 8005 (mous.Pokemonapp)
+07-07 10:25:17.017  1859 13858 I DropBoxManagerService: add tag=data_app_native_crash isTagEnabled=true flags=0x6
+07-07 10:25:17.032  1859 13857 I ActivityManager: note: ProcessRecord{faf19ee 8005:com.anonymous.Pokemonapp/u0a340} is being killed, reason: APP CRASH(NATIVE), sub-reason: UNKNOWN, message: crash
+07-07 10:25:17.110  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:17.172  1859  2062 I ActivityManager: Start proc 13865:com.miui.thirdappassistant/u0a312 for content provider {com.miui.thirdappassistant/com.miui.thirdappassistant.ui.exceptionresult.ERHeaderItemViewHolder$SharedPreferencesProvider} caller=com.miui.daemon
+07-07 10:25:18.152  1859  3164 W WindowManager: Exception thrown during dispatchAppVisibility Window{4cce4ca u0 com.anonymous.Pokemonapp/com.anonymous.Pokemonapp.MainActivity EXITING}
+07-07 10:25:18.152  1859  3164 W WindowManager: android.os.DeadObjectException
+07-07 10:25:19.104  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:22.400  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:23.005  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:26.126  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:31.982  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:32.705  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:33.589  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:33.661  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:33.914  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:36.676  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:37.288  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:37.539  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:37.678  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:37.775  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:38.112  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:38.210  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:39.238  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:39.401  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:41.496  1859  2070 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10341/pid_14549/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:25:41.496  1859  2070 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:25:41.743  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:41.910  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:42.176  1859  2070 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10341/pid_14549/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:25:42.176  1859  2070 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:25:42.617  1859  2070 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10341/pid_14549/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:25:42.617  1859  2070 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:25:42.884  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:42.929  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:42.996  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:43.162  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:43.193  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:43.223  1859  5016 W ClientLifecycleManager: android.os.DeadObjectException
+07-07 10:25:43.224  1859  5016 E ActivityTaskManager: android.os.DeadObjectException
+07-07 10:25:43.229  1859  5016 W ActivityManager: Exception when unbinding service com.mi.appfinder/org.chromium.content.app.SandboxedProcessService0:0
+07-07 10:25:43.229  1859  5016 W ActivityManager: android.os.DeadObjectException
+07-07 10:25:43.261  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:43.261  1859  5010 W ActivityManager: Scheduling restart of crashed service com.xiaomi.discover/com.xiaomi.downloader.service.DownloadService in 20000ms for start-requested
+07-07 10:25:43.282  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:43.298 13677 14545 E AndroidRuntime: FATAL EXCEPTION: androidmapsapi-ula-1
+07-07 10:25:43.298 13677 14545 E AndroidRuntime: java.lang.IllegalStateException: API key not found.  Check that <meta-data android:name="com.google.android.geo.API_KEY" android:value="your API key"/> is in the <application> element of AndroidManifest.xml
+07-07 10:25:43.299  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:43.319 13677 14667 W FileUtils: Failed to chmod(/data/miuilog/stability/jetrace): android.system.ErrnoException: chmod failed: EACCES (Permission denied)
+07-07 10:25:43.344  1859 14668 I DropBoxManagerService: add tag=data_app_crash isTagEnabled=true flags=0x2
+07-07 10:25:43.363  1859  4826 I ActivityManager: note: ProcessRecord{10c4b3f 13677:com.anonymous.pokemonapp/u0a341} is being killed, reason: APP CRASH(EXCEPTION), sub-reason: UNKNOWN, message: crash
+07-07 10:25:43.407  1859  2062 I ActivityManager: Start proc 14670:com.miui.thirdappassistant/u0a312 for content provider {com.miui.thirdappassistant/com.miui.thirdappassistant.ui.exceptionresult.ERHeaderItemViewHolder$SharedPreferencesProvider} caller=com.miui.daemon
+07-07 10:25:43.522  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:43.769  1859  2056 W ActivityManager: Rescheduling restart of crashed service com.xiaomi.discover/com.xiaomi.downloader.service.DownloadService in 9493ms for mem-pressure-event
+07-07 10:25:46.484  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 10:25:46.484  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 10:25:47.660  1859  2056 W ActivityManager: Rescheduling restart of crashed service com.xiaomi.discover/com.xiaomi.downloader.service.DownloadService in 0ms for mem-pressure-event
+07-07 10:25:51.688  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:51.788  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:59.631  1859  2070 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10341/pid_15157/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:25:59.631  1859  2070 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:25:59.816  1859  2070 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10341/pid_15157/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:25:59.816  1859  2070 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:25:59.921  1859  2969 E ProcessManager: error write exception log
+07-07 10:25:59.994  1859  2969 E ProcessManager: error write exception log
+07-07 10:26:00.177  1859  2969 E ProcessManager: error write exception log
+07-07 10:26:00.367  1859  2969 E ProcessManager: error write exception log
+07-07 10:26:00.440  1859  2969 E ProcessManager: error write exception log
+07-07 10:26:00.616  1859  2969 E ProcessManager: error write exception log
+07-07 10:26:01.354  1859  2969 E ProcessManager: error write exception log
+07-07 10:26:01.366  1859  2969 E ProcessManager: error write exception log
+07-07 10:26:01.382  1859  2969 E ProcessManager: error write exception log
+07-07 10:26:01.398  1859  2969 E ProcessManager: error write exception log
+07-07 10:26:01.411  1859  2969 E ProcessManager: error write exception log
+07-07 10:26:01.417  1859  2969 E ProcessManager: error write exception log
+07-07 10:26:01.428  1859  2969 E ProcessManager: error write exception log
+07-07 10:26:01.429  1859  5049 W ActivityManager: Scheduling restart of crashed service com.android.vending/com.google.frameworks.client.data.android.server.play.BackgroundProcessEndpointService in 1000ms for connection
+07-07 10:26:01.434  1859  2969 E ProcessManager: error write exception log
+07-07 10:26:01.435  1859  3762 W ActivityManager: Scheduling restart of crashed service com.xiaomi.discover/com.xiaomi.downloader.service.DownloadService in 1000ms for start-requested
+07-07 10:26:01.963  1859  2056 W ActivityManager: Rescheduling restart of crashed service com.xiaomi.discover/com.xiaomi.downloader.service.DownloadService in 19473ms for mem-pressure-event
+07-07 10:26:02.237  1859  2056 W ActivityManager: Rescheduling restart of crashed service com.xiaomi.discover/com.xiaomi.downloader.service.DownloadService in 9198ms for mem-pressure-event
+07-07 10:26:02.436 13810 15329 E AndroidRuntime: FATAL EXCEPTION: androidmapsapi-ula-1
+07-07 10:26:02.436 13810 15329 E AndroidRuntime: java.lang.IllegalStateException: API key not found.  Check that <meta-data android:name="com.google.android.geo.API_KEY" android:value="your API key"/> is in the <application> element of AndroidManifest.xml
+07-07 10:26:02.447 13810 15533 W FileUtils: Failed to chmod(/data/miuilog/stability/jetrace): android.system.ErrnoException: chmod failed: EACCES (Permission denied)
+07-07 10:26:02.465  1859  3651 I ActivityManager: note: ProcessRecord{3aaed58 13810:com.anonymous.pokemonapp/u0a341} is being killed, reason: APP CRASH(EXCEPTION), sub-reason: UNKNOWN, message: crash
+07-07 10:26:02.466  1859 15534 I DropBoxManagerService: add tag=data_app_crash isTagEnabled=true flags=0x2
+07-07 10:26:02.496  1859  2040 I ActivityManager: Showing crash dialog for package com.anonymous.pokemonapp u0
+07-07 10:26:02.560  1859  2062 I ActivityManager: Start proc 15538:com.miui.thirdappassistant/u0a312 for content provider {com.miui.thirdappassistant/com.miui.thirdappassistant.ui.exceptionresult.ERHeaderItemViewHolder$SharedPreferencesProvider} caller=com.miui.daemon
+07-07 10:26:02.794  1859  2070 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10341/pid_15157/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:26:02.794  1859  2070 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:26:02.831  1859  2969 E ProcessManager: error write exception log
+07-07 10:26:03.242  1859  2056 W ActivityManager: Rescheduling restart of crashed service com.xiaomi.discover/com.xiaomi.downloader.service.DownloadService in 0ms for mem-pressure-event
+07-07 10:26:03.860  1859  2969 E ProcessManager: error write exception log
+07-07 10:26:31.935  1859  3651 I ActivityManager: Killing 13810:com.anonymous.pokemonapp/u0a341 (adj 900): crash
+07-07 10:26:31.935  1859  3651 I ActivityManager: note: ProcessRecord{3aaed58 13810:com.anonymous.pokemonapp/u0a341} is being killed, reason: APP CRASH(EXCEPTION), sub-reason: UNKNOWN, message: crash
+07-07 10:27:14.894  1859  2070 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10341/pid_16080/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:27:14.894  1859  2070 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:27:15.009  1859  2070 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10341/pid_16080/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:27:15.009  1859  2070 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:27:16.108  1859  2969 E ProcessManager: error write exception log
+07-07 10:27:16.124  1859  4935 W ActivityManager: Exception when unbinding service com.android.vending/com.google.frameworks.client.data.android.server.play.BackgroundProcessEndpointService
+07-07 10:27:16.124  1859  4935 W ActivityManager: android.os.DeadObjectException
+07-07 10:27:16.135  1859  2969 E ProcessManager: error write exception log
+07-07 10:27:16.147  1859  2969 E ProcessManager: error write exception log
+07-07 10:27:16.154  1859  2969 E ProcessManager: error write exception log
+07-07 10:27:16.160  1859  2969 E ProcessManager: error write exception log
+07-07 10:27:16.165  1859  2969 E ProcessManager: error write exception log
+07-07 10:27:16.168  1859  3651 W ActivityManager: Scheduling restart of crashed service com.xiaomi.discover/com.xiaomi.downloader.service.DownloadService in 20000ms for start-requested
+07-07 10:27:17.413 14109 16163 E AndroidRuntime: FATAL EXCEPTION: androidmapsapi-ula-1
+07-07 10:27:17.413 14109 16163 E AndroidRuntime: java.lang.IllegalStateException: API key not found.  Check that <meta-data android:name="com.google.android.geo.API_KEY" android:value="your API key"/> is in the <application> element of AndroidManifest.xml
+07-07 10:27:17.420 14109 16203 W FileUtils: Failed to chmod(/data/miuilog/stability/jetrace): android.system.ErrnoException: chmod failed: EACCES (Permission denied)
+07-07 10:27:17.429  1859  5049 I ActivityManager: note: ProcessRecord{460c443 14109:com.anonymous.pokemonapp/u0a341} is being killed, reason: APP CRASH(EXCEPTION), sub-reason: UNKNOWN, message: crash
+07-07 10:27:17.430  1859 16204 I DropBoxManagerService: add tag=data_app_crash isTagEnabled=true flags=0x2
+07-07 10:27:17.430  1859  5049 W ActivityManager: Process com.anonymous.pokemonapp has crashed too many times, killing! Reason: crashed quickly
+07-07 10:27:17.455  1859  5049 I ActivityManager: Killing 14109:com.anonymous.pokemonapp/u0a341 (adj 0): crash
+07-07 10:27:17.455  1859  5049 I ActivityManager: note: ProcessRecord{460c443 14109:com.anonymous.pokemonapp/u0a341} is being killed, reason: APP CRASH(EXCEPTION), sub-reason: UNKNOWN, message: crash
+07-07 10:27:17.579  1859  2056 W ActivityManager: Rescheduling restart of crashed service com.xiaomi.discover/com.xiaomi.downloader.service.DownloadService in 0ms for mem-pressure-event
+07-07 10:27:17.591  1859  2062 I ActivityManager: Start proc 16212:com.miui.thirdappassistant/u0a312 for content provider {com.miui.thirdappassistant/com.miui.thirdappassistant.ui.exceptionresult.ERHeaderItemViewHolder$SharedPreferencesProvider} caller=com.miui.daemon
+07-07 10:27:17.715  1859  5049 W WindowManager: Exception thrown during dispatchAppVisibility Window{7cc4fd3 u0 com.anonymous.pokemonapp/com.anonymous.pokemonapp.MainActivity EXITING}
+07-07 10:27:17.715  1859  5049 W WindowManager: android.os.DeadObjectException
+07-07 10:27:51.801  1859  2056 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10168/pid_31461/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:27:51.801  1859  2056 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:28:02.107  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 10:28:02.107  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 10:28:11.301 15453 16932 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 16932 (mqt_v_js), pid 15453 (mous.Pokemonapp)
+07-07 10:28:12.683  1859 16976 I ActivityManager: note: ProcessRecord{730b19 15453:com.anonymous.Pokemonapp/u0a340} is being killed, reason: APP CRASH(NATIVE), sub-reason: UNKNOWN, message: crash
+07-07 10:28:12.686  1859 16977 I DropBoxManagerService: add tag=data_app_native_crash isTagEnabled=true flags=0x6
+07-07 10:28:12.806  1859  4707 I SmartPower: com.miui.thirdappassistant/10312(16212): idle->background(51837ms) R(content provider start ContentProviderRecord{21f1db7 u0 com.miui.thirdappassistant/.ui.exceptionresult.ERHeaderItemViewHolder$SharedPreferencesProvider}) adj=0.
+07-07 10:28:12.813  1859  2969 E ProcessManager: error write exception log
+07-07 10:28:13.866  1859  5049 W WindowManager: Exception thrown during dispatchAppVisibility Window{ae7c97b u0 com.anonymous.Pokemonapp/com.anonymous.Pokemonapp.MainActivity EXITING}
+07-07 10:28:13.866  1859  5049 W WindowManager: android.os.DeadObjectException
+07-07 10:28:15.808  1859  2993 I SmartPower: com.miui.thirdappassistant/10312(16212): background->idle(3002ms) R(content provider start ContentProviderRecord{21f1db7 u0 com.miui.thirdappassistant/.ui.exceptionresult.ERHeaderItemViewHolder$SharedPreferencesProvider}) adj=0.
+07-07 10:28:22.823  1859  2969 E ProcessManager: error write exception log
+07-07 10:28:26.293  1859  2969 E ProcessManager: error write exception log
+07-07 10:28:31.084  1859  2969 E ProcessManager: error write exception log
+07-07 10:28:33.208  1859  3089 W FileUtils: Failed to chmod(AtomicFile[/data/system_de/0/system/game-manager-service.xml]): android.system.ErrnoException: chmod failed: ENOENT (No such file or directory)
+07-07 10:28:49.462  1859  2969 E ProcessManager: error write exception log
+07-07 10:28:49.887  1859  2969 E ProcessManager: error write exception log
+07-07 10:28:50.031  1859  2969 E ProcessManager: error write exception log
+07-07 10:28:51.021  1859  2969 E ProcessManager: error write exception log
+07-07 10:28:55.126  1859  2061 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10168/pid_31461/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:28:55.126  1859  2061 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:29:03.060  1859  2969 E ProcessManager: error write exception log
+07-07 10:29:05.987  1859  2070 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10342/pid_18106/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:29:05.987  1859  2070 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:29:06.235  1859  2969 E ProcessManager: error write exception log
+07-07 10:29:06.290  1859  2969 E ProcessManager: error write exception log
+07-07 10:29:06.344  1859  2969 E ProcessManager: error write exception log
+07-07 10:29:06.573  1859  2070 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10342/pid_18106/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:29:06.573  1859  2070 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:29:06.948  1859  2070 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10342/pid_18106/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:29:06.948  1859  2070 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:29:07.113  1859  2969 E ProcessManager: error write exception log
+07-07 10:29:07.294  1859  2969 E ProcessManager: error write exception log
+07-07 10:29:07.346  1859  2969 E ProcessManager: error write exception log
+07-07 10:29:07.381  1859  2969 E ProcessManager: error write exception log
+07-07 10:29:07.408  1859  2969 E ProcessManager: error write exception log
+07-07 10:29:07.436  1859  2969 E ProcessManager: error write exception log
+07-07 10:29:07.465  1859  2969 E ProcessManager: error write exception log
+07-07 10:29:07.491  1859  2969 E ProcessManager: error write exception log
+07-07 10:29:07.494  1859  4825 W ActivityManager: Scheduling restart of crashed service com.xiaomi.discover/com.xiaomi.downloader.service.DownloadService in 30000ms for start-requested
+07-07 10:29:07.507  1859  2969 E ProcessManager: error write exception log
+07-07 10:29:07.513  1859  2969 E ProcessManager: error write exception log
+07-07 10:29:07.524  1859  2969 E ProcessManager: error write exception log
+07-07 10:29:07.529  1859  2056 W ActivityManager: Rescheduling restart of crashed service com.xiaomi.discover/com.xiaomi.downloader.service.DownloadService in 963ms for mem-pressure-event
+07-07 10:29:07.768 16921 18101 E AndroidRuntime: FATAL EXCEPTION: androidmapsapi-ula-1
+07-07 10:29:07.768 16921 18101 E AndroidRuntime: java.lang.IllegalStateException: API key not found.  Check that <meta-data android:name="com.google.android.geo.API_KEY" android:value="your API key"/> is in the <application> element of AndroidManifest.xml
+07-07 10:29:07.787 16921 18231 W FileUtils: Failed to chmod(/data/miuilog/stability/jetrace): android.system.ErrnoException: chmod failed: EACCES (Permission denied)
+07-07 10:29:07.798  1859  4825 I ActivityManager: note: ProcessRecord{27c4913 16921:com.anonymous.pokemonapp/u0a342} is being killed, reason: APP CRASH(EXCEPTION), sub-reason: UNKNOWN, message: crash
+07-07 10:29:07.798  1859 18232 I DropBoxManagerService: add tag=data_app_crash isTagEnabled=true flags=0x2
+07-07 10:29:07.832  1859  2062 I ActivityManager: Start proc 18234:com.miui.thirdappassistant/u0a312 for content provider {com.miui.thirdappassistant/com.miui.thirdappassistant.ui.exceptionresult.ERHeaderItemViewHolder$SharedPreferencesProvider} caller=com.miui.daemon
+07-07 10:29:07.924  1859  2969 E ProcessManager: error write exception log
+07-07 10:29:08.021  1859  2056 W ActivityManager: Rescheduling restart of crashed service com.xiaomi.discover/com.xiaomi.downloader.service.DownloadService in 9472ms for mem-pressure-event
+07-07 10:29:10.860  1859  2056 W ActivityManager: Rescheduling restart of crashed service com.xiaomi.discover/com.xiaomi.downloader.service.DownloadService in 0ms for mem-pressure-event
+07-07 10:29:18.221  1859  2073 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10168/pid_31461/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:29:18.221  1859  2073 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:29:18.404  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 10:29:18.404  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 10:29:18.534  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 10:29:18.534  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 10:29:18.618  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 10:29:18.618  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 10:29:18.716  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 10:29:18.716  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 10:30:18.924  1859  1859 E FaceUnlockTrack: org.json.JSONException: End of input at character 0 of 
+07-07 10:44:55.983  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 10:44:55.983  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 10:44:56.106  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 10:44:56.106  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 10:44:56.212  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 10:44:56.212  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 10:45:24.728  1859  2969 E ProcessManager: error write exception log
+07-07 10:45:49.690  1859  2073 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10168/pid_31461/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:45:49.690  1859  2073 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:45:59.161  1859  1859 E FaceUnlockTrack: org.json.JSONException: End of input at character 0 of 
+07-07 10:46:58.260  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 10:46:58.260  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 10:46:59.108  1859  2073 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10168/pid_31461/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:46:59.108  1859  2073 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:48:14.522  1859  2073 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10168/pid_31461/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:48:14.522  1859  2073 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:49:29.555  1859  2073 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10168/pid_31461/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:49:29.555  1859  2073 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:50:25.798  1859  2969 E ProcessManager: error write exception log
+07-07 10:50:26.193  1859  2969 E ProcessManager: error write exception log
+07-07 10:51:20.567  1859  2073 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10168/pid_31461/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:51:20.567  1859  2073 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:52:08.099  1859  1859 E FaceUnlockTrack: org.json.JSONException: End of input at character 0 of 
+07-07 10:52:49.747  1859  2061 W ProcessCpuTracker: Failed to stat(/proc/1859/task/19677): android.system.ErrnoException: stat failed: ENOENT (No such file or directory)
+07-07 10:52:49.859  1859  2061 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10168/pid_31461/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:52:49.859  1859  2061 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:52:51.213  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 10:52:51.213  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 10:52:51.330  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 10:52:51.330  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 10:52:51.332  1859  2073 E BluetoothPowerStatsCollector: java.util.concurrent.ExecutionException: java.lang.RuntimeException: error: 11
+07-07 10:52:51.332  1859  2073 E BluetoothPowerStatsCollector: Caused by: java.lang.RuntimeException: error: 11
+07-07 10:52:55.548  1859  2969 E ProcessManager: error write exception log
+07-07 10:53:56.942 18880 18880 W unknown:BridgelessReact: ReactHost{0}.raiseSoftException(onWindowFocusChange(hasFocus = "false")): Tried to access onWindowFocusChange while context is not ready
+07-07 10:53:56.944 18880 18880 E unknown:ReactHost: Unhandled SoftException
+07-07 10:53:56.944 18880 18880 E unknown:ReactHost: com.facebook.react.bridge.ReactNoCrashSoftException: raiseSoftException(onWindowFocusChange(hasFocus = "false")): Tried to access onWindowFocusChange while context is not ready
+07-07 10:53:56.944 18880 18880 E unknown:ReactHost: 	at com.facebook.react.runtime.ReactHostImpl.raiseSoftException(ReactHostImpl.kt:919)
+07-07 10:53:56.944 18880 18880 E unknown:ReactHost: 	at com.facebook.react.runtime.ReactHostImpl.raiseSoftException$default(ReactHostImpl.kt:910)
+07-07 10:53:57.163  1859  1859 E FaceUnlockTrack: org.json.JSONException: End of input at character 0 of 
+07-07 10:53:57.331  1859  2893 E WifiStaIfaceAidlImpl: setDtimMultiplier failed with service-specific exception: android.os.ServiceSpecificException:  (code 4)
+07-07 10:54:00.180  8625  9330 E FileUtil: java.io.IOException: read failed: ENODATA (No data available)
+07-07 10:54:00.180  8625  9330 E FileUtil: Caused by: android.system.ErrnoException: read failed: ENODATA (No data available)
+07-07 10:54:21.620  1859  2893 E WifiStaIfaceAidlImpl: setDtimMultiplier failed with service-specific exception: android.os.ServiceSpecificException:  (code 4)
+07-07 10:54:21.639  3428  6070 E BroadcastDispatcher: java.lang.IllegalStateException: java.lang.IllegalArgumentException: Receiver not registered: com.miui.aod.doze.DozeTriggers$TriggerReceiver@e4b4ad9
+07-07 10:54:21.639  3428  6070 E BroadcastDispatcher: Caused by: java.lang.IllegalArgumentException: Receiver not registered: com.miui.aod.doze.DozeTriggers$TriggerReceiver@e4b4ad9
+07-07 10:54:21.799  7121  8660 I NullBinder: NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl, calling uid: 1000, calling pid: 0
+07-07 10:54:21.809  7121  8660 I NullBinder: NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl, calling uid: 1000, calling pid: 0
+07-07 10:54:22.378 18880 18880 W unknown:BridgelessReact: ReactHost{0}.raiseSoftException(onWindowFocusChange(hasFocus = "true")): Tried to access onWindowFocusChange while context is not ready
+07-07 10:54:22.380 18880 18880 E unknown:ReactHost: Unhandled SoftException
+07-07 10:54:22.380 18880 18880 E unknown:ReactHost: com.facebook.react.bridge.ReactNoCrashSoftException: raiseSoftException(onWindowFocusChange(hasFocus = "true")): Tried to access onWindowFocusChange while context is not ready
+07-07 10:54:22.380 18880 18880 E unknown:ReactHost: 	at com.facebook.react.runtime.ReactHostImpl.raiseSoftException(ReactHostImpl.kt:919)
+07-07 10:54:22.380 18880 18880 E unknown:ReactHost: 	at com.facebook.react.runtime.ReactHostImpl.raiseSoftException$default(ReactHostImpl.kt:910)
+07-07 10:54:23.843 31045 31045 D OnGlobalListenerError: java.lang.Exception
+07-07 10:54:23.846 31045 31045 D OnGlobalListenerError: java.lang.Exception
+07-07 10:54:23.877 31045 31045 D OnGlobalListenerError: java.lang.Exception
+07-07 10:54:23.878 31045 31045 D OnGlobalListenerError: java.lang.Exception
+07-07 10:54:23.903 18880 18880 W unknown:BridgelessReact: ReactHost{0}.raiseSoftException(onWindowFocusChange(hasFocus = "false")): Tried to access onWindowFocusChange while context is not ready
+07-07 10:54:23.903 18880 18880 E unknown:ReactHost: Unhandled SoftException
+07-07 10:54:23.903 18880 18880 E unknown:ReactHost: com.facebook.react.bridge.ReactNoCrashSoftException: raiseSoftException(onWindowFocusChange(hasFocus = "false")): Tried to access onWindowFocusChange while context is not ready
+07-07 10:54:23.903 18880 18880 E unknown:ReactHost: 	at com.facebook.react.runtime.ReactHostImpl.raiseSoftException(ReactHostImpl.kt:919)
+07-07 10:54:23.903 18880 18880 E unknown:ReactHost: 	at com.facebook.react.runtime.ReactHostImpl.raiseSoftException$default(ReactHostImpl.kt:910)
+07-07 10:54:23.997 31045 31045 D HomeLayerElement: java.lang.Exception
+07-07 10:54:24.605  8625  9330 E FileUtil: java.io.IOException: read failed: ENODATA (No data available)
+07-07 10:54:24.605  8625  9330 E FileUtil: Caused by: android.system.ErrnoException: read failed: ENODATA (No data available)
+07-07 10:54:24.872 31045 31045 D TransitionCallback: java.lang.Exception
+07-07 10:54:24.873 31045 31045 D ReflectUtils: java.lang.NoSuchMethodException: android.window.WindowContainerTransaction.setWillFinishToHome [boolean]
+07-07 10:54:24.874 31045 31045 D HomeLayerElement: java.lang.Exception
+07-07 10:54:25.515 31045 31045 D OnGlobalListenerError: java.lang.Exception
+07-07 10:54:25.603  1859  2969 E ProcessManager: error write exception log
+07-07 10:54:26.919  8625  9330 E FileUtil: java.io.IOException: read failed: ENODATA (No data available)
+07-07 10:54:26.919  8625  9330 E FileUtil: Caused by: android.system.ErrnoException: read failed: ENODATA (No data available)
+07-07 10:54:56.945  1859  2073 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10168/pid_31461/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:54:56.945  1859  2073 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:55:37.838 31045  6904 E BitmapFactory: Unable to decode file: java.io.FileNotFoundException: /product/media/theme/miui_mod_icons/dynamic/com.miui.securitycenter/2.png: open failed: ENOENT (No such file or directory)
+07-07 10:55:38.144  1859 17676 D ProfileTranscode: com.anonymous.pokemonapp read profile exception: java.io.FileNotFoundException: dexopt/baseline.prof
+07-07 10:55:38.465 31045 31045 W Launcher.Utilities: android.content.pm.PackageManager$NameNotFoundException: com.miui.personalassistant
+07-07 10:55:39.212 20059 20059 D AutoDensity: 	getAccessibilityDpi Exception: android.provider.Settings$SettingNotFoundException: display_density_forced
+07-07 10:55:39.382 20040 20040 I Finsky:background: [2] [BGP] Initializing crash detector...
+07-07 10:55:39.383 31045 31045 D HomeLayerElement: java.lang.Exception
+07-07 10:55:39.385 31045 31045 D HomeLayerElement: java.lang.Exception
+07-07 10:55:39.463  1859  2969 E ProcessManager: error write exception log
+07-07 10:55:39.542 20040 20187 I Finsky:background: [45153] SettingNotFoundException, fall through to G.downloadBytesOverMobileMaximum
+07-07 10:55:39.930 31045 31045 D TransitionCallback: java.lang.Exception
+07-07 10:55:39.931 31045 31045 D ReflectUtils: java.lang.NoSuchMethodException: android.window.WindowContainerTransaction.setWillFinishToHome [boolean]
+07-07 10:55:39.932 31045 31045 D HomeLayerElement: java.lang.Exception
+07-07 10:55:40.840  8625  9330 E FileUtil: java.io.IOException: read failed: ENODATA (No data available)
+07-07 10:55:40.840  8625  9330 E FileUtil: Caused by: android.system.ErrnoException: read failed: ENODATA (No data available)
+07-07 10:55:40.973  8625  9330 E FileUtil: java.io.IOException: read failed: ENODATA (No data available)
+07-07 10:55:40.973  8625  9330 E FileUtil: Caused by: android.system.ErrnoException: read failed: ENODATA (No data available)
+07-07 10:55:41.420 19059 19059 W unknown:BridgelessReact: ReactHost{0}.raiseSoftException(onWindowFocusChange(hasFocus = "true")): Tried to access onWindowFocusChange while context is not ready
+07-07 10:55:41.421 19059 19059 E unknown:ReactHost: Unhandled SoftException
+07-07 10:55:41.421 19059 19059 E unknown:ReactHost: com.facebook.react.bridge.ReactNoCrashSoftException: raiseSoftException(onWindowFocusChange(hasFocus = "true")): Tried to access onWindowFocusChange while context is not ready
+07-07 10:55:41.421 19059 19059 E unknown:ReactHost: 	at com.facebook.react.runtime.ReactHostImpl.raiseSoftException(ReactHostImpl.kt:919)
+07-07 10:55:41.421 19059 19059 E unknown:ReactHost: 	at com.facebook.react.runtime.ReactHostImpl.raiseSoftException$default(ReactHostImpl.kt:910)
+07-07 10:55:42.256 20059 20157 D SessionsDependencies: Dependency to CRASHLYTICS added.
+07-07 10:55:42.277 20059 20157 I FirebaseCrashlytics: Initializing Firebase Crashlytics 19.0.0 for com.miui.global.packageinstaller
+07-07 10:55:42.295 20059 20157 D SessionsDependencies: Subscriber CRASHLYTICS registered.
+07-07 10:55:42.314 20059 20281 V DynamiteModule: Dynamite loader version >= 2, using loadModule2NoCrashUtils
+07-07 10:55:42.412 20059 20289 I FirebaseCrashlytics: Saved version control info
+07-07 10:55:42.440 20059 20288 E PI-ScanInterceptor: android.content.pm.PackageManager$NameNotFoundException: unknown
+07-07 10:55:43.929  8625  9330 E FileUtil: java.io.IOException: read failed: ENODATA (No data available)
+07-07 10:55:43.929  8625  9330 E FileUtil: Caused by: android.system.ErrnoException: read failed: ENODATA (No data available)
+07-07 10:55:44.301 31045  6394 E ServiceDeliveryCompat: java.lang.IllegalArgumentException: Unknown authority com.miui.personalassistant.servicedeliver.system.provider
+07-07 10:55:53.105 19059 19059 V DynamiteModule: Dynamite loader version >= 2, using loadModule2NoCrashUtils
+07-07 10:55:53.308  7121 19349 W AsyncOperation: OperationException[Status{statusCode=Stale snapshot for com.google.android.gms.maps#com.anonymous.pokemonapp(new configuration available), resolution=null}]
+07-07 10:55:53.665  1859  2070 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10342/pid_20421/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:55:53.665  1859  2070 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:55:53.894  1859  2070 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10342/pid_20421/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:55:53.894  1859  2070 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:55:54.346  1859  2969 E ProcessManager: error write exception log
+07-07 10:55:54.390  1859  2969 E ProcessManager: error write exception log
+07-07 10:55:54.408  1859  2969 E ProcessManager: error write exception log
+07-07 10:55:54.440  1859  2969 E ProcessManager: error write exception log
+07-07 10:55:54.447  1859  2969 E ProcessManager: error write exception log
+07-07 10:55:54.448  1859  4707 W ActivityManager: Scheduling restart of crashed service com.xiaomi.discover/com.xiaomi.downloader.service.DownloadService in 20000ms for start-requested
+07-07 10:55:54.457  1859  2969 E ProcessManager: error write exception log
+07-07 10:55:54.466  1859  2969 E ProcessManager: error write exception log
+07-07 10:55:54.478  1859  2969 E ProcessManager: error write exception log
+07-07 10:55:54.482  1859  2969 E ProcessManager: error write exception log
+07-07 10:55:54.488  1859  2969 E ProcessManager: error write exception log
+07-07 10:55:54.502  1859  2969 E ProcessManager: error write exception log
+07-07 10:55:54.504  1859  2969 E ProcessManager: error write exception log
+07-07 10:55:55.291 19059 20415 E AndroidRuntime: FATAL EXCEPTION: androidmapsapi-ula-1
+07-07 10:55:55.291 19059 20415 E AndroidRuntime: java.lang.IllegalStateException: API key not found.  Check that <meta-data android:name="com.google.android.geo.API_KEY" android:value="your API key"/> is in the <application> element of AndroidManifest.xml
+07-07 10:55:55.318 19059 20549 W FileUtils: Failed to chmod(/data/miuilog/stability/jetrace): android.system.ErrnoException: chmod failed: EACCES (Permission denied)
+07-07 10:55:55.331  4885  5184 E JavaExceptionHandler: Process: com.anonymous.pokemonapp, PID: 19059
+07-07 10:55:55.331  4885  5184 E JavaExceptionHandler: java.lang.IllegalStateException: API key not found.  Check that <meta-data android:name="com.google.android.geo.API_KEY" android:value="your API key"/> is in the <application> element of AndroidManifest.xml
+07-07 10:55:55.331  4885  5184 E JavaExceptionHandler: 	at com.google.maps.api.android.lib6.common.h.b(:com.google.android.gms.policy_maps_core_dynamite@260830207@260830202025.896086277.896086277:117)
+07-07 10:55:55.331  4885  5184 E JavaExceptionHandler: 	at com.google.maps.api.android.lib6.impl.hq.run(:com.google.android.gms.policy_maps_core_dynamite@260830207@260830202025.896086277.896086277:586)
+07-07 10:55:55.331  4885  5184 E JavaExceptionHandler: 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1156)
+07-07 10:55:55.331  4885  5184 E JavaExceptionHandler: 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:651)
+07-07 10:55:55.331  4885  5184 E JavaExceptionHandler: 	at java.lang.Thread.run(Thread.java:1119)
+07-07 10:55:55.335  1859 20550 I DropBoxManagerService: add tag=data_app_crash isTagEnabled=true flags=0x2
+07-07 10:55:55.337  1859 20550 W AES     : Exception Log handling...
+07-07 10:55:55.340  4885  5184 D DigestGenerator: digest=============com.anonymous.pokemonappjava.lang.IllegalStateException: API key not found.  Check that <meta-data android:name="com.google.android.geo.API_KEY" android:value="your API key"/> is in the <application> element of AndroidManifest.xml
+07-07 10:55:55.341  1859  4789 I ActivityManager: note: ProcessRecord{8099ab3 19059:com.anonymous.pokemonapp/u0a342} is being killed, reason: APP CRASH(EXCEPTION), sub-reason: UNKNOWN, message: crash
+07-07 10:55:55.346  4885  5184 D MiSightJni: MiSight: Java_com_miui_misight_MiSight_nativeSendEvent enter called. '{"Stacktrace":"java.lang.IllegalStateException: API key not found.  Check that <meta-data android:name=\"com.google.android.geo.API_KEY\" android:value=\"your API key\"\/> is in the <application> element of AndroidManifest.xml\n\tat com.google.maps.api.android.lib6.common.h.b(:com.google.android.gms.policy_maps_core_dynamite@260830207@260830202025.896086277.896086277:117)\n\tat com.google.maps.api.android.lib6.impl.hq.run(:com.google.android.gms.policy_maps_core_dynamite@260830207@260830202025.896086277.896086277:586)\n\tat java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1156)\n\tat java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:651)\n\tat java.lang.Thread.run(Thread.java:1119)\n","CrashType":"java.lang.IllegalStateException","Digest":"d619e9140e478474fbe2d3c32bee5d4c","PackageName":"com.anonymous.pokemonapp","CurrentTime":1783414555300,"Keyword":"{\"vn\":\"1.0.0\",\"vc\":\"1\",\"isRoot
+07-07 10:55:55.346  4885  5184 D MiEvent : flatten EventId 901001001 -t 1783414555 -paraList {"CrashType":"java.lang.IllegalStateException","CurrentTime":1783414555300,"Digest":"d619e9140e478474fbe2d3c32bee5d4c","Keyword":"{\"vn\":\"1.0.0\",\"vc\":\"1\",\"isRoot\":false,\"count\":1,\"preInstalled\":false,\"unfold\":false,\"ram\":5,\"rom\":128,\"dialog\":true}","PackageName":"com.anonymous.pokemonapp","Stacktrace":"java.lang.IllegalStateException: API key not found.  Check that <meta-data android:name=\"com.google.android.geo.API_KEY\" android:value=\"your API key\"/> is in the <application> element of AndroidManifest.xml\n\tat com.google.maps.api.android.lib6.common.h.b(:com.google.android.gms.policy_maps_core_dynamite@260830207@260830202025.896086277.896086277:117)\n\tat com.google.maps.api.android.lib6.impl.hq.run(:com.google.android.gms.policy_maps_core_dynamite@260830207@260830202025.896086277.896086277:586)\n\tat java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1156)\n\tat java.util.concurrent.ThreadPoolExecutor$Worker.r
+07-07 10:55:55.347  4885  5184 D MiEvent : report:EventId 901001001 -t 1783414555 -paraList {"CrashType":"java.lang.IllegalStateException","CurrentTime":1783414555300,"Digest":"d619e9140e478474fbe2d3c32bee5d4c","Keyword":"{\"vn\":\"1.0.0\",\"vc\":\"1\",\"isRoot\":false,\"count\":1,\"preInstalled\":false,\"unfold\":false,\"ram\":5,\"rom\":128,\"dialog\":true}","PackageName":"com.anonymous.pokemonapp","Stacktrace":"java.lang.IllegalStateException: API key not found.  Check that <meta-data android:name=\"com.google.android.geo.API_KEY\" android:value=\"your API key\"/> is in the <application> element of AndroidManifest.xml\n\tat com.google.maps.api.android.lib6.common.h.b(:com.google.android.gms.policy_maps_core_dynamite@260830207@260830202025.896086277.896086277:117)\n\tat com.google.maps.api.android.lib6.impl.hq.run(:com.google.android.gms.policy_maps_core_dynamite@260830207@260830202025.896086277.896086277:586)\n\tat java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1156)\n\tat java.util.concurrent.ThreadPoolExecutor$Worker.ru
+07-07 10:55:55.348  4885  5184 W MQSEventManager: Method in addExceptionCommetAction, actionCommand is null!
+07-07 10:55:55.351  1444  1491 D misight : Execute start execute sql /data/miuilog/misight/event.db:select id,occured_cnt from event_info where event_id = '901001001' and version_id = '2' and param_list = '{"CrashType":"java.lang.IllegalStateException","CurrentTime":1783414555300,"Digest":"d619e9140e478474fbe2d3c32bee5d4c","Keyword":"{\"vn\":\"1.0.0\",\"vc\":\"1\",\"isRoot\":false,\"count\":1,\"preInstalled\":false,\"unfold\":false,\"ram\":5,\"rom\":128,\"dialog\":true}","PackageName":"com.anonymous.pokemonapp","Stacktrace":"java.lang.IllegalStateException: API key not found.  Check that <meta-data android:name=\"com.google.android.geo.API_KEY\" android:value=\"your API key\"/> is in the <application> element of AndroidManifest.xml\n\tat com.google.maps.api.android.lib6.common.h.b(:com.google.android.gms.policy_maps_core_dynamite@260830207@260830202025.896086277.896086277:117)\n\tat com.google.maps.api.android.lib6.impl.hq.run(:com.google.android.gms.policy_maps_core_dynamite@260830207@260830202025.896086277.896086277:586)\n\tat java.util.concurrent.
+07-07 10:55:55.354  1444  1491 D misight : Execute start execute sql /data/miuilog/misight/event.db:insert into event_info (event_id,version_id,occured_cnt,first_time,param_list,expire,visible,time_id)  values ( 901001001,2,1,1783414555,'{"CrashType":"java.lang.IllegalStateException","CurrentTime":1783414555300,"Digest":"d619e9140e478474fbe2d3c32bee5d4c","Keyword":"{\"vn\":\"1.0.0\",\"vc\":\"1\",\"isRoot\":false,\"count\":1,\"preInstalled\":false,\"unfold\":false,\"ram\":5,\"rom\":128,\"dialog\":true}","PackageName":"com.anonymous.pokemonapp","Stacktrace":"java.lang.IllegalStateException: API key not found.  Check that <meta-data android:name=\"com.google.android.geo.API_KEY\" android:value=\"your API key\"/> is in the <application> element of AndroidManifest.xml\n\tat com.google.maps.api.android.lib6.common.h.b(:com.google.android.gms.policy_maps_core_dynamite@260830207@260830202025.896086277.896086277:117)\n\tat com.google.maps.api.android.lib6.impl.hq.run(:com.google.android.gms.policy_maps_core_dynamite@260830207@260830202025.896086277.896086277:
+07-07 10:55:55.359  1444  1491 D misight : Execute start execute sql /mnt/rescue/misight/event.db:select id,occured_cnt from event_info where event_id = '901001001' and version_id = '2' and param_list = '{"CrashType":"java.lang.IllegalStateException","CurrentTime":1783414555300,"Digest":"d619e9140e478474fbe2d3c32bee5d4c","Keyword":"{\"vn\":\"1.0.0\",\"vc\":\"1\",\"isRoot\":false,\"count\":1,\"preInstalled\":false,\"unfold\":false,\"ram\":5,\"rom\":128,\"dialog\":true}","PackageName":"com.anonymous.pokemonapp","Stacktrace":"java.lang.IllegalStateException: API key not found.  Check that <meta-data android:name=\"com.google.android.geo.API_KEY\" android:value=\"your API key\"/> is in the <application> element of AndroidManifest.xml\n\tat com.google.maps.api.android.lib6.common.h.b(:com.google.android.gms.policy_maps_core_dynamite@260830207@260830202025.896086277.896086277:117)\n\tat com.google.maps.api.android.lib6.impl.hq.run(:com.google.android.gms.policy_maps_core_dynamite@260830207@260830202025.896086277.896086277:586)\n\tat java.util.concurrent.Th
+07-07 10:55:55.360 19059 20415 I Process : java.lang.Exception
+07-07 10:55:55.360 19059 20415 I Process : 	at com.android.internal.os.RuntimeInit$KillApplicationHandler.uncaughtException(RuntimeInit.java:205)
+07-07 10:55:55.360 19059 20415 I Process : 	at org.chromium.base.JavaExceptionReporter.uncaughtException(chromium-SystemWebViewGoogle6432.aab-stable-782715903:31)
+07-07 10:55:55.360 19059 20415 I Process : 	at java.lang.ThreadGroup.uncaughtException(ThreadGroup.java:1071)
+07-07 10:55:55.360 19059 20415 I Process : 	at java.lang.ThreadGroup.uncaughtException(ThreadGroup.java:1066)
+07-07 10:55:55.360 19059 20415 I Process : 	at java.lang.Thread.dispatchUncaughtException(Thread.java:2442)
+07-07 10:55:55.361  1444  1491 D misight : Execute start execute sql /mnt/rescue/misight/event.db:insert into event_info (event_id,version_id,occured_cnt,first_time,param_list,expire,visible,time_id)  values ( 901001001,2,1,1783414555,'{"CrashType":"java.lang.IllegalStateException","CurrentTime":1783414555300,"Digest":"d619e9140e478474fbe2d3c32bee5d4c","Keyword":"{\"vn\":\"1.0.0\",\"vc\":\"1\",\"isRoot\":false,\"count\":1,\"preInstalled\":false,\"unfold\":false,\"ram\":5,\"rom\":128,\"dialog\":true}","PackageName":"com.anonymous.pokemonapp","Stacktrace":"java.lang.IllegalStateException: API key not found.  Check that <meta-data android:name=\"com.google.android.geo.API_KEY\" android:value=\"your API key\"/> is in the <application> element of AndroidManifest.xml\n\tat com.google.maps.api.android.lib6.common.h.b(:com.google.android.gms.policy_maps_core_dynamite@260830207@260830202025.896086277.896086277:117)\n\tat com.google.maps.api.android.lib6.impl.hq.run(:com.google.android.gms.policy_maps_core_dynamite@260830207@260830202025.896086277.896086277:58
+07-07 10:55:55.382  1859  2062 I ActivityManager: Start proc 20554:com.miui.thirdappassistant/u0a312 for content provider {com.miui.thirdappassistant/com.miui.thirdappassistant.ui.exceptionresult.ERHeaderItemViewHolder$SharedPreferencesProvider} caller=com.miui.daemon
+07-07 10:55:55.420  1859  2056 W ActivityManager: Rescheduling restart of crashed service com.xiaomi.discover/com.xiaomi.downloader.service.DownloadService in 9028ms for mem-pressure-event
+07-07 10:55:55.499  1859  2969 E ProcessManager: error write exception log
+07-07 10:55:55.500 20554 20554 D BaseOneTrackImp: OneTrackImp init : Configuration{appId='28***************69'projectId='th*************nt'pKeyId='71************************************75', pluginId='null', channel='null', international=false, region='null', overrideMiuiRegionSetting=false, mode=APP, GAIDEnable=true, IMSIEnable=true, IMEIEnable=true, ExceptionCatcherEnable=true, instanceId=null}
+07-07 10:55:55.519 20554 20579 D nativeloader: Load /product/app/ThirdAppAssistantGlobal/ThirdAppAssistantGlobal.apk!/lib/arm64-v8a/libxcrash.so using class loader ns product-clns-10 (caller=/product/app/ThirdAppAssistantGlobal/ThirdAppAssistantGlobal.apk): ok
+07-07 10:55:55.586 20554 20554 D AutoDensity: 	getAccessibilityDpi Exception: android.provider.Settings$SettingNotFoundException: display_density_forced
+07-07 10:55:55.636 31045 31045 D HomeLayerElement: java.lang.Exception
+07-07 10:55:55.640 31045 31045 D HomeLayerElement: java.lang.Exception
+07-07 10:55:55.666 20554 20568 E DatabaseUtils: Writing exception to parcel
+07-07 10:55:55.666 20554 20568 E DatabaseUtils: android.app.BackgroundServiceStartNotAllowedException: Not allowed to start service Intent { xflg=0x4 cmp=com.miui.thirdappassistant/.persistent.PersistentBackgroundService }: app is in background uid UidRecord{62c7fea u0a312 CEM  bg:+241ms idle change:idle|cached|procstate|procadj procs:0 seq(1433627,1433578)} caps=--------
+07-07 10:55:55.666  4885  5187 E MQSEventManager: call thirdAppAssistant fail android.app.BackgroundServiceStartNotAllowedException: Not allowed to start service Intent { xflg=0x4 cmp=com.miui.thirdappassistant/.persistent.PersistentBackgroundService }: app is in background uid UidRecord{62c7fea u0a312 CEM  bg:+241ms idle change:idle|cached|procstate|procadj procs:0 seq(1433627,1433578)} caps=--------
+07-07 10:55:55.807  8625  9330 E FileUtil: java.io.IOException: read failed: ENODATA (No data available)
+07-07 10:55:55.807  8625  9330 E FileUtil: Caused by: android.system.ErrnoException: read failed: ENODATA (No data available)
+07-07 10:55:56.053  8625  9330 E FileUtil: java.io.IOException: read failed: ENODATA (No data available)
+07-07 10:55:56.053  8625  9330 E FileUtil: Caused by: android.system.ErrnoException: read failed: ENODATA (No data available)
+07-07 10:55:56.177 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.uwb' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:56.177 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.android.wifi' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:56.193 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.widevine.nonupdatable' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:56.287 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.devicelock' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:56.340 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.android.apex.cts.shim' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:56.392 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.appsearch' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:56.405 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.art' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:56.418 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.android.bt' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:56.456 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.mediaprovider' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:56.497 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.android.virt' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:56.497 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.resolv' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:56.528 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.configinfrastructure' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:56.529 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.media' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:56.549 31045 31045 D TransitionCallback: java.lang.Exception
+07-07 10:55:56.549 31045 31045 D ReflectUtils: java.lang.NoSuchMethodException: android.window.WindowContainerTransaction.setWillFinishToHome [boolean]
+07-07 10:55:56.550 31045 31045 D HomeLayerElement: java.lang.Exception
+07-07 10:55:56.564  1859  3764 W WindowManager: Exception thrown during dispatchAppVisibility Window{1d006b8 u0 com.anonymous.pokemonapp/com.anonymous.pokemonapp.MainActivity EXITING}
+07-07 10:55:56.564  1859  3764 W WindowManager: android.os.DeadObjectException
+07-07 10:55:56.609 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.android.vndk.v31' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:56.611 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.android.vndk.v33' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:56.614 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.android.vndk.v34' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:56.637 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.android.crashrecovery' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:56.659 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.sdkext' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:56.672 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.adservices' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:56.673 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.tethering' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:56.712 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.android.runtime' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:56.741 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.cellbroadcast' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:56.758 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.rkpd' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:56.878 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.android.compos' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:56.900 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.tzdata6' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:56.924 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.permission' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:57.196 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.media.swcodec' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:57.199 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.android.uprobestats' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:57.214 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.android.profiling' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:57.280 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.adbd' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:57.298 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.android.i18n' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:57.304 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.conscrypt' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:57.320 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.android.hardware.cas' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:57.336 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.neuralnetworks' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:57.344 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.ipsec' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:57.369 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.ondevicepersonalization' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:57.372 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.healthfitness' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:57.449 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.extservices' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:57.507 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.os.statsd' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:57.530 15068 15068 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.scheduling' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+07-07 10:55:58.588  8625  9330 E FileUtil: java.io.IOException: read failed: ENODATA (No data available)
+07-07 10:55:58.588  8625  9330 E FileUtil: Caused by: android.system.ErrnoException: read failed: ENODATA (No data available)
+07-07 10:56:01.601  1859  2056 W ActivityManager: Rescheduling restart of crashed service com.xiaomi.discover/com.xiaomi.downloader.service.DownloadService in 0ms for mem-pressure-event
+07-07 10:56:01.785 20611 20611 E MsgCenterConfig: android.content.pm.PackageManager$NameNotFoundException: com.tiktok.manager
+07-07 10:56:01.785 20611 20611 E MsgCenterConfig: android.content.pm.PackageManager$NameNotFoundException: com.xiaomi.demo
+07-07 10:56:02.002 20611 20634 D SessionsDependencies: Dependency to CRASHLYTICS added.
+07-07 10:56:02.023 20611 20634 I FirebaseCrashlytics: Initializing Firebase Crashlytics 19.0.0 for com.xiaomi.discover
+07-07 10:56:02.033 20611 20634 D SessionsDependencies: Subscriber CRASHLYTICS registered.
+07-07 10:56:02.045 20611 20647 V DynamiteModule: Dynamite loader version >= 2, using loadModule2NoCrashUtils
+07-07 10:56:02.089 20611 20634 E SystemUpdate-DiscoverUpdateManager: ContentProvider.query failed - java.lang.IllegalArgumentException: Unknown authority com.xiaomi.mipicks.dbcache
+07-07 10:56:02.159 20611 20657 I FirebaseCrashlytics: Saved version control info
+07-07 10:56:21.082  1859  2079 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10168/pid_31461/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:56:21.082  1859  2079 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:56:57.153  1859  2079 W ActivityManager: java.io.FileNotFoundException: /sys/fs/cgroup/apps/uid_10168/pid_31461/cgroup.procs: open failed: ENOENT (No such file or directory)
+07-07 10:56:57.153  1859  2079 W ActivityManager: Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+07-07 10:56:57.430  1859  1859 E FaceUnlockTrack: org.json.JSONException: End of input at character 0 of 
+07-07 10:56:57.608  1859  2893 E WifiStaIfaceAidlImpl: setDtimMultiplier failed with service-specific exception: android.os.ServiceSpecificException:  (code 4)
+07-07 10:57:00.494  8625  9330 E FileUtil: java.io.IOException: read failed: ENODATA (No data available)
+07-07 10:57:00.494  8625  9330 E FileUtil: Caused by: android.system.ErrnoException: read failed: ENODATA (No data available)
+07-07 10:57:02.020 31045  6394 E ServiceDeliveryCompat: java.lang.IllegalArgumentException: Unknown authority com.miui.personalassistant.servicedeliver.system.provider
