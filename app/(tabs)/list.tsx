@@ -1,4 +1,4 @@
-import { FlatList, Text, View, StyleSheet, ActivityIndicator, Button, ViewToken, TextInput } from 'react-native';
+import { FlatList, Text, View, StyleSheet, ActivityIndicator, Button, ViewToken, TextInput, Image, Pressable } from 'react-native';
 import React, { useRef, useState, useCallback } from 'react';
 import { WebView } from 'react-native-webview';
 import { useRouter } from 'expo-router';
@@ -10,12 +10,50 @@ import { useFavouritesContext } from '../../src/features/favourites/context/Favo
 import { preloadRandomPokemon3dForm } from '../../src/features/pokemon/api/pokemon3dApi';
 import { getPokemonIdFromUrl } from '../../src/shared/utils/getPokemonIdFromUrl';
 import { usePokemonCryPlayer, getCryPlayerHtml } from '../../src/features/pokemon/hooks/usePokemonCryPlayer';
+import { useCustomPokemonContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
+import { CustomPokemon } from '../../src/features/customPokemon/model/types';
+import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
+
+function CustomPokemonSection({ pokemons, onPress }: { pokemons: CustomPokemon[]; onPress: (id: string) => void }) {
+  if (pokemons.length === 0) return null;
+  return (
+    <View style={styles.customSection}>
+      <Text style={styles.customSectionTitle}>Moje Pokémony ({pokemons.length})</Text>
+      {pokemons.map((p) => (
+        <Pressable
+          key={p.id}
+          style={({ pressed }) => [styles.customItem, pressed && { opacity: 0.75 }]}
+          onPress={() => onPress(p.id)}
+        >
+          {p.imageUri ? (
+            <Image source={{ uri: p.imageUri }} style={styles.customItemImage} resizeMode="cover" />
+          ) : (
+            <View style={[styles.customItemImage, styles.customItemImagePlaceholder]}>
+              <Text style={styles.customItemPlaceholderText}>?</Text>
+            </View>
+          )}
+          <View style={styles.customItemInfo}>
+            <Text style={styles.customItemName}>{formatPokemonName(p.name)}</Text>
+            {p.types.length > 0 && (
+              <Text style={styles.customItemTypes}>{p.types.join(' / ')}</Text>
+            )}
+          </View>
+          <View style={styles.customBadge}>
+            <Text style={styles.customBadgeText}>własny</Text>
+          </View>
+        </Pressable>
+      ))}
+      <View style={styles.customSectionDivider} />
+    </View>
+  );
+}
 
 const ListScreen = () => {
   const router = useRouter();
   const { pokemons, isLoading, isLoadingMore, isRefreshing, error, fetchPokemons, handleLoadMore, handleRefresh } =
     usePokemonList();
   const { isFavourite, toggleFavourite } = useFavouritesContext();
+  const { customPokemons } = useCustomPokemonContext();
   const { webViewRef, playPokemonCry } = usePokemonCryPlayer();
   const [searchQuery, setSearchQuery] = useState('');
   const { isSearchActive, results: searchResults, isLoading: isSearchLoading, error: searchError } =
@@ -143,6 +181,7 @@ const ListScreen = () => {
         extraData={[visiblePokemonNames, isFavourite, isSearchActive]}
         onEndReached={isSearchActive ? undefined : handleLoadMore}
         onEndReachedThreshold={0.5}
+        ListHeaderComponent={!isSearchActive ? <CustomPokemonSection pokemons={customPokemons} onPress={(id) => router.push(`/custom-pokemon/${id}`)} /> : null}
         ListFooterComponent={renderFooter}
         ListEmptyComponent={renderEmptySearch}
         refreshing={isSearchActive ? false : isRefreshing}
@@ -214,6 +253,73 @@ const styles = StyleSheet.create({
   },
   footerLoader: {
     paddingVertical: 20,
+  },
+  customSection: {
+    marginBottom: 4,
+  },
+  customSectionTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#3b4cca',
+    marginBottom: 10,
+    marginTop: 4,
+  },
+  customItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f3ff',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#c7d0f8',
+    padding: 10,
+    marginBottom: 8,
+    gap: 12,
+  },
+  customItemImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 8,
+  },
+  customItemImagePlaceholder: {
+    backgroundColor: '#dde3fc',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  customItemPlaceholderText: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#3b4cca',
+  },
+  customItemInfo: {
+    flex: 1,
+  },
+  customItemName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1f2937',
+  },
+  customItemTypes: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginTop: 2,
+    textTransform: 'capitalize',
+  },
+  customBadge: {
+    backgroundColor: '#3b4cca',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  customBadgeText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  customSectionDivider: {
+    height: 1,
+    backgroundColor: '#e9ecef',
+    marginBottom: 12,
+    marginTop: 4,
   },
 });
 

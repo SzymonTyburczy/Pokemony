@@ -13,8 +13,10 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { useCustomPokemonContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
 import { CustomPokemon } from '../../src/features/customPokemon/model/types';
+import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
 
 const POKEMON_TYPES = [
   'normal', 'fire', 'water', 'electric', 'grass', 'ice',
@@ -41,8 +43,54 @@ const STAT_LABELS: Record<string, string> = {
 
 const DEFAULT_STATS = Object.keys(STAT_LABELS).map((name) => ({ name, value: 50 }));
 
+function CustomPokemonRow({
+  pokemon,
+  onPress,
+  onDelete,
+}: {
+  pokemon: CustomPokemon;
+  onPress: () => void;
+  onDelete: () => void;
+}) {
+  return (
+    <Pressable
+      style={({ pressed }) => [styles.customRow, pressed && { opacity: 0.75 }]}
+      onPress={onPress}
+    >
+      {pokemon.imageUri ? (
+        <Image source={{ uri: pokemon.imageUri }} style={styles.customRowImage} resizeMode="cover" />
+      ) : (
+        <View style={[styles.customRowImage, styles.customRowImagePlaceholder]}>
+          <Ionicons name="help-outline" size={22} color="#9ca3af" />
+        </View>
+      )}
+      <View style={styles.customRowInfo}>
+        <Text style={styles.customRowName}>{formatPokemonName(pokemon.name)}</Text>
+        {pokemon.types.length > 0 && (
+          <Text style={styles.customRowTypes}>{pokemon.types.join(' / ')}</Text>
+        )}
+      </View>
+      <Ionicons name="chevron-forward" size={18} color="#9ca3af" style={{ marginRight: 4 }} />
+      <Pressable
+        style={({ pressed }) => [styles.customRowDelete, pressed && { opacity: 0.6 }]}
+        onPress={(e) => {
+          e.stopPropagation?.();
+          Alert.alert('Usuń Pokémona', `Czy na pewno chcesz usunąć ${pokemon.name}?`, [
+            { text: 'Anuluj', style: 'cancel' },
+            { text: 'Usuń', style: 'destructive', onPress: onDelete },
+          ]);
+        }}
+        hitSlop={8}
+      >
+        <Ionicons name="trash-outline" size={20} color="#dc2626" />
+      </Pressable>
+    </Pressable>
+  );
+}
+
 export default function CreateNewPokemonScreen() {
-  const { addCustomPokemon } = useCustomPokemonContext();
+  const router = useRouter();
+  const { addCustomPokemon, customPokemons, removeCustomPokemon } = useCustomPokemonContext();
 
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [name, setName] = useState('');
@@ -277,6 +325,21 @@ export default function CreateNewPokemonScreen() {
           <Text style={styles.saveButtonText}>Zapisz Pokémona</Text>
         </Pressable>
 
+        {/* Moja kolekcja */}
+        {customPokemons.length > 0 && (
+          <View style={styles.collectionSection}>
+            <Text style={styles.sectionTitle}>Moja kolekcja ({customPokemons.length})</Text>
+            {customPokemons.map((p) => (
+              <CustomPokemonRow
+                key={p.id}
+                pokemon={p}
+                onPress={() => router.push(`/custom-pokemon/${p.id}`)}
+                onDelete={() => removeCustomPokemon(p.id)}
+              />
+            ))}
+          </View>
+        )}
+
         <View style={styles.bottomSpacer} />
       </ScrollView>
     </KeyboardAvoidingView>
@@ -457,5 +520,46 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: 20,
+  },
+  collectionSection: {
+    marginTop: 32,
+  },
+  customRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f8f9fa',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+    padding: 12,
+    marginBottom: 10,
+    gap: 12,
+  },
+  customRowImage: {
+    width: 52,
+    height: 52,
+    borderRadius: 10,
+  },
+  customRowImagePlaceholder: {
+    backgroundColor: '#e9ecef',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  customRowInfo: {
+    flex: 1,
+  },
+  customRowName: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#111827',
+  },
+  customRowTypes: {
+    fontSize: 13,
+    color: '#6b7280',
+    marginTop: 2,
+    textTransform: 'capitalize',
+  },
+  customRowDelete: {
+    padding: 4,
   },
 });
