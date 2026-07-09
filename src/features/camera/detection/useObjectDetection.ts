@@ -7,8 +7,12 @@ import {
 } from 'react-native-vision-camera';
 import { useResizer } from 'react-native-vision-camera-resizer';
 import { loadTensorflowModel, type TfliteModel } from 'react-native-fast-tflite';
-import { Asset as ExpoAsset } from 'expo-asset';
-import { runOnJS, useSharedValue, type SharedValue } from 'react-native-reanimated';
+import {
+  runOnJS,
+  useAnimatedReaction,
+  useSharedValue,
+  type SharedValue,
+} from 'react-native-reanimated';
 
 import { COCO_CLASSES, getTranslation } from '../model/cocoClasses';
 
@@ -35,8 +39,6 @@ export type ObjectDetectionModelState = 'loading' | 'loaded' | 'error';
 export interface UseObjectDetectionParams {
   /** Czy tryb detekcji obiektów jest aktywny (worklet nic nie robi gdy false). */
   isEnabled: boolean;
-  /** Gdy true, pozycja jest "zamrożona" — pomijamy inferencję (oszczędza baterię). */
-  isLocked: boolean;
   screenWidth: number;
   screenHeight: number;
   /** Pozycja lewego górnego rogu sprite'a Pokemona (px ekranu). */
@@ -62,12 +64,11 @@ export interface UseObjectDetectionResult {
  * - inferencja działa na osobnym wątku (AsyncRunner) i jest throttlowana,
  * - klatki przychodzące w trakcie inferencji są od razu odrzucane,
  * - pozycja Pokemona idzie wyłącznie przez Reanimated shared values,
- * - runOnJS (re-render Reacta) wywoływany jest tylko przy ZMIANIE etykiety,
- *   a nie co klatkę.
+ * - przejście na wątek JS (re-render Reacta) dzieje się tylko przy ZMIANIE
+ *   etykiety, a nie co klatkę.
  */
 export function useObjectDetection({
   isEnabled,
-  isLocked,
   screenWidth,
   screenHeight,
   targetX,
@@ -82,13 +83,9 @@ export function useObjectDetection({
   // Stan React zdublowany w shared values, żeby worklet nie musiał być
   // odtwarzany przy każdym re-renderze ekranu.
   const isEnabledShared = useSharedValue(isEnabled);
-  const isLockedShared = useSharedValue(isLocked);
   useEffect(() => {
     isEnabledShared.value = isEnabled;
   }, [isEnabled, isEnabledShared]);
-  useEffect(() => {
-    isLockedShared.value = isLocked;
-  }, [isLocked, isLockedShared]);
 
   // Stan wewnętrzny workletu.
   const lastInferenceAt = useSharedValue(0);
@@ -101,11 +98,10 @@ export function useObjectDetection({
     let loadedModel: TfliteModel | undefined;
     (async () => {
       try {
-        const [asset] = await ExpoAsset.loadAsync(
-          require('../../../../assets/efficientdet_lite0.tflite')
+        loadedModel = await loadTensorflowModel(
+          require('../../../../assets/efficientdet_lite0.tflite'),
+          []
         );
-        if (!asset.localUri || cancelled) return;
-        loadedModel = await loadTensorflowModel({ url: asset.localUri }, []);
         if (cancelled) return;
         setModel(loadedModel);
         setModelState('loaded');
@@ -148,6 +144,16 @@ export function useObjectDetection({
     setDetectedClassIdx(classIdx);
   }, []);
 
+  useAnimatedReaction(
+    () => lastClassIdx.value,
+    (classIdx, previousClassIdx) => {
+      if (classIdx !== previousClassIdx) {
+        runOnJS(onLabelChanged)(classIdx);
+      }
+    },
+    [onLabelChanged]
+  );
+
   // Worklet zmemoizowany — odtwarza się tylko gdy załaduje się model/resizer,
   // a NIE przy każdym re-renderze ekranu (wcześniejsza wersja przepinała
   // callback natywny co render, co kończyło się crashem po paru sekundach).
@@ -156,7 +162,6 @@ export function useObjectDetection({
       'worklet';
       if (
         !isEnabledShared.value ||
-        isLockedShared.value ||
         model == null ||
         resizer == null
       ) {
@@ -248,7 +253,6 @@ export function useObjectDetection({
               const classIdx = Math.round(classes[best]);
               if (classIdx !== lastClassIdx.value) {
                 lastClassIdx.value = classIdx;
-                runOnJS(onLabelChanged)(classIdx);
               }
             } else if (
               targetDetected.value &&
@@ -257,7 +261,6 @@ export function useObjectDetection({
               targetDetected.value = false;
               if (lastClassIdx.value !== -1) {
                 lastClassIdx.value = -1;
-                runOnJS(onLabelChanged)(-1);
               }
             }
           }
@@ -283,7 +286,6 @@ export function useObjectDetection({
       screenHeight,
       spriteHalfSize,
       isEnabledShared,
-      isLockedShared,
       lastInferenceAt,
       lastSeenAt,
       lastClassIdx,
@@ -294,7 +296,9 @@ export function useObjectDetection({
   );
 
   const frameOutput = useFrameOutput({
-    pixelFormat: 'native',
+    // Resizer na iOS wymaga YUV; przy `native` potrafi dostawać format,
+    // którego nie umie przekonwertować i detekcja cicho nie zwraca wyników.
+    pixelFormat: 'yuv',
     // Fizyczna rotacja bufora: model dostaje obraz "do góry głową w górę".
     // Bez tego (stara wersja) model widział obraz obrócony o 90 stopni,
     // przez co detekcja praktycznie nie działała.

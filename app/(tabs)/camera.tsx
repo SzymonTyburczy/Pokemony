@@ -17,6 +17,8 @@ import { getPokemonImageUrl } from '../../src/shared/utils/getPokemonImageUrl';
 import { useObjectDetection } from '../../src/features/camera/detection/useObjectDetection';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const POKEMON_SPRITE_SIZE = 100;
+const OBJECT_LABEL_WIDTH = 180;
 
 type FaceDetectorOutputOptions = {
   performanceMode: 'fast' | 'accurate';
@@ -80,7 +82,6 @@ export default function CameraScreen() {
 
   // --- TRYB DETEKCJI OBIEKTÓW ---
   const [isObjectMode, setIsObjectMode] = useState(false);
-  const [lockedObj, setLockedObj] = useState(false);
 
   // --- FLIP KAMERY ---
   const flipCamera = () => {
@@ -101,7 +102,7 @@ export default function CameraScreen() {
       if (!isObjectMode) targetDetected.value = false;
     },
     onFacesDetected: (faces: Face[]) => {
-      if (isObjectMode || lockedObj) return;
+      if (isObjectMode) return;
       if (faces.length > 0) {
         const face = faces[0];
         const centerX = face.bounds.x + face.bounds.width / 2;
@@ -124,13 +125,15 @@ export default function CameraScreen() {
     detectedLabel: detectedObjName,
   } = useObjectDetection({
     isEnabled: isObjectMode,
-    isLocked: lockedObj,
     screenWidth: SCREEN_WIDTH,
     screenHeight: SCREEN_HEIGHT,
     targetX,
     targetY,
     targetDetected,
   });
+  const objectTargetLabel =
+    detectedObjName ??
+    (modelState === 'loading' ? 'ładowanie modelu' : modelState === 'error' ? 'brak modelu' : 'szukam obiektu');
 
   // --- UPRAWNIENIA ---
   useEffect(() => {
@@ -166,8 +169,23 @@ export default function CameraScreen() {
       top: 0,
       transform: [{ translateX: targetX.value }, { translateY: targetY.value }],
       opacity: withTiming(targetDetected.value ? 1 : 0.5, { duration: 150 }),
-      width: 100,
-      height: 100,
+      width: POKEMON_SPRITE_SIZE,
+      height: POKEMON_SPRITE_SIZE,
+    };
+  });
+
+  const objectLabelStyle = useAnimatedStyle(() => {
+    const centeredX = targetX.value + POKEMON_SPRITE_SIZE / 2 - OBJECT_LABEL_WIDTH / 2;
+    const clampedX = Math.min(Math.max(centeredX, 12), SCREEN_WIDTH - OBJECT_LABEL_WIDTH - 12);
+    const labelY = Math.max(targetY.value - 36, 104);
+
+    return {
+      position: 'absolute',
+      left: 0,
+      top: 0,
+      transform: [{ translateX: clampedX }, { translateY: labelY }],
+      opacity: withTiming(targetDetected.value ? 1 : 0, { duration: 120 }),
+      width: OBJECT_LABEL_WIDTH,
     };
   });
 
@@ -301,22 +319,11 @@ export default function CameraScreen() {
           <Text style={styles.modeIndicatorText}>
             {modelState === 'loading' ? 'Ładowanie modelu AI...' : modelState === 'error' ? 'Błąd ładowania modelu AI' : 'Szukam obiektów (banan, laptop...)'}
           </Text>
-        </View>
-      )}
-
-      {isObjectMode && detectedObjName && !lockedObj && (
-        <View style={styles.lockOverlay}>
-          <Pressable style={styles.lockBtn} onPress={() => setLockedObj(true)}>
-            <Text style={styles.lockBtnText}>Połóż na: {detectedObjName}</Text>
-          </Pressable>
-        </View>
-      )}
-
-      {isObjectMode && lockedObj && (
-        <View style={styles.lockOverlay}>
-          <Pressable style={styles.lockBtnActive} onPress={() => setLockedObj(false)}>
-            <Text style={styles.lockBtnTextActive}>Odblokuj ({detectedObjName})</Text>
-          </Pressable>
+          <View style={styles.objectTargetBadge}>
+            <Text style={styles.objectTargetBadgeText} numberOfLines={1}>
+              Na: {objectTargetLabel}
+            </Text>
+          </View>
         </View>
       )}
 
@@ -330,6 +337,14 @@ export default function CameraScreen() {
         <View style={styles.noPokemonWarning}>
           <Text style={styles.warningText}>Wybierz ulubionego Pokémona na liście!</Text>
         </View>
+      )}
+
+      {isObjectMode && activePokemon && (
+        <Animated.View pointerEvents="none" style={[styles.objectLabel, objectLabelStyle]}>
+          <Text style={styles.objectLabelText} numberOfLines={1}>
+            Na: {objectTargetLabel}
+          </Text>
+        </Animated.View>
       )}
 
       {favourites.length > 0 && (
@@ -368,7 +383,6 @@ export default function CameraScreen() {
       <View style={[styles.controls, { bottom: controlsBottom }]}>
         <Pressable style={styles.sideBtn} onPress={() => {
           setIsObjectMode(prev => !prev);
-          setLockedObj(false);
           targetDetected.value = false;
         }}>
           <Ionicons name={isObjectMode ? "cube" : "happy-outline"} size={26} color={isObjectMode ? "#3b4cca" : "#fff"} />
@@ -402,24 +416,38 @@ const styles = StyleSheet.create({
   retryBtnText: { color: '#fff', fontWeight: '600', fontSize: 15 },
   modeIndicator: {
     position: 'absolute', top: 60, left: 20, right: 20,
-    backgroundColor: 'rgba(59, 76, 202, 0.9)', padding: 10, borderRadius: 8, alignItems: 'center'
+    backgroundColor: 'rgba(59, 76, 202, 0.9)', padding: 10, borderRadius: 8, alignItems: 'center', zIndex: 20,
   },
   modeIndicatorText: { color: '#fff', fontWeight: 'bold' },
-  lockOverlay: {
-    position: 'absolute', top: 120, left: 20, right: 20,
-    alignItems: 'center', zIndex: 10,
+  objectTargetBadge: {
+    marginTop: 8,
+    maxWidth: '100%',
+    backgroundColor: 'rgba(255, 204, 0, 0.95)',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
   },
-  lockBtn: {
-    backgroundColor: '#ffcc00', paddingVertical: 12, paddingHorizontal: 24, borderRadius: 24,
-    shadowColor: '#000', shadowOpacity: 0.2, shadowOffset: { width: 0, height: 2 }, shadowRadius: 4,
+  objectTargetBadgeText: {
+    color: '#1f2937',
+    fontSize: 15,
+    fontWeight: '800',
+    textAlign: 'center',
   },
-  lockBtnText: { color: '#3b4cca', fontWeight: 'bold', fontSize: 16 },
-  lockBtnActive: {
-    backgroundColor: '#3b4cca', paddingVertical: 12, paddingHorizontal: 24, borderRadius: 24,
-    shadowColor: '#000', shadowOpacity: 0.2, shadowOffset: { width: 0, height: 2 }, shadowRadius: 4,
-    borderWidth: 2, borderColor: '#ffcc00'
+  objectLabel: {
+    backgroundColor: 'rgba(17, 24, 39, 0.86)',
+    borderColor: 'rgba(255, 204, 0, 0.85)',
+    borderRadius: 8,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    zIndex: 12,
   },
-  lockBtnTextActive: { color: '#ffcc00', fontWeight: 'bold', fontSize: 16 },
+  objectLabelText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '800',
+    textAlign: 'center',
+  },
   noPokemonWarning: {
     position: 'absolute', top: 60, left: 20, right: 20,
     backgroundColor: 'rgba(255,255,255,0.8)', padding: 10, borderRadius: 8, alignItems: 'center'
