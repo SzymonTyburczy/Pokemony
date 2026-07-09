@@ -17,6 +17,8 @@ import { useRouter } from 'expo-router';
 import { useCustomPokemonContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
 import { CustomPokemon } from '../../src/features/customPokemon/model/types';
 import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
+import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
+import { customPokemonToFavourite } from '../../src/features/customPokemon/utils/customPokemonFavourites';
 
 const POKEMON_TYPES = [
   'normal', 'fire', 'water', 'electric', 'grass', 'ice',
@@ -47,10 +49,14 @@ function CustomPokemonRow({
   pokemon,
   onPress,
   onDelete,
+  isFavourite,
+  onToggleFavourite,
 }: {
   pokemon: CustomPokemon;
   onPress: () => void;
   onDelete: () => void;
+  isFavourite: boolean;
+  onToggleFavourite: () => void;
 }) {
   return (
     <Pressable
@@ -72,6 +78,16 @@ function CustomPokemonRow({
       </View>
       <Ionicons name="chevron-forward" size={18} color="#9ca3af" style={{ marginRight: 4 }} />
       <Pressable
+        style={({ pressed }) => [styles.customRowHeart, pressed && { opacity: 0.6 }]}
+        onPress={(e) => {
+          e.stopPropagation?.();
+          onToggleFavourite();
+        }}
+        hitSlop={8}
+      >
+        <Text style={styles.customRowHeartIcon}>{isFavourite ? '❤️' : '🤍'}</Text>
+      </Pressable>
+      <Pressable
         style={({ pressed }) => [styles.customRowDelete, pressed && { opacity: 0.6 }]}
         onPress={(e) => {
           e.stopPropagation?.();
@@ -91,6 +107,7 @@ function CustomPokemonRow({
 export default function CreateNewPokemonScreen() {
   const router = useRouter();
   const { addCustomPokemon, customPokemons, removeCustomPokemon } = useCustomPokemonContext();
+  const { isFavourite, toggleFavourite } = useFavouritesContext();
 
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [name, setName] = useState('');
@@ -329,14 +346,19 @@ export default function CreateNewPokemonScreen() {
         {customPokemons.length > 0 && (
           <View style={styles.collectionSection}>
             <Text style={styles.sectionTitle}>Moja kolekcja ({customPokemons.length})</Text>
-            {customPokemons.map((p) => (
-              <CustomPokemonRow
-                key={p.id}
-                pokemon={p}
-                onPress={() => router.push(`/custom-pokemon/${p.id}`)}
-                onDelete={() => removeCustomPokemon(p.id)}
-              />
-            ))}
+            {customPokemons.map((p) => {
+              const favourite = customPokemonToFavourite(p);
+              return (
+                <CustomPokemonRow
+                  key={p.id}
+                  pokemon={p}
+                  onPress={() => router.push(`/custom-pokemon/${p.id}`)}
+                  onDelete={() => removeCustomPokemon(p.id)}
+                  isFavourite={isFavourite(favourite.url)}
+                  onToggleFavourite={() => toggleFavourite(favourite)}
+                />
+              );
+            })}
           </View>
         )}
 
@@ -561,5 +583,11 @@ const styles = StyleSheet.create({
   },
   customRowDelete: {
     padding: 4,
+  },
+  customRowHeart: {
+    padding: 4,
+  },
+  customRowHeartIcon: {
+    fontSize: 22,
   },
 });

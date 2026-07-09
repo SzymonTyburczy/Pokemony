@@ -11,7 +11,13 @@ import {
 import { WebView } from 'react-native-webview';
 import { useRouter } from 'expo-router';
 import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
-import { getPokemonImageUrl } from '../../src/shared/utils/getPokemonImageUrl';
+import { useCustomPokemonContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
+import {
+  getFavouriteDetailsRoute,
+  getFavouriteImageUrl,
+  getCustomPokemonIdFromFavourite,
+  isCustomPokemonFavourite,
+} from '../../src/features/customPokemon/utils/customPokemonFavourites';
 import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
 import { usePokemonShowcase } from '../../src/features/pokemon/hooks/usePokemonShowcase';
 import { PokemonAnimationModal } from '../../src/features/pokemon/ui/PokemonAnimationModal';
@@ -21,6 +27,7 @@ import { getCryPlayerHtml } from '../../src/features/pokemon/hooks/usePokemonCry
 export default function FavouritesScreen() {
   const router = useRouter();
   const { favourites, isLoaded, removeFavourite } = useFavouritesContext();
+  const { customPokemons } = useCustomPokemonContext();
   const { selectedAnimation, playPokemonCry, webViewRef, showPokemon, closeAnimation } = usePokemonShowcase();
   const [currentIndex, setCurrentIndex] = useState(0);
   const { width } = useWindowDimensions();
@@ -41,7 +48,7 @@ export default function FavouritesScreen() {
       <View style={styles.center}>
         <Text style={styles.emptyIcon}>🤍</Text>
         <Text style={styles.emptyTitle}>Brak ulubionych</Text>
-        <Text style={styles.emptySubtitle}>Dodaj Pokémona z listy, klikając ❤️</Text>
+        <Text style={styles.emptySubtitle}>Dodaj Pokémona z listy lub ze swojej kolekcji, klikając ❤️</Text>
         <Pressable style={styles.goToListButton} onPress={() => router.push('/(tabs)/list')}>
           <Text style={styles.goToListText}>Przejdź do listy</Text>
         </Pressable>
@@ -51,7 +58,11 @@ export default function FavouritesScreen() {
 
   const pokemon = favourites[safeIndex];
   if (!pokemon) return null;
-  const imageUrl = getPokemonImageUrl(pokemon.url);
+  const imageUrl = getFavouriteImageUrl(pokemon, customPokemons);
+  const isCustom = isCustomPokemonFavourite(pokemon);
+  const customPokemon = isCustom
+    ? customPokemons.find((p) => p.id === getCustomPokemonIdFromFavourite(pokemon))
+    : null;
   const hasNext = safeIndex < favourites.length - 1;
   const hasPrev = safeIndex > 0;
 
@@ -67,17 +78,34 @@ export default function FavouritesScreen() {
       {/* Karta pokémona */}
       <Pressable
         style={({ pressed }) => [styles.card, { width: width - 48 }, pressed && styles.cardPressed]}
-        onPress={() => showPokemon(pokemon)}
+        onPress={() => {
+          if (isCustom) {
+            router.push(getFavouriteDetailsRoute(pokemon));
+            return;
+          }
+          showPokemon(pokemon);
+        }}
       >
-        <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="contain" />
+        {imageUrl ? (
+          <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="contain" />
+        ) : (
+          <View style={styles.imagePlaceholder}>
+            <Text style={styles.imagePlaceholderText}>?</Text>
+          </View>
+        )}
         <Text style={styles.pokemonName}>{formatPokemonName(pokemon.name)}</Text>
+        {isCustom && (
+          <View style={styles.customBadge}>
+            <Text style={styles.customBadgeText}>Własny</Text>
+          </View>
+        )}
 
         {/* Przycisk usunięcia */}
         <Pressable
           style={({ pressed }) => [styles.removeButton, pressed && styles.removeButtonPressed]}
           onPress={(e) => {
             e.stopPropagation?.();
-            removeFavourite(pokemon.name);
+            removeFavourite(pokemon.url);
           }}
         >
           <Text style={styles.removeButtonText}>💔 Usuń z ulubionych</Text>
@@ -113,24 +141,32 @@ export default function FavouritesScreen() {
       </View>
 
       <View style={styles.descriptionContainer}>
-        <PokemonDescription pokemonName={pokemon.name} />
+        {isCustom && customPokemon?.description ? (
+          <Text style={styles.customDescription}>{customPokemon.description}</Text>
+        ) : !isCustom ? (
+          <PokemonDescription pokemonName={pokemon.name} />
+        ) : null}
       </View>
 
-      <WebView
-        ref={webViewRef}
-        source={{ html: getCryPlayerHtml() }}
-        style={styles.hiddenWebView}
-        javaScriptEnabled
-        mediaPlaybackRequiresUserAction={false}
-        allowsInlineMediaPlayback
-      />
+      {!isCustom && (
+        <WebView
+          ref={webViewRef}
+          source={{ html: getCryPlayerHtml() }}
+          style={styles.hiddenWebView}
+          javaScriptEnabled
+          mediaPlaybackRequiresUserAction={false}
+          allowsInlineMediaPlayback
+        />
+      )}
 
-      <PokemonAnimationModal
-        animation={selectedAnimation}
-        onClose={closeAnimation}
-        onPokemonSound={playPokemonCry}
-        hasCry
-      />
+      {!isCustom && (
+        <PokemonAnimationModal
+          animation={selectedAnimation}
+          onClose={closeAnimation}
+          onPokemonSound={playPokemonCry}
+          hasCry
+        />
+      )}
     </View>
   );
 }
@@ -185,6 +221,38 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     marginBottom: 16,
+  },
+  imagePlaceholder: {
+    width: 200,
+    height: 200,
+    borderRadius: 20,
+    backgroundColor: '#e9ecef',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  imagePlaceholderText: {
+    fontSize: 64,
+    color: '#9ca3af',
+    fontWeight: '800',
+  },
+  customBadge: {
+    backgroundColor: '#3b4cca',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    marginBottom: 16,
+  },
+  customBadgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  customDescription: {
+    fontSize: 15,
+    color: '#374151',
+    lineHeight: 22,
+    textAlign: 'center',
   },
   pokemonName: {
     fontSize: 28,

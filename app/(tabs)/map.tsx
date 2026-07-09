@@ -17,11 +17,12 @@ import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import MapView, { LongPressEvent, MapPressEvent, Marker, Region } from 'react-native-maps';
 import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
+import { useCustomPokemonContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
+import { getPokemonUrlImage, isCustomPokemonUrl } from '../../src/features/customPokemon/utils/customPokemonFavourites';
 import { useMapPins } from '../../src/features/map/hooks/useMapPins';
 import { PendingMapPinLocation, PokemonMapPin } from '../../src/features/map/model/types';
 import { Pokemon } from '../../src/features/pokemon/model/types';
 import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
-import { getPokemonImageUrl } from '../../src/shared/utils/getPokemonImageUrl';
 import { MapPokemonDetailsSheetContent } from '../../src/features/map/ui/MapPokemonDetailsSheetContent';
 
 type SheetMode = 'pin-details' | 'pokemon-picker' | 'empty-favourites' | 'pin-list' | 'pokemon-full-details';
@@ -54,6 +55,7 @@ export default function MapScreen() {
   const mapRef = useRef<MapView>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
   const { favourites, isLoaded: areFavouritesLoaded } = useFavouritesContext();
+  const { customPokemons } = useCustomPokemonContext();
   const {
     pins,
     isLoaded: arePinsLoaded,
@@ -379,6 +381,8 @@ export default function MapScreen() {
       >
         {pins.map((pin) => {
           const isSelected = selectedPin?.id === pin.id;
+          const pinImageUrl = getPokemonUrlImage(pin.pokemonUrl, customPokemons);
+          const isCustomPin = isCustomPokemonUrl(pin.pokemonUrl);
 
           return (
             <Marker
@@ -390,7 +394,17 @@ export default function MapScreen() {
             >
               <View style={styles.markerContainer}>
                 <View style={[styles.markerBubble, isSelected && styles.markerBubbleSelected]}>
-                  <Image source={{ uri: getPokemonImageUrl(pin.pokemonUrl) }} style={styles.markerImage} />
+                  {pinImageUrl ? (
+                    <Image
+                      source={{ uri: pinImageUrl }}
+                      style={[styles.markerImage, isCustomPin && styles.markerImageCustom]}
+                      resizeMode={isCustomPin ? 'cover' : 'contain'}
+                    />
+                  ) : (
+                    <View style={styles.markerImagePlaceholder}>
+                      <Text style={styles.markerImagePlaceholderText}>?</Text>
+                    </View>
+                  )}
                 </View>
                 <View style={[styles.markerPointer, isSelected && styles.markerPointerSelected]} />
               </View>
@@ -506,24 +520,58 @@ export default function MapScreen() {
               </Text>
 
               <View style={styles.pokemonGrid}>
-                {favourites.map((pokemon) => (
-                  <Pressable
-                    key={pokemon.name}
-                    style={({ pressed }) => [styles.pokemonOption, pressed && styles.pressed]}
-                    onPress={() => handleChoosePokemon(pokemon)}
-                  >
-                    <Image source={{ uri: getPokemonImageUrl(pokemon.url) }} style={styles.optionImage} />
-                    <Text style={styles.optionName}>{formatPokemonName(pokemon.name)}</Text>
-                  </Pressable>
-                ))}
+                {favourites.map((pokemon) => {
+                  const imageUrl = getPokemonUrlImage(pokemon.url, customPokemons);
+                  const isCustom = isCustomPokemonUrl(pokemon.url);
+                  return (
+                    <Pressable
+                      key={pokemon.url}
+                      style={({ pressed }) => [styles.pokemonOption, pressed && styles.pressed]}
+                      onPress={() => handleChoosePokemon(pokemon)}
+                    >
+                      {imageUrl ? (
+                        <Image
+                          source={{ uri: imageUrl }}
+                          style={[styles.optionImage, isCustom && styles.optionImageCustom]}
+                          resizeMode={isCustom ? 'cover' : 'contain'}
+                        />
+                      ) : (
+                        <View style={styles.optionImagePlaceholder}>
+                          <Text style={styles.optionImagePlaceholderText}>?</Text>
+                        </View>
+                      )}
+                      <Text style={styles.optionName}>{formatPokemonName(pokemon.name)}</Text>
+                      {isCustom && <Text style={styles.optionCustomBadge}>własny</Text>}
+                    </Pressable>
+                  );
+                })}
               </View>
             </BottomSheetScrollView>
           )}
 
           {sheetMode === 'pin-details' && selectedPin && (
             <BottomSheetView style={styles.sheetContent}>
-              <Image source={{ uri: getPokemonImageUrl(selectedPin.pokemonUrl) }} style={styles.detailsImage} />
+              {(() => {
+                const pinImageUrl = getPokemonUrlImage(selectedPin.pokemonUrl, customPokemons);
+                const isCustomPin = isCustomPokemonUrl(selectedPin.pokemonUrl);
+                return pinImageUrl ? (
+                  <Image
+                    source={{ uri: pinImageUrl }}
+                    style={[styles.detailsImage, isCustomPin && styles.detailsImageCustom]}
+                    resizeMode={isCustomPin ? 'cover' : 'contain'}
+                  />
+                ) : (
+                  <View style={styles.detailsImagePlaceholder}>
+                    <Text style={styles.detailsImagePlaceholderText}>?</Text>
+                  </View>
+                );
+              })()}
               <Text style={styles.sheetTitle}>{formatPokemonName(selectedPin.pokemonName)}</Text>
+              {isCustomPokemonUrl(selectedPin.pokemonUrl) && (
+                <View style={styles.customPinBadge}>
+                  <Text style={styles.customPinBadgeText}>Własny Pokémon</Text>
+                </View>
+              )}
               <Text style={styles.sheetText}>
                 Ten Pokémon został przypięty do miejsca: {selectedPin.latitude.toFixed(4)},{' '}
                 {selectedPin.longitude.toFixed(4)}.
@@ -563,21 +611,35 @@ export default function MapScreen() {
               <Text style={styles.sheetText}>Wybierz pozycję, żeby przesunąć mapę na zapisane miejsce.</Text>
 
               <View style={styles.pinList}>
-                {listedPins.map((pin) => (
-                  <Pressable
-                    key={pin.id}
-                    style={({ pressed }) => [styles.pinListItem, pressed && styles.pressed]}
-                    onPress={() => handleSelectListedPin(pin)}
-                  >
-                    <Image source={{ uri: getPokemonImageUrl(pin.pokemonUrl) }} style={styles.pinListImage} />
-                    <View style={styles.pinListContent}>
-                      <Text style={styles.pinListName}>{formatPokemonName(pin.pokemonName)}</Text>
-                      <Text style={styles.pinListCoordinates}>
-                        {pin.latitude.toFixed(4)}, {pin.longitude.toFixed(4)}
-                      </Text>
-                    </View>
-                  </Pressable>
-                ))}
+                {listedPins.map((pin) => {
+                  const pinImageUrl = getPokemonUrlImage(pin.pokemonUrl, customPokemons);
+                  const isCustomPin = isCustomPokemonUrl(pin.pokemonUrl);
+                  return (
+                    <Pressable
+                      key={pin.id}
+                      style={({ pressed }) => [styles.pinListItem, pressed && styles.pressed]}
+                      onPress={() => handleSelectListedPin(pin)}
+                    >
+                      {pinImageUrl ? (
+                        <Image
+                          source={{ uri: pinImageUrl }}
+                          style={[styles.pinListImage, isCustomPin && styles.pinListImageCustom]}
+                          resizeMode={isCustomPin ? 'cover' : 'contain'}
+                        />
+                      ) : (
+                        <View style={styles.pinListImagePlaceholder}>
+                          <Text style={styles.pinListImagePlaceholderText}>?</Text>
+                        </View>
+                      )}
+                      <View style={styles.pinListContent}>
+                        <Text style={styles.pinListName}>{formatPokemonName(pin.pokemonName)}</Text>
+                        <Text style={styles.pinListCoordinates}>
+                          {pin.latitude.toFixed(4)}, {pin.longitude.toFixed(4)}
+                        </Text>
+                      </View>
+                    </Pressable>
+                  );
+                })}
               </View>
             </BottomSheetScrollView>
           )}
@@ -752,6 +814,22 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
   },
+  markerImageCustom: {
+    borderRadius: 19,
+  },
+  markerImagePlaceholder: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#e9ecef',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  markerImagePlaceholderText: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#9ca3af',
+  },
   markerPointer: {
     width: 0,
     height: 0,
@@ -810,6 +888,30 @@ const styles = StyleSheet.create({
     height: 58,
     marginBottom: 8,
   },
+  optionImageCustom: {
+    borderRadius: 12,
+  },
+  optionImagePlaceholder: {
+    width: 58,
+    height: 58,
+    borderRadius: 12,
+    backgroundColor: '#e9ecef',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  optionImagePlaceholderText: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#9ca3af',
+  },
+  optionCustomBadge: {
+    marginTop: 4,
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#3b4cca',
+    textTransform: 'uppercase',
+  },
   optionName: {
     fontSize: 15,
     fontWeight: '600',
@@ -821,6 +923,37 @@ const styles = StyleSheet.create({
     height: 110,
     alignSelf: 'center',
     marginBottom: 8,
+  },
+  detailsImageCustom: {
+    borderRadius: 16,
+  },
+  detailsImagePlaceholder: {
+    width: 110,
+    height: 110,
+    borderRadius: 16,
+    alignSelf: 'center',
+    backgroundColor: '#e9ecef',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  detailsImagePlaceholderText: {
+    fontSize: 40,
+    fontWeight: '800',
+    color: '#9ca3af',
+  },
+  customPinBadge: {
+    alignSelf: 'center',
+    backgroundColor: '#3b4cca',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    marginBottom: 8,
+  },
+  customPinBadgeText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '700',
   },
   pinList: {
     gap: 10,
@@ -840,6 +973,22 @@ const styles = StyleSheet.create({
   pinListImage: {
     width: 52,
     height: 52,
+  },
+  pinListImageCustom: {
+    borderRadius: 10,
+  },
+  pinListImagePlaceholder: {
+    width: 52,
+    height: 52,
+    borderRadius: 10,
+    backgroundColor: '#e9ecef',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pinListImagePlaceholderText: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#9ca3af',
   },
   pinListContent: {
     flex: 1,

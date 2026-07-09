@@ -1,24 +1,26 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
+import { useCustomPokemonContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
 import { Pokemon } from '../../src/features/pokemon/model/types';
 import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
-import { getPokemonImageUrl } from '../../src/shared/utils/getPokemonImageUrl';
+import { getFavouriteDetailsRoute, getFavouriteImageUrl } from '../../src/features/customPokemon/utils/customPokemonFavourites';
 
 function FavouriteRow({
   pokemon,
+  imageUrl,
   onPress,
   onRemove,
 }: {
   pokemon: Pokemon;
+  imageUrl: string;
   onPress: () => void;
   onRemove: () => void;
 }) {
   const shouldIgnoreNextPressRef = useRef(false);
   const [rowWidth, setRowWidth] = useState(0);
-  const imageUrl = useMemo(() => getPokemonImageUrl(pokemon.url), [pokemon.url]);
   const deleteThreshold = rowWidth > 0 ? rowWidth * 0.55 : 140;
 
   return (
@@ -86,6 +88,7 @@ function FavouriteRow({
 export default function AdditionalScreen() {
   const router = useRouter();
   const { favourites, isLoaded, removeFavourite } = useFavouritesContext();
+  const { customPokemons } = useCustomPokemonContext();
 
   if (!isLoaded) {
     return (
@@ -102,13 +105,14 @@ export default function AdditionalScreen() {
 
       <FlatList
         data={favourites}
-        keyExtractor={(item) => item.name}
+        keyExtractor={(item) => item.url}
         contentContainerStyle={[styles.listContent, favourites.length === 0 && styles.emptyListContent]}
         renderItem={({ item }) => (
           <FavouriteRow
             pokemon={item}
-            onPress={() => router.push(`/pokemon/${item.name}`)}
-            onRemove={() => removeFavourite(item.name)}
+            imageUrl={getFavouriteImageUrl(item, customPokemons)}
+            onPress={() => router.push(getFavouriteDetailsRoute(item))}
+            onRemove={() => removeFavourite(item.url)}
           />
         )}
         ItemSeparatorComponent={() => <View style={styles.separator} />}

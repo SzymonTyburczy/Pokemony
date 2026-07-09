@@ -6,8 +6,8 @@ interface FavouritesContextValue {
   favourites: Pokemon[];
   isLoaded: boolean;
   toggleFavourite: (pokemon: Pokemon) => void;
-  removeFavourite: (name: string) => void;
-  isFavourite: (name: string) => boolean;
+  removeFavourite: (url: string) => void;
+  isFavourite: (url: string) => boolean;
 }
 
 const FavouritesContext = createContext<FavouritesContextValue | null>(null);

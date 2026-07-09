@@ -10,6 +10,8 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCustomPokemonContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
+import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
+import { customPokemonToFavourite } from '../../src/features/customPokemon/utils/customPokemonFavourites';
 import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
 
 const TYPE_COLORS: Record<string, string> = {
@@ -34,6 +36,7 @@ export default function CustomPokemonDetailsScreen() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { customPokemons } = useCustomPokemonContext();
+  const { isFavourite, toggleFavourite } = useFavouritesContext();
 
   const pokemon = customPokemons.find((p) => p.id === id);
 
@@ -47,6 +50,9 @@ export default function CustomPokemonDetailsScreen() {
       </View>
     );
   }
+
+  const favourite = customPokemonToFavourite(pokemon);
+  const favouriteActive = isFavourite(favourite.url);
 
   return (
     <ScrollView
@@ -71,6 +77,19 @@ export default function CustomPokemonDetailsScreen() {
       <View style={styles.ownBadge}>
         <Text style={styles.ownBadgeText}>Własny Pokémon</Text>
       </View>
+
+      <Pressable
+        style={({ pressed }) => [
+          styles.favouriteButton,
+          favouriteActive && styles.favouriteButtonActive,
+          pressed && styles.favouriteButtonPressed,
+        ]}
+        onPress={() => toggleFavourite(favourite)}
+      >
+        <Text style={styles.favouriteButtonText}>
+          {favouriteActive ? '❤️ W ulubionych' : '🤍 Dodaj do ulubionych'}
+        </Text>
+      </Pressable>
 
       {/* Typy */}
       {pokemon.types.length > 0 && (
@@ -191,6 +210,29 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 12,
     fontWeight: '700',
+  },
+  favouriteButton: {
+    alignSelf: 'center',
+    backgroundColor: '#f3f4f6',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  favouriteButtonActive: {
+    backgroundColor: '#fee2e2',
+    borderColor: '#fecaca',
+  },
+  favouriteButtonPressed: {
+    opacity: 0.8,
+  },
+  favouriteButtonText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1f2937',
+    textAlign: 'center',
   },
   typesRow: {
     flexDirection: 'row',

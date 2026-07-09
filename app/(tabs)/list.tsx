@@ -13,36 +13,62 @@ import { usePokemonCryPlayer, getCryPlayerHtml } from '../../src/features/pokemo
 import { useCustomPokemonContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
 import { CustomPokemon } from '../../src/features/customPokemon/model/types';
 import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
+import { customPokemonToFavourite } from '../../src/features/customPokemon/utils/customPokemonFavourites';
 
-function CustomPokemonSection({ pokemons, onPress }: { pokemons: CustomPokemon[]; onPress: (id: string) => void }) {
+function CustomPokemonSection({
+  pokemons,
+  onPress,
+  isFavourite,
+  onToggleFavourite,
+}: {
+  pokemons: CustomPokemon[];
+  onPress: (id: string) => void;
+  isFavourite: (url: string) => boolean;
+  onToggleFavourite: (pokemon: Pokemon) => void;
+}) {
   if (pokemons.length === 0) return null;
   return (
     <View style={styles.customSection}>
       <Text style={styles.customSectionTitle}>Moje Pokémony ({pokemons.length})</Text>
-      {pokemons.map((p) => (
-        <Pressable
-          key={p.id}
-          style={({ pressed }) => [styles.customItem, pressed && { opacity: 0.75 }]}
-          onPress={() => onPress(p.id)}
-        >
-          {p.imageUri ? (
-            <Image source={{ uri: p.imageUri }} style={styles.customItemImage} resizeMode="cover" />
-          ) : (
-            <View style={[styles.customItemImage, styles.customItemImagePlaceholder]}>
-              <Text style={styles.customItemPlaceholderText}>?</Text>
-            </View>
-          )}
-          <View style={styles.customItemInfo}>
-            <Text style={styles.customItemName}>{formatPokemonName(p.name)}</Text>
-            {p.types.length > 0 && (
-              <Text style={styles.customItemTypes}>{p.types.join(' / ')}</Text>
+      {pokemons.map((p) => {
+        const favourite = customPokemonToFavourite(p);
+        return (
+          <Pressable
+            key={p.id}
+            style={({ pressed }) => [styles.customItem, pressed && { opacity: 0.75 }]}
+            onPress={() => onPress(p.id)}
+          >
+            {p.imageUri ? (
+              <Image source={{ uri: p.imageUri }} style={styles.customItemImage} resizeMode="cover" />
+            ) : (
+              <View style={[styles.customItemImage, styles.customItemImagePlaceholder]}>
+                <Text style={styles.customItemPlaceholderText}>?</Text>
+              </View>
             )}
-          </View>
-          <View style={styles.customBadge}>
-            <Text style={styles.customBadgeText}>własny</Text>
-          </View>
-        </Pressable>
-      ))}
+            <View style={styles.customItemInfo}>
+              <Text style={styles.customItemName}>{formatPokemonName(p.name)}</Text>
+              {p.types.length > 0 && (
+                <Text style={styles.customItemTypes}>{p.types.join(' / ')}</Text>
+              )}
+            </View>
+            <Pressable
+              style={({ pressed }) => [styles.customHeartButton, pressed && { opacity: 0.6 }]}
+              onPress={(e) => {
+                e.stopPropagation?.();
+                onToggleFavourite(favourite);
+              }}
+              hitSlop={8}
+            >
+              <Text style={styles.customHeartIcon}>
+                {isFavourite(favourite.url) ? '❤️' : '🤍'}
+              </Text>
+            </Pressable>
+            <View style={styles.customBadge}>
+              <Text style={styles.customBadgeText}>własny</Text>
+            </View>
+          </Pressable>
+        );
+      })}
       <View style={styles.customSectionDivider} />
     </View>
   );
@@ -88,7 +114,7 @@ const ListScreen = () => {
           }
           router.push(`/pokemon/${item.name}`);
         }}
-        isFavourite={isFavourite(item.name)}
+        isFavourite={isFavourite(item.url)}
         onToggleFavourite={toggleFavourite}
         onPlayCry={(pokemon) => {
           const id = getPokemonIdFromUrl(pokemon.url);
@@ -181,7 +207,16 @@ const ListScreen = () => {
         extraData={[visiblePokemonNames, isFavourite, isSearchActive]}
         onEndReached={isSearchActive ? undefined : handleLoadMore}
         onEndReachedThreshold={0.5}
-        ListHeaderComponent={!isSearchActive ? <CustomPokemonSection pokemons={customPokemons} onPress={(id) => router.push(`/custom-pokemon/${id}`)} /> : null}
+        ListHeaderComponent={
+          !isSearchActive ? (
+            <CustomPokemonSection
+              pokemons={customPokemons}
+              onPress={(id) => router.push(`/custom-pokemon/${id}`)}
+              isFavourite={isFavourite}
+              onToggleFavourite={toggleFavourite}
+            />
+          ) : null
+        }
         ListFooterComponent={renderFooter}
         ListEmptyComponent={renderEmptySearch}
         refreshing={isSearchActive ? false : isRefreshing}
@@ -314,6 +349,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 11,
     fontWeight: '700',
+  },
+  customHeartButton: {
+    padding: 4,
+  },
+  customHeartIcon: {
+    fontSize: 22,
   },
   customSectionDivider: {
     height: 1,
