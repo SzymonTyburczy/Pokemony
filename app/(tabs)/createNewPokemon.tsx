@@ -1,253 +1,461 @@
-import React, { useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
-import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
-import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
-import { Pokemon } from '../../src/features/pokemon/model/types';
-import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
-import { getPokemonImageUrl } from '../../src/shared/utils/getPokemonImageUrl';
+import React, { useState } from 'react';
+import {
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { Ionicons } from '@expo/vector-icons';
+import { useCustomPokemonContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
+import { CustomPokemon } from '../../src/features/customPokemon/model/types';
 
-function FavouriteRow({
-  pokemon,
-  onPress,
-  onRemove,
-}: {
-  pokemon: Pokemon;
-  onPress: () => void;
-  onRemove: () => void;
-}) {
-  const shouldIgnoreNextPressRef = useRef(false);
-  const [rowWidth, setRowWidth] = useState(0);
-  const imageUrl = useMemo(() => getPokemonImageUrl(pokemon.url), [pokemon.url]);
-  const deleteThreshold = rowWidth > 0 ? rowWidth * 0.55 : 140;
+const POKEMON_TYPES = [
+  'normal', 'fire', 'water', 'electric', 'grass', 'ice',
+  'fighting', 'poison', 'ground', 'flying', 'psychic', 'bug',
+  'rock', 'ghost', 'dragon', 'dark', 'steel', 'fairy',
+];
 
-  return (
-    <Swipeable
-      renderRightActions={() => (
-        <View style={[styles.deleteActionContainer, rowWidth > 0 && { width: rowWidth }]}>
-          <View style={styles.deleteAction}>
-            <Text style={styles.deleteActionText}>Usun</Text>
-          </View>
-        </View>
-      )}
-      onSwipeableOpenStartDrag={() => {
-        shouldIgnoreNextPressRef.current = true;
-      }}
-      onSwipeableCloseStartDrag={() => {
-        shouldIgnoreNextPressRef.current = true;
-      }}
-      onSwipeableOpen={(direction) => {
-        if (direction === 'left') {
-          onRemove();
-        }
-      }}
-      onSwipeableClose={() => {
-        requestAnimationFrame(() => {
-          shouldIgnoreNextPressRef.current = false;
-        });
-      }}
-      friction={1.2}
-      overshootRight={false}
-      overshootFriction={10}
-      rightThreshold={deleteThreshold}
-      dragOffsetFromRightEdge={20}
-      animationOptions={{
-        damping: 42,
-        stiffness: 220,
-        mass: 0.95,
-      }}
-    >
-      <Pressable
-        style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
-        onLayout={(event) => {
-          const nextWidth = event.nativeEvent.layout.width;
-          if (nextWidth !== rowWidth) {
-            setRowWidth(nextWidth);
-          }
-        }}
-        onPress={() => {
-          if (shouldIgnoreNextPressRef.current) {
-            shouldIgnoreNextPressRef.current = false;
+const TYPE_COLORS: Record<string, string> = {
+  normal: '#a8a878', fire: '#f08030', water: '#6890f0', electric: '#f8d030',
+  grass: '#78c850', ice: '#98d8d8', fighting: '#c03028', poison: '#a040a0',
+  ground: '#e0c068', flying: '#a890f0', psychic: '#f85888', bug: '#a8b820',
+  rock: '#b8a038', ghost: '#705898', dragon: '#7038f8', dark: '#705848',
+  steel: '#b8b8d0', fairy: '#ee99ac',
+};
+
+const STAT_LABELS: Record<string, string> = {
+  hp: 'HP',
+  attack: 'Atak',
+  defense: 'Obrona',
+  'special-attack': 'Sp. Atak',
+  'special-defense': 'Sp. Obr.',
+  speed: 'Szybkość',
+};
+
+const DEFAULT_STATS = Object.keys(STAT_LABELS).map((name) => ({ name, value: 50 }));
+
+export default function CreateNewPokemonScreen() {
+  const { addCustomPokemon } = useCustomPokemonContext();
+
+  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [height, setHeight] = useState('');
+  const [weight, setWeight] = useState('');
+  const [stats, setStats] = useState(DEFAULT_STATS);
+
+  const pickImage = () => {
+    Alert.alert('Wybierz źródło obrazka', undefined, [
+      {
+        text: 'Galeria',
+        onPress: async () => {
+          const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+          if (status !== 'granted') {
+            Alert.alert('Brak uprawnień', 'Zezwól na dostęp do galerii w ustawieniach.');
             return;
           }
-          onPress();
-        }}
-      >
-        <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="contain" />
-        <View style={styles.rowText}>
-          <Text style={styles.name}>{formatPokemonName(pokemon.name)}</Text>
-          <Text style={styles.hint}>Mocne pociagniecie albo przeciagniecie do konca usuwa z ulubionych</Text>
-        </View>
-      </Pressable>
-    </Swipeable>
-  );
-}
+          const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+          });
+          if (!result.canceled) setImageUri(result.assets[0].uri);
+        },
+      },
+      {
+        text: 'Aparat',
+        onPress: async () => {
+          const { status } = await ImagePicker.requestCameraPermissionsAsync();
+          if (status !== 'granted') {
+            Alert.alert('Brak uprawnień', 'Zezwól na dostęp do aparatu w ustawieniach.');
+            return;
+          }
+          const result = await ImagePicker.launchCameraAsync({
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+          });
+          if (!result.canceled) setImageUri(result.assets[0].uri);
+        },
+      },
+      { text: 'Anuluj', style: 'cancel' },
+    ]);
+  };
 
-export default function AdditionalScreen() {
-  const router = useRouter();
-  const { favourites, isLoaded, removeFavourite } = useFavouritesContext();
+  const toggleType = (type: string) => {
+    setSelectedTypes((prev) => {
+      if (prev.includes(type)) return prev.filter((t) => t !== type);
+      if (prev.length >= 2) {
+        Alert.alert('Maksymalnie 2 typy', 'Pokemon może mieć co najwyżej 2 typy.');
+        return prev;
+      }
+      return [...prev, type];
+    });
+  };
 
-  if (!isLoaded) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#3b4cca" />
-      </View>
-    );
-  }
+  const updateStat = (index: number, raw: string) => {
+    const value = Math.min(255, Math.max(0, parseInt(raw, 10) || 0));
+    setStats((prev) => prev.map((s, i) => (i === index ? { ...s, value } : s)));
+  };
+
+  const resetForm = () => {
+    setImageUri(null);
+    setName('');
+    setDescription('');
+    setSelectedTypes([]);
+    setHeight('');
+    setWeight('');
+    setStats(DEFAULT_STATS);
+  };
+
+  const handleSave = () => {
+    if (!name.trim()) {
+      Alert.alert('Brakuje nazwy', 'Podaj nazwę Pokémona przed zapisem.');
+      return;
+    }
+    const pokemon: CustomPokemon = {
+      id: Date.now().toString(),
+      name: name.trim(),
+      description: description.trim(),
+      imageUri,
+      height: parseFloat(height) || 0,
+      weight: parseFloat(weight) || 0,
+      types: selectedTypes,
+      stats,
+    };
+    addCustomPokemon(pokemon);
+    resetForm();
+    Alert.alert('Gotowe!', `${pokemon.name} został dodany do kolekcji.`);
+  };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Ulubione</Text>
-      <Text style={styles.subtitle}>Przewijaj w dol, a swipe w lewo usuwa Pokemona z ulubionych.</Text>
+    <KeyboardAvoidingView
+      style={styles.flex}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView
+        style={styles.flex}
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Text style={styles.title}>Dodaj Pokémona</Text>
+        <Text style={styles.subtitle}>Stwórz własnego Pokémona i zapisz go w kolekcji.</Text>
 
-      <FlatList
-        data={favourites}
-        keyExtractor={(item) => item.name}
-        contentContainerStyle={[styles.listContent, favourites.length === 0 && styles.emptyListContent]}
-        renderItem={({ item }) => (
-          <FavouriteRow
-            pokemon={item}
-            onPress={() => router.push(`/pokemon/${item.name}`)}
-            onRemove={() => removeFavourite(item.name)}
+        {/* Obrazek */}
+        <Pressable style={styles.imagePicker} onPress={pickImage}>
+          {imageUri ? (
+            <Image source={{ uri: imageUri }} style={styles.previewImage} resizeMode="cover" />
+          ) : (
+            <View style={styles.imagePlaceholder}>
+              <Ionicons name="camera-outline" size={40} color="#9ca3af" />
+              <Text style={styles.imagePlaceholderText}>Dodaj zdjęcie</Text>
+            </View>
+          )}
+        </Pressable>
+
+        {/* Nazwa */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Nazwa</Text>
+          <TextInput
+            style={styles.input}
+            value={name}
+            onChangeText={setName}
+            placeholder="np. Fireon"
+            placeholderTextColor="#9ca3af"
+            maxLength={40}
           />
-        )}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-        ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyTitle}>Brak ulubionych</Text>
-            <Text style={styles.emptyText}>Dodaj Pokemony w zakladce Lista i wroc tutaj.</Text>
-            <Pressable style={styles.goToListButton} onPress={() => router.push('/(tabs)/list')}>
-              <Text style={styles.goToListText}>Przejdz do listy</Text>
-            </Pressable>
+        </View>
+
+        {/* Opis */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Opis</Text>
+          <TextInput
+            style={[styles.input, styles.inputMultiline]}
+            value={description}
+            onChangeText={setDescription}
+            placeholder="Opisz swojego Pokémona..."
+            placeholderTextColor="#9ca3af"
+            multiline
+            numberOfLines={4}
+            textAlignVertical="top"
+            maxLength={300}
+          />
+        </View>
+
+        {/* Typy */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Typy (max 2)</Text>
+          <View style={styles.typeGrid}>
+            {POKEMON_TYPES.map((type) => {
+              const isSelected = selectedTypes.includes(type);
+              return (
+                <Pressable
+                  key={type}
+                  style={[
+                    styles.typeChip,
+                    isSelected && { backgroundColor: TYPE_COLORS[type] },
+                  ]}
+                  onPress={() => toggleType(type)}
+                >
+                  <Text style={[styles.typeChipText, isSelected && styles.typeChipTextSelected]}>
+                    {type}
+                  </Text>
+                </Pressable>
+              );
+            })}
           </View>
-        }
-      />
-    </View>
+        </View>
+
+        {/* Wzrost i waga */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Wymiary</Text>
+          <View style={styles.rowInputs}>
+            <View style={styles.halfInputWrap}>
+              <Text style={styles.inputLabel}>Wzrost (m)</Text>
+              <TextInput
+                style={styles.input}
+                value={height}
+                onChangeText={setHeight}
+                placeholder="np. 1.2"
+                placeholderTextColor="#9ca3af"
+                keyboardType="decimal-pad"
+              />
+            </View>
+            <View style={styles.halfInputWrap}>
+              <Text style={styles.inputLabel}>Waga (kg)</Text>
+              <TextInput
+                style={styles.input}
+                value={weight}
+                onChangeText={setWeight}
+                placeholder="np. 8.5"
+                placeholderTextColor="#9ca3af"
+                keyboardType="decimal-pad"
+              />
+            </View>
+          </View>
+        </View>
+
+        {/* Statystyki */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Statystyki (0–255)</Text>
+          {stats.map((stat, index) => (
+            <View key={stat.name} style={styles.statRow}>
+              <Text style={styles.statLabel}>{STAT_LABELS[stat.name]}</Text>
+              <View style={styles.statBarWrap}>
+                <View style={[styles.statBar, { width: `${(stat.value / 255) * 100}%` }]} />
+              </View>
+              <TextInput
+                style={styles.statInput}
+                value={stat.value.toString()}
+                onChangeText={(v) => updateStat(index, v)}
+                keyboardType="number-pad"
+                maxLength={3}
+              />
+            </View>
+          ))}
+        </View>
+
+        {/* Zapisz */}
+        <Pressable
+          style={({ pressed }) => [
+            styles.saveButton,
+            !name.trim() && styles.saveButtonDisabled,
+            pressed && name.trim() && styles.saveButtonPressed,
+          ]}
+          onPress={handleSave}
+          disabled={!name.trim()}
+        >
+          <Text style={styles.saveButtonText}>Zapisz Pokémona</Text>
+        </Pressable>
+
+        <View style={styles.bottomSpacer} />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  flex: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingTop: 56,
   },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#fff',
+  content: {
+    paddingTop: 56,
+    paddingHorizontal: 20,
+    paddingBottom: 40,
   },
   title: {
     fontSize: 28,
     fontWeight: '800',
     color: '#3b4cca',
     textAlign: 'center',
-    paddingHorizontal: 20,
   },
   subtitle: {
     fontSize: 14,
-    lineHeight: 20,
     color: '#6b7280',
     textAlign: 'center',
-    paddingHorizontal: 24,
-    marginTop: 8,
-    marginBottom: 16,
+    marginTop: 6,
+    marginBottom: 24,
+    lineHeight: 20,
   },
-  listContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 28,
-  },
-  emptyListContent: {
-    flexGrow: 1,
-  },
-  row: {
-    backgroundColor: '#fbfbfc',
+  imagePicker: {
+    alignSelf: 'center',
+    width: 160,
+    height: 160,
     borderRadius: 20,
+    marginBottom: 28,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: '#e9ecef',
+    borderStyle: 'dashed',
+  },
+  previewImage: {
+    width: '100%',
+    height: '100%',
+  },
+  imagePlaceholder: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f8f9fa',
+    gap: 8,
+  },
+  imagePlaceholderText: {
+    fontSize: 14,
+    color: '#9ca3af',
+    fontWeight: '600',
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#3b4cca',
+    marginBottom: 10,
+  },
+  input: {
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: '#e9ecef',
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: '#111827',
+  },
+  inputMultiline: {
+    minHeight: 100,
+    paddingTop: 12,
+  },
+  inputLabel: {
+    fontSize: 13,
+    color: '#6b7280',
+    fontWeight: '600',
+    marginBottom: 6,
+  },
+  rowInputs: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  halfInputWrap: {
+    flex: 1,
+  },
+  typeGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  typeChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 999,
+    backgroundColor: '#f3f4f6',
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+  },
+  typeChipText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#4b5563',
+    textTransform: 'capitalize',
+  },
+  typeChipTextSelected: {
+    color: '#fff',
+  },
+  statRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    shadowColor: '#0f172a',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.05,
-    shadowRadius: 14,
-    elevation: 3,
+    marginBottom: 10,
+    gap: 8,
   },
-  rowPressed: {
-    opacity: 0.82,
+  statLabel: {
+    width: 74,
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#374151',
   },
-  image: {
-    width: 60,
-    height: 60,
-    marginRight: 14,
-  },
-  rowText: {
+  statBarWrap: {
     flex: 1,
+    height: 8,
+    backgroundColor: '#e9ecef',
+    borderRadius: 4,
+    overflow: 'hidden',
   },
-  name: {
-    fontSize: 19,
-    fontWeight: '700',
-    color: '#1f2937',
-  },
-  hint: {
-    marginTop: 5,
-    fontSize: 12,
-    color: '#6b7280',
-    lineHeight: 18,
-  },
-  deleteAction: {
-    flex: 1,
-    marginVertical: 2,
-    borderRadius: 20,
-    backgroundColor: '#dc2626',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-  },
-  deleteActionContainer: {
-    flex: 1,
-  },
-  deleteActionText: {
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: 16,
-    letterSpacing: 0.2,
-  },
-  separator: {
-    height: 12,
-  },
-  emptyState: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-  },
-  emptyTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#111827',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  emptyText: {
-    fontSize: 15,
-    color: '#6b7280',
-    textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: 18,
-  },
-  goToListButton: {
+  statBar: {
+    height: '100%',
     backgroundColor: '#3b4cca',
-    borderRadius: 12,
-    paddingHorizontal: 18,
-    paddingVertical: 12,
+    borderRadius: 4,
   },
-  goToListText: {
-    color: '#fff',
+  statInput: {
+    width: 48,
+    backgroundColor: '#f8f9fa',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+    textAlign: 'center',
+    fontSize: 14,
     fontWeight: '700',
-    fontSize: 15,
+    color: '#111827',
+    paddingVertical: 6,
+  },
+  saveButton: {
+    backgroundColor: '#3b4cca',
+    borderRadius: 16,
+    paddingVertical: 16,
+    alignItems: 'center',
+    marginTop: 8,
+    shadowColor: '#3b4cca',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  saveButtonDisabled: {
+    backgroundColor: '#d1d5db',
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  saveButtonPressed: {
+    opacity: 0.85,
+    transform: [{ scale: 0.98 }],
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontSize: 17,
+    fontWeight: '800',
+    letterSpacing: 0.3,
+  },
+  bottomSpacer: {
+    height: 20,
   },
 });

@@ -3,13 +3,16 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { Stack } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { FavouritesProvider } from '../src/features/favourites/context/FavouritesContext';
+import { CustomPokemonProvider } from '../src/features/customPokemon/context/CustomPokemonContext';
 
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
         <FavouritesProvider>
-          <Stack screenOptions={{ headerShown: false }} />
+          <CustomPokemonProvider>
+            <Stack screenOptions={{ headerShown: false }} />
+          </CustomPokemonProvider>
         </FavouritesProvider>
       </BottomSheetModalProvider>
     </GestureHandlerRootView>
