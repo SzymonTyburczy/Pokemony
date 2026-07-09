@@ -2,22 +2,19 @@ import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { StyleSheet, Text, View, Pressable, ImageBackground, Dimensions, Alert, ScrollView, Image, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { Camera, CameraRef, useCameraPermission, useCameraDevice, usePhotoOutput, useFrameOutput } from 'react-native-vision-camera';
+import { Camera, CameraRef, useCameraPermission, useCameraDevice, usePhotoOutput } from 'react-native-vision-camera';
 import { Face, useFaceDetectorOutput } from 'react-native-vision-camera-face-detector';
-import { loadTensorflowModel, type TfliteModel } from 'react-native-fast-tflite';
-import { useResizer } from 'react-native-vision-camera-resizer';
 
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 
 import { Asset as MediaAsset, requestPermissionsAsync } from 'expo-media-library';
-import { Asset as ExpoAsset } from 'expo-asset';
 import * as Location from 'expo-location';
 import ViewShot, { ViewShotRef } from 'react-native-view-shot';
 
 import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
 import { useMapPins } from '../../src/features/map/hooks/useMapPins';
 import { getPokemonImageUrl } from '../../src/shared/utils/getPokemonImageUrl';
-import { COCO_CLASSES, getTranslation } from '../../src/features/camera/model/cocoClasses';
+import { useObjectDetection } from '../../src/features/camera/detection/useObjectDetection';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -83,21 +80,13 @@ export default function CameraScreen() {
 
   // --- TRYB DETEKCJI OBIEKTÓW ---
   const [isObjectMode, setIsObjectMode] = useState(false);
-  const [detectedObjName, setDetectedObjName] = useState<string | null>(null);
   const [lockedObj, setLockedObj] = useState(false);
-  // Shared values dostępne w worklecie
-  const isObjectModeShared = useSharedValue(false);
-  const lockedObjShared = useSharedValue(false);
 
   // --- FLIP KAMERY ---
   const flipCamera = () => {
     setCameraError(null);
     setCameraFacing((prev) => (prev === 'front' ? 'back' : 'front'));
   };
-
-  // Synchronizacja stanów React ze shared values workletu
-  useEffect(() => { isObjectModeShared.value = isObjectMode; }, [isObjectMode]);
-  useEffect(() => { lockedObjShared.value = lockedObj; }, [lockedObj]);
 
   // --- DETEKTOR TWARZY ---
   const faceDetectorOutput = useOptionalFaceDetectorOutput({
@@ -127,136 +116,21 @@ export default function CameraScreen() {
     },
   });
 
-  // --- DETEKTOR OBIEKTÓW TFLITE ---
-  // Ręczne ładowanie modelu: expo-asset pobiera plik na dysk,
-  // potem loadTensorflowModel ładuje go z file:// URI.
-  // Model trzymany w stanie React — VisionCamera v5 aktualizuje
-  // callback workletu przy każdym re-renderze przez setOnFrameCallback.
-  const [actualModel, setActualModel] = useState<TfliteModel | undefined>(undefined);
-  const [modelState, setModelState] = useState<'loading' | 'loaded' | 'error'>('loading');
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        setModelState('loading');
-        const [asset] = await ExpoAsset.loadAsync(
-          require('../../assets/ssd_mobilenet.tflite')
-        );
-        const localUri = asset.localUri;
-        if (!localUri || cancelled) return;
-
-        console.log('TFLite model localUri:', localUri);
-        const model = await loadTensorflowModel({ url: localUri }, []);
-        if (!cancelled) {
-          setActualModel(model);
-          setModelState('loaded');
-          console.log('TFLite model loaded successfully!');
-        }
-      } catch (e) {
-        console.error('Failed to load TFLite model:', e);
-        if (!cancelled) setModelState('error');
-      }
-    })();
-    return () => { cancelled = true; };
-  }, []);
-
-  // Funkcje JS wywoływane z workletu przez runOnJS
-  const onObjectFound = (classIdx: number, centerX: number, centerY: number) => {
-    if (lockedObjShared.value) return;
-    const nameToTranslate = COCO_CLASSES[classIdx] ?? COCO_CLASSES[classIdx + 1];
-    if (!nameToTranslate) return;
-    const polishName = getTranslation(nameToTranslate);
-    setDetectedObjName(polishName);
-    targetX.value = centerX - 50;
-    targetY.value = centerY - 50;
-    targetDetected.value = true;
-  };
-
-  const onObjectLost = () => {
-    if (lockedObjShared.value) return;
-    setDetectedObjName(null);
-    targetDetected.value = false;
-  };
-
-  const onFrameError = (msg: string) => {
-    console.warn('Frame processing error:', msg);
-  };
-
-  // Resizer konwertuje klatkę kamery do formatu akceptowanego przez TFLite.
-  // SSD MobileNet v1 oczekuje 300x300 RGB uint8 input.
-  const { resizer } = useResizer({
-    width: 300,
-    height: 300,
-    channelOrder: 'rgb',
-    dataType: 'uint8',
-    scaleMode: 'cover',
-    pixelLayout: 'interleaved',
+  // --- DETEKTOR OBIEKTÓW (EfficientDet-Lite0 TFLite) ---
+  // Cała logika (model, resizer, worklet, throttling) jest w hooku.
+  const {
+    frameOutput: objectFrameOutput,
+    modelState,
+    detectedLabel: detectedObjName,
+  } = useObjectDetection({
+    isEnabled: isObjectMode,
+    isLocked: lockedObj,
+    screenWidth: SCREEN_WIDTH,
+    screenHeight: SCREEN_HEIGHT,
+    targetX,
+    targetY,
+    targetDetected,
   });
-
-  const objectFrameOutput = useFrameOutput({
-    pixelFormat: 'native',
-    onFrame(frame) {
-      'worklet';
-      if (!isObjectModeShared.value || !actualModel || !resizer) {
-        frame.dispose();
-        return;
-      }
-
-      try {
-        // Resize klatki do 300x300 RGB uint8 ArrayBuffer
-        const resized = resizer.resize(frame);
-        const pixelBuffer = resized.getPixelBuffer();
-
-        // WAŻNE: pixelBuffer jest ważny tylko dopóki resized żyje!
-        // Nie wolno dispose() przed runSync().
-        const outputs = actualModel.runSync([pixelBuffer]);
-
-        // Teraz można zwolnić GPUFrame
-        resized.dispose();
-
-        if (outputs && outputs.length >= 4) {
-          const boxes = new Float32Array(outputs[0]);
-          const classes = new Float32Array(outputs[1]);
-          const scores = new Float32Array(outputs[2]);
-          const numDetectionsArr = new Float32Array(outputs[3]);
-          const numDetections = numDetectionsArr.length > 0 ? numDetectionsArr[0] : 0;
-
-          let found = false;
-          for (let i = 0; i < numDetections; i++) {
-            if (scores[i] > 0.3) {
-              const classIdx = Math.round(classes[i]);
-              const ymin = boxes[i * 4];
-              const xmin = boxes[i * 4 + 1];
-              const ymax = boxes[i * 4 + 2];
-              const xmax = boxes[i * 4 + 3];
-              const centerX = ((xmin + xmax) / 2) * SCREEN_WIDTH;
-              const centerY = ((ymin + ymax) / 2) * SCREEN_HEIGHT;
-
-              if (!lockedObjShared.value) {
-                targetX.value = centerX - 50;
-                targetY.value = centerY - 50;
-                targetDetected.value = true;
-                runOnJS(onObjectFound)(classIdx, centerX, centerY);
-              }
-              found = true;
-              break;
-            }
-          }
-          if (!found && !lockedObjShared.value) {
-            targetDetected.value = false;
-            runOnJS(onObjectLost)();
-          }
-        }
-      } catch (e) {
-        runOnJS(onFrameError)(String(e));
-      }
-
-      frame.dispose();
-    }
-  });
-
-
 
   // --- UPRAWNIENIA ---
   useEffect(() => {
@@ -282,12 +156,16 @@ export default function CameraScreen() {
   }, [faceDetectorOutput, photoOutput, isObjectMode, objectFrameOutput]);
 
   // --- STYL ANIMOWANY POKEMONA ---
+  // Pozycja przez transform (nie left/top — brak przeliczania layoutu co klatkę).
+  // Pozycja jest już wygładzana po stronie detekcji, więc bez springów,
+  // które przy retargetowaniu co klatkę dociążały wątek UI.
   const pokemonStyle = useAnimatedStyle(() => {
     return {
       position: 'absolute',
-      left: withSpring(targetX.value),
-      top: withSpring(targetY.value),
-      opacity: withSpring(targetDetected.value ? 1 : 0.5),
+      left: 0,
+      top: 0,
+      transform: [{ translateX: targetX.value }, { translateY: targetY.value }],
+      opacity: withTiming(targetDetected.value ? 1 : 0.5, { duration: 150 }),
       width: 100,
       height: 100,
     };
@@ -491,7 +369,6 @@ export default function CameraScreen() {
         <Pressable style={styles.sideBtn} onPress={() => {
           setIsObjectMode(prev => !prev);
           setLockedObj(false);
-          setDetectedObjName(null);
           targetDetected.value = false;
         }}>
           <Ionicons name={isObjectMode ? "cube" : "happy-outline"} size={26} color={isObjectMode ? "#3b4cca" : "#fff"} />
