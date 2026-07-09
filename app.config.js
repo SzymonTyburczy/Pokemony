@@ -72,11 +72,15 @@ export default {
       [
         "expo-build-properties",
         {
+          "ios": {
+            "buildReactNativeFromSource": false
+          },
           "android": {
             "minSdkVersion": 26
           }
         }
-      ]
+      ],
+      "./plugins/with-ios-simulator-excluded-archs"
     ]
   }
 }

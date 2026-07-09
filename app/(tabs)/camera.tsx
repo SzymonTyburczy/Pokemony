@@ -2,24 +2,23 @@ import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { StyleSheet, Text, View, Pressable, ImageBackground, Dimensions, Alert, ScrollView, Image, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { Camera, CameraRef, useCameraPermission, useCameraDevice, usePhotoOutput, useFrameOutput } from 'react-native-vision-camera';
+import { Camera, CameraRef, useCameraPermission, useCameraDevice, usePhotoOutput } from 'react-native-vision-camera';
 import { Face, useFaceDetectorOutput } from 'react-native-vision-camera-face-detector';
-import { loadTensorflowModel, type TfliteModel } from 'react-native-fast-tflite';
-import { useResizer } from 'react-native-vision-camera-resizer';
 
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 
 import { Asset as MediaAsset, requestPermissionsAsync } from 'expo-media-library';
-import { Asset as ExpoAsset } from 'expo-asset';
 import * as Location from 'expo-location';
 import ViewShot, { ViewShotRef } from 'react-native-view-shot';
 
 import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
 import { useMapPins } from '../../src/features/map/hooks/useMapPins';
 import { getPokemonImageUrl } from '../../src/shared/utils/getPokemonImageUrl';
-import { COCO_CLASSES, getTranslation } from '../../src/features/camera/model/cocoClasses';
+import { useObjectDetection } from '../../src/features/camera/detection/useObjectDetection';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const POKEMON_SPRITE_SIZE = 100;
+const OBJECT_LABEL_WIDTH = 180;
 
 type FaceDetectorOutputOptions = {
   performanceMode: 'fast' | 'accurate';
@@ -83,21 +82,12 @@ export default function CameraScreen() {
 
   // --- TRYB DETEKCJI OBIEKTÓW ---
   const [isObjectMode, setIsObjectMode] = useState(false);
-  const [detectedObjName, setDetectedObjName] = useState<string | null>(null);
-  const [lockedObj, setLockedObj] = useState(false);
-  // Shared values dostępne w worklecie
-  const isObjectModeShared = useSharedValue(false);
-  const lockedObjShared = useSharedValue(false);
 
   // --- FLIP KAMERY ---
   const flipCamera = () => {
     setCameraError(null);
     setCameraFacing((prev) => (prev === 'front' ? 'back' : 'front'));
   };
-
-  // Synchronizacja stanów React ze shared values workletu
-  useEffect(() => { isObjectModeShared.value = isObjectMode; }, [isObjectMode]);
-  useEffect(() => { lockedObjShared.value = lockedObj; }, [lockedObj]);
 
   // --- DETEKTOR TWARZY ---
   const faceDetectorOutput = useOptionalFaceDetectorOutput({
@@ -112,7 +102,7 @@ export default function CameraScreen() {
       if (!isObjectMode) targetDetected.value = false;
     },
     onFacesDetected: (faces: Face[]) => {
-      if (isObjectMode || lockedObj) return;
+      if (isObjectMode) return;
       if (faces.length > 0) {
         const face = faces[0];
         const centerX = face.bounds.x + face.bounds.width / 2;
@@ -127,136 +117,23 @@ export default function CameraScreen() {
     },
   });
 
-  // --- DETEKTOR OBIEKTÓW TFLITE ---
-  // Ręczne ładowanie modelu: expo-asset pobiera plik na dysk,
-  // potem loadTensorflowModel ładuje go z file:// URI.
-  // Model trzymany w stanie React — VisionCamera v5 aktualizuje
-  // callback workletu przy każdym re-renderze przez setOnFrameCallback.
-  const [actualModel, setActualModel] = useState<TfliteModel | undefined>(undefined);
-  const [modelState, setModelState] = useState<'loading' | 'loaded' | 'error'>('loading');
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        setModelState('loading');
-        const [asset] = await ExpoAsset.loadAsync(
-          require('../../assets/ssd_mobilenet.tflite')
-        );
-        const localUri = asset.localUri;
-        if (!localUri || cancelled) return;
-
-        console.log('TFLite model localUri:', localUri);
-        const model = await loadTensorflowModel({ url: localUri }, []);
-        if (!cancelled) {
-          setActualModel(model);
-          setModelState('loaded');
-          console.log('TFLite model loaded successfully!');
-        }
-      } catch (e) {
-        console.error('Failed to load TFLite model:', e);
-        if (!cancelled) setModelState('error');
-      }
-    })();
-    return () => { cancelled = true; };
-  }, []);
-
-  // Funkcje JS wywoływane z workletu przez runOnJS
-  const onObjectFound = (classIdx: number, centerX: number, centerY: number) => {
-    if (lockedObjShared.value) return;
-    const nameToTranslate = COCO_CLASSES[classIdx] ?? COCO_CLASSES[classIdx + 1];
-    if (!nameToTranslate) return;
-    const polishName = getTranslation(nameToTranslate);
-    setDetectedObjName(polishName);
-    targetX.value = centerX - 50;
-    targetY.value = centerY - 50;
-    targetDetected.value = true;
-  };
-
-  const onObjectLost = () => {
-    if (lockedObjShared.value) return;
-    setDetectedObjName(null);
-    targetDetected.value = false;
-  };
-
-  const onFrameError = (msg: string) => {
-    console.warn('Frame processing error:', msg);
-  };
-
-  // Resizer konwertuje klatkę kamery do formatu akceptowanego przez TFLite.
-  // SSD MobileNet v1 oczekuje 300x300 RGB uint8 input.
-  const { resizer } = useResizer({
-    width: 300,
-    height: 300,
-    channelOrder: 'rgb',
-    dataType: 'uint8',
-    scaleMode: 'cover',
-    pixelLayout: 'interleaved',
+  // --- DETEKTOR OBIEKTÓW (EfficientDet-Lite0 TFLite) ---
+  // Cała logika (model, resizer, worklet, throttling) jest w hooku.
+  const {
+    frameOutput: objectFrameOutput,
+    modelState,
+    detectedLabel: detectedObjName,
+  } = useObjectDetection({
+    isEnabled: isObjectMode,
+    screenWidth: SCREEN_WIDTH,
+    screenHeight: SCREEN_HEIGHT,
+    targetX,
+    targetY,
+    targetDetected,
   });
-
-  const objectFrameOutput = useFrameOutput({
-    pixelFormat: 'native',
-    onFrame(frame) {
-      'worklet';
-      if (!isObjectModeShared.value || !actualModel || !resizer) {
-        frame.dispose();
-        return;
-      }
-
-      try {
-        // Resize klatki do 300x300 RGB uint8 ArrayBuffer
-        const resized = resizer.resize(frame);
-        const pixelBuffer = resized.getPixelBuffer();
-
-        // WAŻNE: pixelBuffer jest ważny tylko dopóki resized żyje!
-        // Nie wolno dispose() przed runSync().
-        const outputs = actualModel.runSync([pixelBuffer]);
-
-        // Teraz można zwolnić GPUFrame
-        resized.dispose();
-
-        if (outputs && outputs.length >= 4) {
-          const boxes = new Float32Array(outputs[0]);
-          const classes = new Float32Array(outputs[1]);
-          const scores = new Float32Array(outputs[2]);
-          const numDetectionsArr = new Float32Array(outputs[3]);
-          const numDetections = numDetectionsArr.length > 0 ? numDetectionsArr[0] : 0;
-
-          let found = false;
-          for (let i = 0; i < numDetections; i++) {
-            if (scores[i] > 0.3) {
-              const classIdx = Math.round(classes[i]);
-              const ymin = boxes[i * 4];
-              const xmin = boxes[i * 4 + 1];
-              const ymax = boxes[i * 4 + 2];
-              const xmax = boxes[i * 4 + 3];
-              const centerX = ((xmin + xmax) / 2) * SCREEN_WIDTH;
-              const centerY = ((ymin + ymax) / 2) * SCREEN_HEIGHT;
-
-              if (!lockedObjShared.value) {
-                targetX.value = centerX - 50;
-                targetY.value = centerY - 50;
-                targetDetected.value = true;
-                runOnJS(onObjectFound)(classIdx, centerX, centerY);
-              }
-              found = true;
-              break;
-            }
-          }
-          if (!found && !lockedObjShared.value) {
-            targetDetected.value = false;
-            runOnJS(onObjectLost)();
-          }
-        }
-      } catch (e) {
-        runOnJS(onFrameError)(String(e));
-      }
-
-      frame.dispose();
-    }
-  });
-
-
+  const objectTargetLabel =
+    detectedObjName ??
+    (modelState === 'loading' ? 'ładowanie modelu' : modelState === 'error' ? 'brak modelu' : 'szukam obiektu');
 
   // --- UPRAWNIENIA ---
   useEffect(() => {
@@ -282,14 +159,33 @@ export default function CameraScreen() {
   }, [faceDetectorOutput, photoOutput, isObjectMode, objectFrameOutput]);
 
   // --- STYL ANIMOWANY POKEMONA ---
+  // Pozycja przez transform (nie left/top — brak przeliczania layoutu co klatkę).
+  // Pozycja jest już wygładzana po stronie detekcji, więc bez springów,
+  // które przy retargetowaniu co klatkę dociążały wątek UI.
   const pokemonStyle = useAnimatedStyle(() => {
     return {
       position: 'absolute',
-      left: withSpring(targetX.value),
-      top: withSpring(targetY.value),
-      opacity: withSpring(targetDetected.value ? 1 : 0.5),
-      width: 100,
-      height: 100,
+      left: 0,
+      top: 0,
+      transform: [{ translateX: targetX.value }, { translateY: targetY.value }],
+      opacity: withTiming(targetDetected.value ? 1 : 0.5, { duration: 150 }),
+      width: POKEMON_SPRITE_SIZE,
+      height: POKEMON_SPRITE_SIZE,
+    };
+  });
+
+  const objectLabelStyle = useAnimatedStyle(() => {
+    const centeredX = targetX.value + POKEMON_SPRITE_SIZE / 2 - OBJECT_LABEL_WIDTH / 2;
+    const clampedX = Math.min(Math.max(centeredX, 12), SCREEN_WIDTH - OBJECT_LABEL_WIDTH - 12);
+    const labelY = Math.max(targetY.value - 36, 104);
+
+    return {
+      position: 'absolute',
+      left: 0,
+      top: 0,
+      transform: [{ translateX: clampedX }, { translateY: labelY }],
+      opacity: withTiming(targetDetected.value ? 1 : 0, { duration: 120 }),
+      width: OBJECT_LABEL_WIDTH,
     };
   });
 
@@ -423,22 +319,11 @@ export default function CameraScreen() {
           <Text style={styles.modeIndicatorText}>
             {modelState === 'loading' ? 'Ładowanie modelu AI...' : modelState === 'error' ? 'Błąd ładowania modelu AI' : 'Szukam obiektów (banan, laptop...)'}
           </Text>
-        </View>
-      )}
-
-      {isObjectMode && detectedObjName && !lockedObj && (
-        <View style={styles.lockOverlay}>
-          <Pressable style={styles.lockBtn} onPress={() => setLockedObj(true)}>
-            <Text style={styles.lockBtnText}>Połóż na: {detectedObjName}</Text>
-          </Pressable>
-        </View>
-      )}
-
-      {isObjectMode && lockedObj && (
-        <View style={styles.lockOverlay}>
-          <Pressable style={styles.lockBtnActive} onPress={() => setLockedObj(false)}>
-            <Text style={styles.lockBtnTextActive}>Odblokuj ({detectedObjName})</Text>
-          </Pressable>
+          <View style={styles.objectTargetBadge}>
+            <Text style={styles.objectTargetBadgeText} numberOfLines={1}>
+              Na: {objectTargetLabel}
+            </Text>
+          </View>
         </View>
       )}
 
@@ -452,6 +337,14 @@ export default function CameraScreen() {
         <View style={styles.noPokemonWarning}>
           <Text style={styles.warningText}>Wybierz ulubionego Pokémona na liście!</Text>
         </View>
+      )}
+
+      {isObjectMode && activePokemon && (
+        <Animated.View pointerEvents="none" style={[styles.objectLabel, objectLabelStyle]}>
+          <Text style={styles.objectLabelText} numberOfLines={1}>
+            Na: {objectTargetLabel}
+          </Text>
+        </Animated.View>
       )}
 
       {favourites.length > 0 && (
@@ -490,8 +383,6 @@ export default function CameraScreen() {
       <View style={[styles.controls, { bottom: controlsBottom }]}>
         <Pressable style={styles.sideBtn} onPress={() => {
           setIsObjectMode(prev => !prev);
-          setLockedObj(false);
-          setDetectedObjName(null);
           targetDetected.value = false;
         }}>
           <Ionicons name={isObjectMode ? "cube" : "happy-outline"} size={26} color={isObjectMode ? "#3b4cca" : "#fff"} />
@@ -525,24 +416,38 @@ const styles = StyleSheet.create({
   retryBtnText: { color: '#fff', fontWeight: '600', fontSize: 15 },
   modeIndicator: {
     position: 'absolute', top: 60, left: 20, right: 20,
-    backgroundColor: 'rgba(59, 76, 202, 0.9)', padding: 10, borderRadius: 8, alignItems: 'center'
+    backgroundColor: 'rgba(59, 76, 202, 0.9)', padding: 10, borderRadius: 8, alignItems: 'center', zIndex: 20,
   },
   modeIndicatorText: { color: '#fff', fontWeight: 'bold' },
-  lockOverlay: {
-    position: 'absolute', top: 120, left: 20, right: 20,
-    alignItems: 'center', zIndex: 10,
+  objectTargetBadge: {
+    marginTop: 8,
+    maxWidth: '100%',
+    backgroundColor: 'rgba(255, 204, 0, 0.95)',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
   },
-  lockBtn: {
-    backgroundColor: '#ffcc00', paddingVertical: 12, paddingHorizontal: 24, borderRadius: 24,
-    shadowColor: '#000', shadowOpacity: 0.2, shadowOffset: { width: 0, height: 2 }, shadowRadius: 4,
+  objectTargetBadgeText: {
+    color: '#1f2937',
+    fontSize: 15,
+    fontWeight: '800',
+    textAlign: 'center',
   },
-  lockBtnText: { color: '#3b4cca', fontWeight: 'bold', fontSize: 16 },
-  lockBtnActive: {
-    backgroundColor: '#3b4cca', paddingVertical: 12, paddingHorizontal: 24, borderRadius: 24,
-    shadowColor: '#000', shadowOpacity: 0.2, shadowOffset: { width: 0, height: 2 }, shadowRadius: 4,
-    borderWidth: 2, borderColor: '#ffcc00'
+  objectLabel: {
+    backgroundColor: 'rgba(17, 24, 39, 0.86)',
+    borderColor: 'rgba(255, 204, 0, 0.85)',
+    borderRadius: 8,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    zIndex: 12,
   },
-  lockBtnTextActive: { color: '#ffcc00', fontWeight: 'bold', fontSize: 16 },
+  objectLabelText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '800',
+    textAlign: 'center',
+  },
   noPokemonWarning: {
     position: 'absolute', top: 60, left: 20, right: 20,
     backgroundColor: 'rgba(255,255,255,0.8)', padding: 10, borderRadius: 8, alignItems: 'center'
