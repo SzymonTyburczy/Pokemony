@@ -46,6 +46,14 @@ export default function TabsLayout() {
           />
           <NativeTabs.Trigger.Label>Swipe</NativeTabs.Trigger.Label>
         </NativeTabs.Trigger>
+
+        <NativeTabs.Trigger name="createNewPokemon">
+          <NativeTabs.Trigger.Icon
+            sf={{ default: 'plus.circle', selected: 'plus.circle.fill' }}
+            selectedColor="#3b4cca"
+          />
+          <NativeTabs.Trigger.Label>Dodaj</NativeTabs.Trigger.Label>
+        </NativeTabs.Trigger>
       </NativeTabs>
     );
   }

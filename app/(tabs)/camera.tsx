@@ -12,8 +12,9 @@ import * as Location from 'expo-location';
 import ViewShot, { ViewShotRef } from 'react-native-view-shot';
 
 import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
+import { useCustomPokemonContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
 import { useMapPins } from '../../src/features/map/hooks/useMapPins';
-import { getPokemonImageUrl } from '../../src/shared/utils/getPokemonImageUrl';
+import { getFavouriteImageUrl } from '../../src/features/customPokemon/utils/customPokemonFavourites';
 import { useObjectDetection } from '../../src/features/camera/detection/useObjectDetection';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -60,11 +61,15 @@ export default function CameraScreen() {
   const viewShotRef = useRef<ViewShotRef>(null);
 
   const { favourites } = useFavouritesContext();
+  const { customPokemons } = useCustomPokemonContext();
   const { addPin } = useMapPins();
 
   const [activePokemonIndex, setActivePokemonIndex] = useState<number | null>(0);
   const activePokemon =
     activePokemonIndex !== null ? (favourites[activePokemonIndex] ?? favourites[0] ?? null) : null;
+  const activePokemonImageUrl = activePokemon
+    ? getFavouriteImageUrl(activePokemon, customPokemons)
+    : '';
   const [showPokemonSelector, setShowPokemonSelector] = useState(false);
 
   useEffect(() => {
@@ -269,7 +274,7 @@ export default function CameraScreen() {
           >
             {activePokemon && (
               <Animated.Image
-                source={{ uri: getPokemonImageUrl(activePokemon.url) }}
+                source={{ uri: activePokemonImageUrl }}
                 style={pokemonStyle}
                 resizeMode="contain"
               />
@@ -329,7 +334,7 @@ export default function CameraScreen() {
 
       {activePokemon ? (
         <Animated.Image
-          source={{ uri: getPokemonImageUrl(activePokemon.url) }}
+          source={{ uri: activePokemonImageUrl }}
           style={pokemonStyle}
           resizeMode="contain"
         />
@@ -369,7 +374,7 @@ export default function CameraScreen() {
                   onPress={() => { setActivePokemonIndex(index); setShowPokemonSelector(false); }}
                 >
                   <Image
-                    source={{ uri: getPokemonImageUrl(item.url) }}
+                    source={{ uri: getFavouriteImageUrl(item, customPokemons) }}
                     style={styles.selectorImage}
                     resizeMode="contain"
                   />

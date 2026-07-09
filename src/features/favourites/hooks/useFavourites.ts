@@ -37,34 +37,31 @@ export function useFavourites() {
   }, [favourites, isLoaded]);
 
   const toggleFavourite = useCallback((pokemon: Pokemon) => {
-  setFavourites((prev) => {
-    const exists = prev.some((p) => p.name === pokemon.name);
+    setFavourites((prev) => {
+      const exists = prev.some((p) => p.url === pokemon.url);
 
-    if (exists) {
-      return prev.filter((p) => p.name !== pokemon.name);
-    }
+      if (exists) {
+        return prev.filter((p) => p.url !== pokemon.url);
+      }
 
-    if (prev.length >= 7) {
-      Alert.alert(
-        'Ograniczenie ulubionych Pokémonów',
-        'Możesz mieć maksymalnie 7 ulubionych Pokémonów.'
-      );
-      return prev;
-    }
+      if (prev.length >= 7) {
+        Alert.alert(
+          'Ograniczenie ulubionych Pokémonów',
+          'Możesz mieć maksymalnie 7 ulubionych Pokémonów.'
+        );
+        return prev;
+      }
 
-    return [...prev, pokemon];
-  });
-}, []);
+      return [...prev, pokemon];
+    });
+  }, []);
 
-  const removeFavourite = useCallback(
-    (name: string) => {
-      setFavourites((prev) => prev.filter((p) => p.name !== name));
-    },
-    []
-  );
+  const removeFavourite = useCallback((url: string) => {
+    setFavourites((prev) => prev.filter((p) => p.url !== url));
+  }, []);
 
   const isFavourite = useCallback(
-    (name: string) => favourites.some((p) => p.name === name),
+    (url: string) => favourites.some((p) => p.url === url),
     [favourites]
   );
 
