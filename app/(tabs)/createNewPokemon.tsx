@@ -23,6 +23,7 @@ import {
   persistCustomPokemonImage,
   resolveCustomPokemonImageUri,
 } from '../../src/features/customPokemon/storage/customPokemonImages';
+import { useMapPinsContext } from '../../src/features/map/context/MapPinsContext';
 
 const POKEMON_TYPES = [
   'normal', 'fire', 'water', 'electric', 'grass', 'ice',
@@ -113,7 +114,8 @@ function CustomPokemonRow({
 export default function CreateNewPokemonScreen() {
   const router = useRouter();
   const { addCustomPokemon, customPokemons, removeCustomPokemon } = useCustomPokemonContext();
-  const { isFavourite, toggleFavourite } = useFavouritesContext();
+  const { isFavourite, removeFavourite, toggleFavourite } = useFavouritesContext();
+  const { removePinsForPokemonUrl } = useMapPinsContext();
 
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [name, setName] = useState('');
@@ -368,12 +370,18 @@ export default function CreateNewPokemonScreen() {
             <Text style={styles.sectionTitle}>Moja kolekcja ({customPokemons.length})</Text>
             {customPokemons.map((p) => {
               const favourite = customPokemonToFavourite(p);
+              const handleDelete = () => {
+                removeCustomPokemon(p.id);
+                removeFavourite(favourite.url);
+                removePinsForPokemonUrl(favourite.url);
+              };
+
               return (
                 <CustomPokemonRow
                   key={p.id}
                   pokemon={p}
                   onPress={() => router.push(`/custom-pokemon/${p.id}`)}
-                  onDelete={() => removeCustomPokemon(p.id)}
+                  onDelete={handleDelete}
                   isFavourite={isFavourite(favourite.url)}
                   onToggleFavourite={() => toggleFavourite(favourite)}
                 />

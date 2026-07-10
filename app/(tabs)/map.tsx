@@ -19,7 +19,7 @@ import MapView, { LongPressEvent, MapPressEvent, Marker, Region } from 'react-na
 import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
 import { useCustomPokemonContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
 import { getPokemonUrlImage, isCustomPokemonUrl } from '../../src/features/customPokemon/utils/customPokemonFavourites';
-import { useMapPins } from '../../src/features/map/hooks/useMapPins';
+import { useMapPinsContext } from '../../src/features/map/context/MapPinsContext';
 import { PendingMapPinLocation, PokemonMapPin } from '../../src/features/map/model/types';
 import { Pokemon } from '../../src/features/pokemon/model/types';
 import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
@@ -63,7 +63,7 @@ export default function MapScreen() {
     removePin,
     updatePinPokemon,
     updatePinLocation,
-  } = useMapPins();
+  } = useMapPinsContext();
   const [region, setRegion] = useState<Region>(INITIAL_REGION);
   const [sheetMode, setSheetMode] = useState<SheetMode>('empty-favourites');
   const [isMainSheetVisible, setIsMainSheetVisible] = useState(false);

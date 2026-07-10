@@ -58,6 +58,10 @@ export function useMapPins() {
     setPins((prev) => prev.filter((pin) => pin.id !== id));
   }, []);
 
+  const removePinsForPokemonUrl = useCallback((pokemonUrl: string) => {
+    setPins((prev) => prev.filter((pin) => pin.pokemonUrl !== pokemonUrl));
+  }, []);
+
   const updatePinPokemon = useCallback((id: string, pokemon: Pokemon) => {
     setPins((prev) =>
       prev.map((pin) =>
@@ -91,6 +95,7 @@ export function useMapPins() {
     isLoaded,
     addPin,
     removePin,
+    removePinsForPokemonUrl,
     updatePinPokemon,
     updatePinLocation,
   };

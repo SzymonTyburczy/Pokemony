@@ -13,7 +13,7 @@ import ViewShot, { ViewShotRef } from 'react-native-view-shot';
 
 import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
 import { useCustomPokemonContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
-import { useMapPins } from '../../src/features/map/hooks/useMapPins';
+import { useMapPinsContext } from '../../src/features/map/context/MapPinsContext';
 import { getFavouriteImageUrl } from '../../src/features/customPokemon/utils/customPokemonFavourites';
 import { useObjectDetection } from '../../src/features/camera/detection/useObjectDetection';
 
@@ -62,7 +62,7 @@ export default function CameraScreen() {
 
   const { favourites } = useFavouritesContext();
   const { customPokemons } = useCustomPokemonContext();
-  const { addPin } = useMapPins();
+  const { addPin } = useMapPinsContext();
 
   const [activePokemonIndex, setActivePokemonIndex] = useState<number | null>(0);
   const activePokemon =
