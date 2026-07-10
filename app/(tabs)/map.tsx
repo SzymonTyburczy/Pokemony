@@ -16,10 +16,13 @@ import BottomSheet, { BottomSheetScrollView, BottomSheetView } from '@gorhom/bot
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import MapView, { LongPressEvent, MapPressEvent, Marker, Region } from 'react-native-maps';
-import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
-import { useCustomPokemonContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
+import { useFavouritesStateContext } from '../../src/features/favourites/context/FavouritesContext';
+import { useCustomPokemonStateContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
 import { getPokemonUrlImage, isCustomPokemonUrl } from '../../src/features/customPokemon/utils/customPokemonFavourites';
-import { useMapPinsContext } from '../../src/features/map/context/MapPinsContext';
+import {
+  useMapPinsActionsContext,
+  useMapPinsStateContext,
+} from '../../src/features/map/context/MapPinsContext';
 import { PendingMapPinLocation, PokemonMapPin } from '../../src/features/map/model/types';
 import { Pokemon } from '../../src/features/pokemon/model/types';
 import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
@@ -54,16 +57,15 @@ export default function MapScreen() {
   const [headerBottom, setHeaderBottom] = useState(headerTop + 72);
   const mapRef = useRef<MapView>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const { favourites, isLoaded: areFavouritesLoaded } = useFavouritesContext();
-  const { customPokemons } = useCustomPokemonContext();
+  const { favourites, isLoaded: areFavouritesLoaded } = useFavouritesStateContext();
+  const { customPokemons } = useCustomPokemonStateContext();
+  const { pins, isLoaded: arePinsLoaded } = useMapPinsStateContext();
   const {
-    pins,
-    isLoaded: arePinsLoaded,
     addPin,
     removePin,
     updatePinPokemon,
     updatePinLocation,
-  } = useMapPinsContext();
+  } = useMapPinsActionsContext();
   const [region, setRegion] = useState<Region>(INITIAL_REGION);
   const [sheetMode, setSheetMode] = useState<SheetMode>('empty-favourites');
   const [isMainSheetVisible, setIsMainSheetVisible] = useState(false);

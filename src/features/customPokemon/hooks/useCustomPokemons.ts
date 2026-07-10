@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { CustomPokemon } from '../model/types';
 import { getCustomPokemons, saveCustomPokemons } from '../storage/customPokemonStorage';
 
@@ -35,5 +35,13 @@ export function useCustomPokemons() {
     setCustomPokemons((prev) => prev.filter((p) => p.id !== id));
   }, []);
 
-  return { customPokemons, isLoaded, addCustomPokemon, removeCustomPokemon };
+  return useMemo(
+    () => ({
+      customPokemons,
+      isLoaded,
+      addCustomPokemon,
+      removeCustomPokemon,
+    }),
+    [addCustomPokemon, customPokemons, isLoaded, removeCustomPokemon]
+  );
 }

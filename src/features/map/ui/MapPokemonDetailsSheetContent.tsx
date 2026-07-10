@@ -9,7 +9,7 @@ import { usePokemonShowcase } from '../../pokemon/hooks/usePokemonShowcase';
 import { PokemonAnimationModal } from '../../pokemon/ui/PokemonAnimationModal';
 import { getCryPlayerHtml } from '../../pokemon/hooks/usePokemonCryPlayer';
 import { usePokemonCryExists } from '../../pokemon/hooks/usePokemonCryExists';
-import { useCustomPokemonContext } from '../../customPokemon/context/CustomPokemonContext';
+import { useCustomPokemonStateContext } from '../../customPokemon/context/CustomPokemonContext';
 import {
   getCustomPokemonByUrl,
   getPokemonUrlImage,
@@ -38,7 +38,7 @@ interface MapPokemonDetailsSheetContentProps {
 }
 
 function CustomPokemonMapDetails({ pin, imageUrl }: { pin: PokemonMapPin; imageUrl: string }) {
-  const { customPokemons } = useCustomPokemonContext();
+  const { customPokemons } = useCustomPokemonStateContext();
   const pokemon = getCustomPokemonByUrl(pin.pokemonUrl, customPokemons);
 
   if (!pokemon) {
@@ -118,7 +118,7 @@ function CustomPokemonMapDetails({ pin, imageUrl }: { pin: PokemonMapPin; imageU
 }
 
 export function MapPokemonDetailsSheetContent({ pin }: MapPokemonDetailsSheetContentProps) {
-  const { customPokemons } = useCustomPokemonContext();
+  const { customPokemons } = useCustomPokemonStateContext();
   const isCustom = pin ? isCustomPokemonUrl(pin.pokemonUrl) : false;
   const customImageUrl = pin ? getPokemonUrlImage(pin.pokemonUrl, customPokemons) : '';
 

@@ -10,8 +10,11 @@ import {
 } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { useRouter } from 'expo-router';
-import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
-import { useCustomPokemonContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
+import {
+  useFavouritesActionsContext,
+  useFavouritesStateContext,
+} from '../../src/features/favourites/context/FavouritesContext';
+import { useCustomPokemonStateContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
 import {
   getFavouriteDetailsRoute,
   getFavouriteImageUrl,
@@ -26,8 +29,9 @@ import { getCryPlayerHtml } from '../../src/features/pokemon/hooks/usePokemonCry
 
 export default function FavouritesScreen() {
   const router = useRouter();
-  const { favourites, isLoaded, removeFavourite } = useFavouritesContext();
-  const { customPokemons } = useCustomPokemonContext();
+  const { favourites, isLoaded } = useFavouritesStateContext();
+  const { removeFavourite } = useFavouritesActionsContext();
+  const { customPokemons } = useCustomPokemonStateContext();
   const { selectedAnimation, playPokemonCry, webViewRef, showPokemon, closeAnimation } = usePokemonShowcase();
   const [currentIndex, setCurrentIndex] = useState(0);
   const { width } = useWindowDimensions();

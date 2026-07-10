@@ -7,7 +7,7 @@ import { formatPokemonName } from '../../../shared/utils/formatPokemonName';
 interface PokemonListItemProps {
   item: Pokemon;
   isImageVisible: boolean;
-  onPress: () => void;
+  onPress: (pokemon: Pokemon) => void;
   isFavourite?: boolean;
   onToggleFavourite?: (pokemon: Pokemon) => void;
   onPlayCry?: (pokemon: Pokemon) => void;
@@ -24,7 +24,10 @@ export const PokemonListItem = memo(function PokemonListItem({
   const imageUrl = getPokemonImageUrl(item.url);
 
   return (
-    <Pressable style={({ pressed }) => [styles.itemRow, pressed && styles.itemPressed]} onPress={onPress}>
+    <Pressable
+      style={({ pressed }) => [styles.itemRow, pressed && styles.itemPressed]}
+      onPress={() => onPress(item)}
+    >
       <View style={styles.imageWrapper}>
         {isImageVisible ? (
           <Image source={{ uri: imageUrl }} style={styles.pokemonImage} />

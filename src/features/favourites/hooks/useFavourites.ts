@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pokemon } from '../../pokemon/model/types';
 import { getFavourites, saveFavourites } from '../storage/favouritesStorage';
 import { Alert } from 'react-native';
@@ -60,10 +60,25 @@ export function useFavourites() {
     setFavourites((prev) => prev.filter((p) => p.url !== url));
   }, []);
 
-  const isFavourite = useCallback(
-    (url: string) => favourites.some((p) => p.url === url),
+  const favouriteUrlSet = useMemo(
+    () => new Set(favourites.map((pokemon) => pokemon.url)),
     [favourites]
   );
 
-  return { favourites, isLoaded, toggleFavourite, removeFavourite, isFavourite };
+  const isFavourite = useCallback(
+    (url: string) => favouriteUrlSet.has(url),
+    [favouriteUrlSet]
+  );
+
+  return useMemo(
+    () => ({
+      favourites,
+      favouriteUrlSet,
+      isLoaded,
+      toggleFavourite,
+      removeFavourite,
+      isFavourite,
+    }),
+    [favourites, favouriteUrlSet, isFavourite, isLoaded, removeFavourite, toggleFavourite]
+  );
 }

@@ -9,8 +9,11 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useCustomPokemonContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
-import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
+import { useCustomPokemonStateContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
+import {
+  useFavouritesActionsContext,
+  useFavouritesStateContext,
+} from '../../src/features/favourites/context/FavouritesContext';
 import { customPokemonToFavourite } from '../../src/features/customPokemon/utils/customPokemonFavourites';
 import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
 import { resolveCustomPokemonImageUri } from '../../src/features/customPokemon/storage/customPokemonImages';
@@ -36,8 +39,9 @@ export default function CustomPokemonDetailsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { customPokemons } = useCustomPokemonContext();
-  const { isFavourite, toggleFavourite } = useFavouritesContext();
+  const { customPokemons } = useCustomPokemonStateContext();
+  const { isFavourite } = useFavouritesStateContext();
+  const { toggleFavourite } = useFavouritesActionsContext();
 
   const pokemon = customPokemons.find((p) => p.id === id);
 

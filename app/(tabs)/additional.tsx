@@ -2,8 +2,11 @@ import React, { useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
-import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
-import { useCustomPokemonContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
+import {
+  useFavouritesActionsContext,
+  useFavouritesStateContext,
+} from '../../src/features/favourites/context/FavouritesContext';
+import { useCustomPokemonStateContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
 import { Pokemon } from '../../src/features/pokemon/model/types';
 import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
 import { getFavouriteDetailsRoute, getFavouriteImageUrl } from '../../src/features/customPokemon/utils/customPokemonFavourites';
@@ -87,8 +90,9 @@ function FavouriteRow({
 
 export default function AdditionalScreen() {
   const router = useRouter();
-  const { favourites, isLoaded, removeFavourite } = useFavouritesContext();
-  const { customPokemons } = useCustomPokemonContext();
+  const { favourites, isLoaded } = useFavouritesStateContext();
+  const { removeFavourite } = useFavouritesActionsContext();
+  const { customPokemons } = useCustomPokemonStateContext();
 
   if (!isLoaded) {
     return (

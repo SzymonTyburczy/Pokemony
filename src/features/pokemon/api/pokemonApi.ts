@@ -1,8 +1,9 @@
 import { PokemonDetailsDto, PokemonListResponseDto } from '../model/dto';
 
 export const PAGE_LIMIT = 20;
+export const POKEMON_SEARCH_INDEX_LIMIT = 2000;
 export const INITIAL_POKEMON_URL = `https://pokeapi.co/api/v2/pokemon?limit=${PAGE_LIMIT}&offset=0`;
-export const ALL_POKEMON_URL = 'https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0';
+export const ALL_POKEMON_URL = `https://pokeapi.co/api/v2/pokemon?limit=${POKEMON_SEARCH_INDEX_LIMIT}&offset=0`;
 
 export async function fetchPokemonListByUrl(url: string, signal?: AbortSignal): Promise<PokemonListResponseDto> {
   const response = await fetch(url, { signal });

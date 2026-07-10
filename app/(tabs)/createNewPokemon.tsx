@@ -14,16 +14,22 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useCustomPokemonContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
+import {
+  useCustomPokemonActionsContext,
+  useCustomPokemonStateContext,
+} from '../../src/features/customPokemon/context/CustomPokemonContext';
 import { CustomPokemon } from '../../src/features/customPokemon/model/types';
 import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
-import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
+import {
+  useFavouritesActionsContext,
+  useFavouritesStateContext,
+} from '../../src/features/favourites/context/FavouritesContext';
 import { customPokemonToFavourite } from '../../src/features/customPokemon/utils/customPokemonFavourites';
 import {
   persistCustomPokemonImage,
   resolveCustomPokemonImageUri,
 } from '../../src/features/customPokemon/storage/customPokemonImages';
-import { useMapPinsContext } from '../../src/features/map/context/MapPinsContext';
+import { useMapPinsActionsContext } from '../../src/features/map/context/MapPinsContext';
 
 const POKEMON_TYPES = [
   'normal', 'fire', 'water', 'electric', 'grass', 'ice',
@@ -113,9 +119,11 @@ function CustomPokemonRow({
 
 export default function CreateNewPokemonScreen() {
   const router = useRouter();
-  const { addCustomPokemon, customPokemons, removeCustomPokemon } = useCustomPokemonContext();
-  const { isFavourite, removeFavourite, toggleFavourite } = useFavouritesContext();
-  const { removePinsForPokemonUrl } = useMapPinsContext();
+  const { customPokemons } = useCustomPokemonStateContext();
+  const { addCustomPokemon, removeCustomPokemon } = useCustomPokemonActionsContext();
+  const { favouriteUrlSet } = useFavouritesStateContext();
+  const { removeFavourite, toggleFavourite } = useFavouritesActionsContext();
+  const { removePinsForPokemonUrl } = useMapPinsActionsContext();
 
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [name, setName] = useState('');
@@ -382,7 +390,7 @@ export default function CreateNewPokemonScreen() {
                   pokemon={p}
                   onPress={() => router.push(`/custom-pokemon/${p.id}`)}
                   onDelete={handleDelete}
-                  isFavourite={isFavourite(favourite.url)}
+                  isFavourite={favouriteUrlSet.has(favourite.url)}
                   onToggleFavourite={() => toggleFavourite(favourite)}
                 />
               );

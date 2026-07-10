@@ -1,30 +1,54 @@
 import { FlatList, Text, View, StyleSheet, ActivityIndicator, Button, ViewToken, TextInput, Image, Pressable } from 'react-native';
-import React, { useRef, useState, useCallback } from 'react';
+import React, { memo, useRef, useState, useCallback, useMemo } from 'react';
 import { WebView } from 'react-native-webview';
 import { useRouter } from 'expo-router';
 import { usePokemonList } from '../../src/features/pokemon/hooks/usePokemonList';
 import { usePokemonSearch } from '../../src/features/pokemon/hooks/usePokemonSearch';
 import { Pokemon } from '../../src/features/pokemon/model/types';
 import { PokemonListItem } from '../../src/features/pokemon/ui/PokemonListItem';
-import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
+import {
+  useFavouritesActionsContext,
+  useFavouritesStateContext,
+} from '../../src/features/favourites/context/FavouritesContext';
 import { preloadRandomPokemon3dForm } from '../../src/features/pokemon/api/pokemon3dApi';
 import { getPokemonIdFromUrl } from '../../src/shared/utils/getPokemonIdFromUrl';
 import { usePokemonCryPlayer, getCryPlayerHtml } from '../../src/features/pokemon/hooks/usePokemonCryPlayer';
-import { useCustomPokemonContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
+import { useCustomPokemonStateContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
 import { CustomPokemon } from '../../src/features/customPokemon/model/types';
 import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
 import { customPokemonToFavourite } from '../../src/features/customPokemon/utils/customPokemonFavourites';
 import { resolveCustomPokemonImageUri } from '../../src/features/customPokemon/storage/customPokemonImages';
 
-function CustomPokemonSection({
+const POKEMON_ITEM_HEIGHT = 82;
+const POKEMON_VIEWABILITY_CONFIG = { itemVisiblePercentThreshold: 60 };
+
+function pokemonKeyExtractor(item: Pokemon) {
+  return item.name;
+}
+
+function getPokemonItemLayout(_data: ArrayLike<Pokemon> | null | undefined, index: number) {
+  return { length: POKEMON_ITEM_HEIGHT, offset: POKEMON_ITEM_HEIGHT * index, index };
+}
+
+function areSetsEqual(left: ReadonlySet<string>, right: ReadonlySet<string>) {
+  if (left.size !== right.size) return false;
+
+  for (const value of right) {
+    if (!left.has(value)) return false;
+  }
+
+  return true;
+}
+
+const CustomPokemonSection = memo(function CustomPokemonSection({
   pokemons,
   onPress,
-  isFavourite,
+  favouriteUrlSet,
   onToggleFavourite,
 }: {
   pokemons: CustomPokemon[];
   onPress: (id: string) => void;
-  isFavourite: (url: string) => boolean;
+  favouriteUrlSet: ReadonlySet<string>;
   onToggleFavourite: (pokemon: Pokemon) => void;
 }) {
   if (pokemons.length === 0) return null;
@@ -62,7 +86,7 @@ function CustomPokemonSection({
               hitSlop={8}
             >
               <Text style={styles.customHeartIcon}>
-                {isFavourite(favourite.url) ? '❤️' : '🤍'}
+                {favouriteUrlSet.has(favourite.url) ? '❤️' : '🤍'}
               </Text>
             </Pressable>
             <View style={styles.customBadge}>
@@ -74,68 +98,87 @@ function CustomPokemonSection({
       <View style={styles.customSectionDivider} />
     </View>
   );
-}
+});
 
 const ListScreen = () => {
   const router = useRouter();
   const { pokemons, isLoading, isLoadingMore, isRefreshing, error, fetchPokemons, handleLoadMore, handleRefresh } =
     usePokemonList();
-  const { isFavourite, toggleFavourite } = useFavouritesContext();
-  const { customPokemons } = useCustomPokemonContext();
+  const { favouriteUrlSet } = useFavouritesStateContext();
+  const { toggleFavourite } = useFavouritesActionsContext();
+  const { customPokemons } = useCustomPokemonStateContext();
   const { webViewRef, playPokemonCry } = usePokemonCryPlayer();
   const [searchQuery, setSearchQuery] = useState('');
   const { isSearchActive, results: searchResults, isLoading: isSearchLoading, error: searchError } =
     usePokemonSearch(searchQuery);
   const [visiblePokemonNames, setVisiblePokemonNames] = useState<Set<string>>(new Set());
-  const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 60 });
-  const visiblePokemons = isSearchActive ? searchResults : pokemons;
+  const visiblePokemons = useMemo(
+    () => (isSearchActive ? searchResults : pokemons),
+    [isSearchActive, pokemons, searchResults]
+  );
 
   const onViewableItemsChanged = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
-    setVisiblePokemonNames(
-      new Set(
-        viewableItems
-          .map((viewableItem) => viewableItem.item as Pokemon)
-          .map((pokemon) => pokemon.name)
-      )
+    const nextVisiblePokemonNames = new Set(
+      viewableItems
+        .map((viewableItem) => viewableItem.item as Pokemon)
+        .map((pokemon) => pokemon.name)
     );
+
+    setVisiblePokemonNames((currentVisiblePokemonNames) => {
+      if (areSetsEqual(currentVisiblePokemonNames, nextVisiblePokemonNames)) {
+        return currentVisiblePokemonNames;
+      }
+
+      return nextVisiblePokemonNames;
+    });
   }).current;
+
+  const handlePressPokemon = useCallback((item: Pokemon) => {
+    const pokemonId = getPokemonIdFromUrl(item.url);
+
+    if (pokemonId) {
+      preloadRandomPokemon3dForm(pokemonId).catch((error) => {
+        console.warn('Nie udało się przygotować modelu 3D:', error);
+      });
+    }
+
+    router.push(`/pokemon/${item.name}`);
+  }, [router]);
+
+  const handlePlayCry = useCallback((pokemon: Pokemon) => {
+    const id = getPokemonIdFromUrl(pokemon.url);
+    if (id) playPokemonCry(id);
+  }, [playPokemonCry]);
+
+  const handleOpenCustomPokemon = useCallback((id: string) => {
+    router.push(`/custom-pokemon/${id}`);
+  }, [router]);
 
   const renderPokemonItem = useCallback(({ item }: { item: Pokemon }) => {
     const isImageVisible = visiblePokemonNames.has(item.name);
-    const pokemonId = getPokemonIdFromUrl(item.url);
 
     return (
       <PokemonListItem
         item={item}
         isImageVisible={isImageVisible}
-        onPress={() => {
-          if (pokemonId) {
-            preloadRandomPokemon3dForm(pokemonId).catch((error) => {
-              console.warn('Nie udało się przygotować modelu 3D:', error);
-            });
-          }
-          router.push(`/pokemon/${item.name}`);
-        }}
-        isFavourite={isFavourite(item.url)}
+        onPress={handlePressPokemon}
+        isFavourite={favouriteUrlSet.has(item.url)}
         onToggleFavourite={toggleFavourite}
-        onPlayCry={(pokemon) => {
-          const id = getPokemonIdFromUrl(pokemon.url);
-          if (id) playPokemonCry(id);
-        }}
+        onPlayCry={handlePlayCry}
       />
     );
-  }, [visiblePokemonNames, isFavourite, toggleFavourite, playPokemonCry, router]);
+  }, [favouriteUrlSet, handlePlayCry, handlePressPokemon, toggleFavourite, visiblePokemonNames]);
 
-  const renderFooter = () => {
+  const renderFooter = useCallback(() => {
     if (isSearchActive || !isLoadingMore) return null;
     return (
       <View style={styles.footerLoader}>
         <ActivityIndicator size="small" color="#3b4cca" />
       </View>
     );
-  };
+  }, [isLoadingMore, isSearchActive]);
 
-  const renderEmptySearch = () => {
+  const renderEmptySearch = useCallback(() => {
     if (!isSearchActive) return null;
 
     if (isSearchLoading) {
@@ -154,7 +197,29 @@ const ListScreen = () => {
         </Text>
       </View>
     );
-  };
+  }, [isSearchActive, isSearchLoading, searchError]);
+
+  const listHeaderComponent = useMemo(
+    () =>
+      !isSearchActive ? (
+        <CustomPokemonSection
+          pokemons={customPokemons}
+          onPress={handleOpenCustomPokemon}
+          favouriteUrlSet={favouriteUrlSet}
+          onToggleFavourite={toggleFavourite}
+        />
+      ) : null,
+    [customPokemons, favouriteUrlSet, handleOpenCustomPokemon, isSearchActive, toggleFavourite]
+  );
+
+  const listExtraData = useMemo(
+    () => ({
+      favouriteUrlSet,
+      isSearchActive,
+      visiblePokemonNames,
+    }),
+    [favouriteUrlSet, isSearchActive, visiblePokemonNames]
+  );
 
   if (isLoading) {
     return (
@@ -201,24 +266,15 @@ const ListScreen = () => {
       <FlatList
         data={visiblePokemons}
         renderItem={renderPokemonItem}
-        keyExtractor={(item) => item.name}
+        keyExtractor={pokemonKeyExtractor}
         contentContainerStyle={styles.listPadding}
-        getItemLayout={(data, index) => ({ length: 82, offset: 82 * index, index })}
-        viewabilityConfig={viewabilityConfig.current}
+        getItemLayout={getPokemonItemLayout}
+        viewabilityConfig={POKEMON_VIEWABILITY_CONFIG}
         onViewableItemsChanged={onViewableItemsChanged}
-        extraData={[visiblePokemonNames, isFavourite, isSearchActive]}
+        extraData={listExtraData}
         onEndReached={isSearchActive ? undefined : handleLoadMore}
         onEndReachedThreshold={0.5}
-        ListHeaderComponent={
-          !isSearchActive ? (
-            <CustomPokemonSection
-              pokemons={customPokemons}
-              onPress={(id) => router.push(`/custom-pokemon/${id}`)}
-              isFavourite={isFavourite}
-              onToggleFavourite={toggleFavourite}
-            />
-          ) : null
-        }
+        ListHeaderComponent={listHeaderComponent}
         ListFooterComponent={renderFooter}
         ListEmptyComponent={renderEmptySearch}
         refreshing={isSearchActive ? false : isRefreshing}

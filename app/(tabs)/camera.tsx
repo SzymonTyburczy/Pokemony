@@ -11,9 +11,9 @@ import { Asset as MediaAsset, requestPermissionsAsync } from 'expo-media-library
 import * as Location from 'expo-location';
 import ViewShot, { ViewShotRef } from 'react-native-view-shot';
 
-import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
-import { useCustomPokemonContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
-import { useMapPinsContext } from '../../src/features/map/context/MapPinsContext';
+import { useFavouritesStateContext } from '../../src/features/favourites/context/FavouritesContext';
+import { useCustomPokemonStateContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
+import { useMapPinsActionsContext } from '../../src/features/map/context/MapPinsContext';
 import { getFavouriteImageUrl } from '../../src/features/customPokemon/utils/customPokemonFavourites';
 import { useObjectDetection } from '../../src/features/camera/detection/useObjectDetection';
 
@@ -60,9 +60,9 @@ export default function CameraScreen() {
   const photoOutput = usePhotoOutput();
   const viewShotRef = useRef<ViewShotRef>(null);
 
-  const { favourites } = useFavouritesContext();
-  const { customPokemons } = useCustomPokemonContext();
-  const { addPin } = useMapPinsContext();
+  const { favourites } = useFavouritesStateContext();
+  const { customPokemons } = useCustomPokemonStateContext();
+  const { addPin } = useMapPinsActionsContext();
 
   const [activePokemonIndex, setActivePokemonIndex] = useState<number | null>(0);
   const activePokemon =

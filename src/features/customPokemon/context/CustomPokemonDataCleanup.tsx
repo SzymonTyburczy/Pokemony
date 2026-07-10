@@ -1,7 +1,13 @@
 import { useEffect } from 'react';
-import { useFavouritesContext } from '../../favourites/context/FavouritesContext';
-import { useMapPinsContext } from '../../map/context/MapPinsContext';
-import { useCustomPokemonContext } from './CustomPokemonContext';
+import {
+  useFavouritesActionsContext,
+  useFavouritesStateContext,
+} from '../../favourites/context/FavouritesContext';
+import {
+  useMapPinsActionsContext,
+  useMapPinsStateContext,
+} from '../../map/context/MapPinsContext';
+import { useCustomPokemonStateContext } from './CustomPokemonContext';
 import { CUSTOM_POKEMON_URL_PREFIX, isCustomPokemonUrl } from '../utils/customPokemonFavourites';
 
 function getCustomPokemonUrl(id: string): string {
@@ -9,9 +15,11 @@ function getCustomPokemonUrl(id: string): string {
 }
 
 export function CustomPokemonDataCleanup() {
-  const { customPokemons, isLoaded: areCustomPokemonsLoaded } = useCustomPokemonContext();
-  const { favourites, isLoaded: areFavouritesLoaded, removeFavourite } = useFavouritesContext();
-  const { pins, isLoaded: arePinsLoaded, removePinsForPokemonUrl } = useMapPinsContext();
+  const { customPokemons, isLoaded: areCustomPokemonsLoaded } = useCustomPokemonStateContext();
+  const { favourites, isLoaded: areFavouritesLoaded } = useFavouritesStateContext();
+  const { removeFavourite } = useFavouritesActionsContext();
+  const { pins, isLoaded: arePinsLoaded } = useMapPinsStateContext();
+  const { removePinsForPokemonUrl } = useMapPinsActionsContext();
 
   useEffect(() => {
     if (!areCustomPokemonsLoaded || !areFavouritesLoaded || !arePinsLoaded) {

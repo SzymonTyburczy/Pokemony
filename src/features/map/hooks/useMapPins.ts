@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pokemon } from '../../pokemon/model/types';
 import { PendingMapPinLocation, PokemonMapPin } from '../model/types';
 import { getMapPins, saveMapPins } from '../storage/mapPinsStorage';
@@ -90,13 +90,24 @@ export function useMapPins() {
     );
   }, []);
 
-  return {
-    pins,
-    isLoaded,
-    addPin,
-    removePin,
-    removePinsForPokemonUrl,
-    updatePinPokemon,
-    updatePinLocation,
-  };
+  return useMemo(
+    () => ({
+      pins,
+      isLoaded,
+      addPin,
+      removePin,
+      removePinsForPokemonUrl,
+      updatePinPokemon,
+      updatePinLocation,
+    }),
+    [
+      addPin,
+      isLoaded,
+      pins,
+      removePin,
+      removePinsForPokemonUrl,
+      updatePinLocation,
+      updatePinPokemon,
+    ]
+  );
 }
