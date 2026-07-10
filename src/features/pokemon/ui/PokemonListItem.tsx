@@ -6,7 +6,6 @@ import { formatPokemonName } from '../../../shared/utils/formatPokemonName';
 
 interface PokemonListItemProps {
   item: Pokemon;
-  isImageVisible: boolean;
   onPress: (pokemon: Pokemon) => void;
   isFavourite?: boolean;
   onToggleFavourite?: (pokemon: Pokemon) => void;
@@ -15,7 +14,6 @@ interface PokemonListItemProps {
 
 export const PokemonListItem = memo(function PokemonListItem({
   item,
-  isImageVisible,
   onPress,
   isFavourite = false,
   onToggleFavourite,
@@ -29,11 +27,7 @@ export const PokemonListItem = memo(function PokemonListItem({
       onPress={() => onPress(item)}
     >
       <View style={styles.imageWrapper}>
-        {isImageVisible ? (
-          <Image source={{ uri: imageUrl }} style={styles.pokemonImage} />
-        ) : (
-          <View style={styles.imagePlaceholder} />
-        )}
+        <Image source={{ uri: imageUrl }} style={styles.pokemonImage} />
       </View>
       <Text style={styles.pokemonName}>{formatPokemonName(item.name)}</Text>
       {onPlayCry && (
@@ -85,12 +79,6 @@ const styles = StyleSheet.create({
     marginRight: 15,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  imagePlaceholder: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#e9ecef',
   },
   pokemonName: {
     flex: 1,

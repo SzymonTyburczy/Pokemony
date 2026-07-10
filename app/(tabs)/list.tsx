@@ -1,5 +1,5 @@
-import { FlatList, Text, View, StyleSheet, ActivityIndicator, Button, ViewToken, TextInput, Image, Pressable } from 'react-native';
-import React, { memo, useRef, useState, useCallback, useMemo } from 'react';
+import { FlatList, Text, View, StyleSheet, ActivityIndicator, Button, TextInput, Image, Pressable } from 'react-native';
+import React, { memo, useState, useCallback, useMemo } from 'react';
 import { WebView } from 'react-native-webview';
 import { useRouter } from 'expo-router';
 import { usePokemonList } from '../../src/features/pokemon/hooks/usePokemonList';
@@ -19,25 +19,8 @@ import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
 import { customPokemonToFavourite } from '../../src/features/customPokemon/utils/customPokemonFavourites';
 import { resolveCustomPokemonImageUri } from '../../src/features/customPokemon/storage/customPokemonImages';
 
-const POKEMON_ITEM_HEIGHT = 82;
-const POKEMON_VIEWABILITY_CONFIG = { itemVisiblePercentThreshold: 60 };
-
 function pokemonKeyExtractor(item: Pokemon) {
   return item.name;
-}
-
-function getPokemonItemLayout(_data: ArrayLike<Pokemon> | null | undefined, index: number) {
-  return { length: POKEMON_ITEM_HEIGHT, offset: POKEMON_ITEM_HEIGHT * index, index };
-}
-
-function areSetsEqual(left: ReadonlySet<string>, right: ReadonlySet<string>) {
-  if (left.size !== right.size) return false;
-
-  for (const value of right) {
-    if (!left.has(value)) return false;
-  }
-
-  return true;
 }
 
 const CustomPokemonSection = memo(function CustomPokemonSection({
@@ -111,27 +94,10 @@ const ListScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const { isSearchActive, results: searchResults, isLoading: isSearchLoading, error: searchError } =
     usePokemonSearch(searchQuery);
-  const [visiblePokemonNames, setVisiblePokemonNames] = useState<Set<string>>(new Set());
   const visiblePokemons = useMemo(
     () => (isSearchActive ? searchResults : pokemons),
     [isSearchActive, pokemons, searchResults]
   );
-
-  const onViewableItemsChanged = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
-    const nextVisiblePokemonNames = new Set(
-      viewableItems
-        .map((viewableItem) => viewableItem.item as Pokemon)
-        .map((pokemon) => pokemon.name)
-    );
-
-    setVisiblePokemonNames((currentVisiblePokemonNames) => {
-      if (areSetsEqual(currentVisiblePokemonNames, nextVisiblePokemonNames)) {
-        return currentVisiblePokemonNames;
-      }
-
-      return nextVisiblePokemonNames;
-    });
-  }).current;
 
   const handlePressPokemon = useCallback((item: Pokemon) => {
     const pokemonId = getPokemonIdFromUrl(item.url);
@@ -154,20 +120,15 @@ const ListScreen = () => {
     router.push(`/custom-pokemon/${id}`);
   }, [router]);
 
-  const renderPokemonItem = useCallback(({ item }: { item: Pokemon }) => {
-    const isImageVisible = visiblePokemonNames.has(item.name);
-
-    return (
-      <PokemonListItem
-        item={item}
-        isImageVisible={isImageVisible}
-        onPress={handlePressPokemon}
-        isFavourite={favouriteUrlSet.has(item.url)}
-        onToggleFavourite={toggleFavourite}
-        onPlayCry={handlePlayCry}
-      />
-    );
-  }, [favouriteUrlSet, handlePlayCry, handlePressPokemon, toggleFavourite, visiblePokemonNames]);
+  const renderPokemonItem = useCallback(({ item }: { item: Pokemon }) => (
+    <PokemonListItem
+      item={item}
+      onPress={handlePressPokemon}
+      isFavourite={favouriteUrlSet.has(item.url)}
+      onToggleFavourite={toggleFavourite}
+      onPlayCry={handlePlayCry}
+    />
+  ), [favouriteUrlSet, handlePlayCry, handlePressPokemon, toggleFavourite]);
 
   const renderFooter = useCallback(() => {
     if (isSearchActive || !isLoadingMore) return null;
@@ -216,9 +177,8 @@ const ListScreen = () => {
     () => ({
       favouriteUrlSet,
       isSearchActive,
-      visiblePokemonNames,
     }),
-    [favouriteUrlSet, isSearchActive, visiblePokemonNames]
+    [favouriteUrlSet, isSearchActive]
   );
 
   if (isLoading) {
@@ -268,9 +228,6 @@ const ListScreen = () => {
         renderItem={renderPokemonItem}
         keyExtractor={pokemonKeyExtractor}
         contentContainerStyle={styles.listPadding}
-        getItemLayout={getPokemonItemLayout}
-        viewabilityConfig={POKEMON_VIEWABILITY_CONFIG}
-        onViewableItemsChanged={onViewableItemsChanged}
         extraData={listExtraData}
         onEndReached={isSearchActive ? undefined : handleLoadMore}
         onEndReachedThreshold={0.5}
