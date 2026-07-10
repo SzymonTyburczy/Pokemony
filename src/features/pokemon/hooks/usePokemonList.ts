@@ -1,124 +1,71 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useMemo } from 'react';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { fetchPokemonListByUrl, INITIAL_POKEMON_URL } from '../api/pokemonApi';
-import { Pokemon } from '../model/types';
-
-function isAbortError(error: unknown): boolean {
-  if (!(error instanceof Error)) {
-    return false;
-  }
-
-  return error.name === 'AbortError' || error.message.toLowerCase().includes('aborted');
-}
+import { pokemonQueryKeys } from '../queries/pokemonQueryKeys';
 
 export function usePokemonList() {
-  const [pokemons, setPokemons] = useState<Pokemon[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [nextUrl, setNextUrl] = useState<string | null>(INITIAL_POKEMON_URL);
-  const [error, setError] = useState<string | null>(null);
-  const isFetchingRef = useRef(false);
-  const abortControllerRef = useRef<AbortController | null>(null);
-  const isMountedRef = useRef(true);
+  const {
+    data,
+    error: queryError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isPending,
+    isRefetching,
+    refetch,
+  } = useInfiniteQuery({
+    queryKey: pokemonQueryKeys.list(),
+    queryFn: ({ pageParam, signal }) => fetchPokemonListByUrl(pageParam, signal),
+    initialPageParam: INITIAL_POKEMON_URL,
+    getNextPageParam: (lastPage) => lastPage.next ?? undefined,
+    staleTime: 1000 * 60 * 10,
+  });
 
-  const fetchPokemons = async (resetList: boolean = false) => {
-    const requestUrl = resetList ? INITIAL_POKEMON_URL : nextUrl;
+  const pokemons = useMemo(() => {
+    const seenPokemonNames = new Set<string>();
+    const pages = data?.pages ?? [];
 
-    if (isFetchingRef.current && !resetList) {
-      return;
-    }
+    return pages
+      .flatMap((page) => page.results ?? [])
+      .filter((pokemon) => {
+        if (seenPokemonNames.has(pokemon.name)) {
+          return false;
+        }
 
-    if (!resetList && (!requestUrl || !hasMore || isLoadingMore || isRefreshing || isLoading)) {
-      return;
-    }
+        seenPokemonNames.add(pokemon.name);
+        return true;
+      });
+  }, [data]);
 
-    if (!requestUrl) {
-      return;
-    }
+  const isLoadingMore = isFetchingNextPage;
+  const isLoading = isPending;
+  const isRefreshing = isRefetching && !isFetchingNextPage && !isPending;
+  const hasMore = Boolean(hasNextPage);
+  const error = queryError instanceof Error ? queryError.message : null;
 
-    const abortController = new AbortController();
-
-    try {
-      if (isFetchingRef.current) {
-        abortControllerRef.current?.abort();
-      }
-
-      isFetchingRef.current = true;
-      abortControllerRef.current = abortController;
-
+  const fetchPokemons = useCallback(
+    async (resetList: boolean = false) => {
       if (resetList) {
-        setIsLoading(pokemons.length === 0);
-        setIsRefreshing(true);
-        setHasMore(true);
-      } else {
-        setIsLoadingMore(true);
-      }
-
-      setError(null);
-
-      const data = await fetchPokemonListByUrl(requestUrl, abortController.signal);
-
-      if (!isMountedRef.current || abortController.signal.aborted) {
+        await refetch();
         return;
       }
 
-      const nextPokemons = data.results ?? [];
-      setPokemons((prevPokemons) =>
-        resetList
-          ? nextPokemons
-          : [...prevPokemons, ...nextPokemons].filter(
-              (pokemon, index, array) => array.findIndex((item) => item.name === pokemon.name) === index
-            )
-      );
-      setNextUrl(data.next ?? null);
-      setHasMore(Boolean(data.next));
-    } catch (err: unknown) {
-      if (isAbortError(err)) {
+      if (!hasNextPage || isFetchingNextPage || isPending || isRefetching) {
         return;
       }
 
-      console.error('Błąd podczas pobierania danych:', err);
-      if (resetList || pokemons.length === 0) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError('Nie udało się pobrać danych. Spróbuj ponownie później.');
-        }
-      }
-    } finally {
-      if (abortControllerRef.current === abortController) {
-        abortControllerRef.current = null;
-        isFetchingRef.current = false;
+      await fetchNextPage();
+    },
+    [fetchNextPage, hasNextPage, isFetchingNextPage, isPending, isRefetching, refetch]
+  );
 
-        if (isMountedRef.current) {
-          setIsLoading(false);
-          setIsRefreshing(false);
-          setIsLoadingMore(false);
-        }
-      }
-    }
-  };
+  const handleLoadMore = useCallback(() => {
+    fetchPokemons(false);
+  }, [fetchPokemons]);
 
-  useEffect(() => {
+  const handleRefresh = useCallback(() => {
     fetchPokemons(true);
-
-    return () => {
-      isMountedRef.current = false;
-      abortControllerRef.current?.abort();
-    };
-  }, []);
-
-  const handleLoadMore = () => {
-    if (!isLoadingMore && hasMore && !isRefreshing && !isLoading) {
-      fetchPokemons(false);
-    }
-  };
-
-  const handleRefresh = () => {
-    setNextUrl(INITIAL_POKEMON_URL);
-    fetchPokemons(true);
-  };
+  }, [fetchPokemons]);
 
   return {
     pokemons,

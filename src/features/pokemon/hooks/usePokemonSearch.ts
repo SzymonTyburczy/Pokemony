@@ -1,64 +1,34 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { fetchAllPokemon } from '../api/pokemonApi';
-import { Pokemon } from '../model/types';
+import { pokemonQueryKeys } from '../queries/pokemonQueryKeys';
 
 export function usePokemonSearch(query: string) {
   const normalizedQuery = query.trim().toLowerCase();
-  const [allPokemons, setAllPokemons] = useState<Pokemon[] | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const isSearchActive = normalizedQuery.length > 0;
 
-  useEffect(() => {
-    if (!normalizedQuery || allPokemons) {
-      return;
-    }
-
-    const abortController = new AbortController();
-    let isActive = true;
-
-    setIsLoading(true);
-    setError(null);
-
-    fetchAllPokemon(abortController.signal)
-      .then((data) => {
-        if (isActive) {
-          setAllPokemons(data.results ?? []);
-        }
-      })
-      .catch((err: unknown) => {
-        if (err instanceof Error && err.name === 'AbortError') {
-          return;
-        }
-
-        console.error('Nie udało się pobrać listy do wyszukiwania:', err);
-        if (isActive) {
-          setError('Nie udało się pobrać listy do wyszukiwania.');
-        }
-      })
-      .finally(() => {
-        if (isActive) {
-          setIsLoading(false);
-        }
-      });
-
-    return () => {
-      isActive = false;
-      abortController.abort();
-    };
-  }, [allPokemons, normalizedQuery]);
+  const queryResult = useQuery({
+    queryKey: pokemonQueryKeys.searchIndex(),
+    queryFn: ({ signal }) => fetchAllPokemon(signal),
+    enabled: isSearchActive,
+    staleTime: 1000 * 60 * 60,
+  });
 
   const results = useMemo(() => {
-    if (!normalizedQuery || !allPokemons) {
+    if (!isSearchActive) {
       return [];
     }
 
+    const allPokemons = queryResult.data?.results ?? [];
     return allPokemons.filter((pokemon) => pokemon.name.toLowerCase().includes(normalizedQuery));
-  }, [allPokemons, normalizedQuery]);
+  }, [isSearchActive, normalizedQuery, queryResult.data]);
 
   return {
-    isSearchActive: normalizedQuery.length > 0,
+    isSearchActive,
     results,
-    isLoading,
-    error,
+    isLoading: isSearchActive && queryResult.isPending,
+    error: queryResult.error
+      ? 'Nie udało się pobrać listy do wyszukiwania.'
+      : null,
   };
 }
