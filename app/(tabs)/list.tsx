@@ -14,6 +14,7 @@ import { useCustomPokemonContext } from '../../src/features/customPokemon/contex
 import { CustomPokemon } from '../../src/features/customPokemon/model/types';
 import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
 import { customPokemonToFavourite } from '../../src/features/customPokemon/utils/customPokemonFavourites';
+import { resolveCustomPokemonImageUri } from '../../src/features/customPokemon/storage/customPokemonImages';
 
 function CustomPokemonSection({
   pokemons,
@@ -32,14 +33,15 @@ function CustomPokemonSection({
       <Text style={styles.customSectionTitle}>Moje Pokémony ({pokemons.length})</Text>
       {pokemons.map((p) => {
         const favourite = customPokemonToFavourite(p);
+        const imageUri = resolveCustomPokemonImageUri(p.imageUri);
         return (
           <Pressable
             key={p.id}
             style={({ pressed }) => [styles.customItem, pressed && { opacity: 0.75 }]}
             onPress={() => onPress(p.id)}
           >
-            {p.imageUri ? (
-              <Image source={{ uri: p.imageUri }} style={styles.customItemImage} resizeMode="cover" />
+            {imageUri ? (
+              <Image source={{ uri: imageUri }} style={styles.customItemImage} resizeMode="cover" />
             ) : (
               <View style={[styles.customItemImage, styles.customItemImagePlaceholder]}>
                 <Text style={styles.customItemPlaceholderText}>?</Text>

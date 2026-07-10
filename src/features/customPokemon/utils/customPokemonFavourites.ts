@@ -1,6 +1,8 @@
+import { Href } from 'expo-router';
 import { Pokemon } from '../../pokemon/model/types';
 import { CustomPokemon } from '../model/types';
 import { getPokemonImageUrl } from '../../../shared/utils/getPokemonImageUrl';
+import { resolveCustomPokemonImageUri } from '../storage/customPokemonImages';
 
 export const CUSTOM_POKEMON_URL_PREFIX = 'custom://';
 
@@ -23,15 +25,24 @@ export function getCustomPokemonIdFromFavourite(pokemon: Pokemon): string | null
 export function getFavouriteImageUrl(pokemon: Pokemon, customPokemons: CustomPokemon[]): string {
   const customId = getCustomPokemonIdFromFavourite(pokemon);
   if (customId) {
-    return customPokemons.find((p) => p.id === customId)?.imageUri ?? '';
+    return resolveCustomPokemonImageUri(customPokemons.find((p) => p.id === customId)?.imageUri ?? null);
   }
   return getPokemonImageUrl(pokemon.url);
 }
 
-export function getFavouriteDetailsRoute(pokemon: Pokemon): string {
+export function getFavouriteDetailsRoute(pokemon: Pokemon): Href {
   const customId = getCustomPokemonIdFromFavourite(pokemon);
-  if (customId) return `/custom-pokemon/${customId}`;
-  return `/pokemon/${pokemon.name}`;
+  if (customId) {
+    return {
+      pathname: '/custom-pokemon/[id]',
+      params: { id: customId },
+    };
+  }
+
+  return {
+    pathname: '/pokemon/[name]',
+    params: { name: pokemon.name },
+  };
 }
 
 export function isCustomPokemonUrl(url: string): boolean {

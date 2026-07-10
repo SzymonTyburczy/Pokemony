@@ -19,6 +19,10 @@ import { CustomPokemon } from '../../src/features/customPokemon/model/types';
 import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
 import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
 import { customPokemonToFavourite } from '../../src/features/customPokemon/utils/customPokemonFavourites';
+import {
+  persistCustomPokemonImage,
+  resolveCustomPokemonImageUri,
+} from '../../src/features/customPokemon/storage/customPokemonImages';
 
 const POKEMON_TYPES = [
   'normal', 'fire', 'water', 'electric', 'grass', 'ice',
@@ -58,13 +62,15 @@ function CustomPokemonRow({
   isFavourite: boolean;
   onToggleFavourite: () => void;
 }) {
+  const resolvedImageUri = resolveCustomPokemonImageUri(pokemon.imageUri);
+
   return (
     <Pressable
       style={({ pressed }) => [styles.customRow, pressed && { opacity: 0.75 }]}
       onPress={onPress}
     >
-      {pokemon.imageUri ? (
-        <Image source={{ uri: pokemon.imageUri }} style={styles.customRowImage} resizeMode="cover" />
+      {resolvedImageUri ? (
+        <Image source={{ uri: resolvedImageUri }} style={styles.customRowImage} resizeMode="cover" />
       ) : (
         <View style={[styles.customRowImage, styles.customRowImagePlaceholder]}>
           <Ionicons name="help-outline" size={22} color="#9ca3af" />
@@ -116,6 +122,7 @@ export default function CreateNewPokemonScreen() {
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
   const [stats, setStats] = useState(DEFAULT_STATS);
+  const [isSaving, setIsSaving] = useState(false);
 
   const pickImage = () => {
     Alert.alert('Wybierz źródło obrazka', undefined, [
@@ -182,24 +189,37 @@ export default function CreateNewPokemonScreen() {
     setStats(DEFAULT_STATS);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!name.trim()) {
       Alert.alert('Brakuje nazwy', 'Podaj nazwę Pokémona przed zapisem.');
       return;
     }
-    const pokemon: CustomPokemon = {
-      id: Date.now().toString(),
-      name: name.trim(),
-      description: description.trim(),
-      imageUri,
-      height: parseFloat(height) || 0,
-      weight: parseFloat(weight) || 0,
-      types: selectedTypes,
-      stats,
-    };
-    addCustomPokemon(pokemon);
-    resetForm();
-    Alert.alert('Gotowe!', `${pokemon.name} został dodany do kolekcji.`);
+
+    const pokemonId = Date.now().toString();
+    setIsSaving(true);
+
+    try {
+      const persistedImageUri = await persistCustomPokemonImage(imageUri, pokemonId);
+      const pokemon: CustomPokemon = {
+        id: pokemonId,
+        name: name.trim(),
+        description: description.trim(),
+        imageUri: persistedImageUri,
+        height: parseFloat(height) || 0,
+        weight: parseFloat(weight) || 0,
+        types: selectedTypes,
+        stats,
+      };
+
+      addCustomPokemon(pokemon);
+      resetForm();
+      Alert.alert('Gotowe!', `${pokemon.name} został dodany do kolekcji.`);
+    } catch (error) {
+      console.error('Nie udało się utrwalić zdjęcia własnego Pokémona:', error);
+      Alert.alert('Błąd', 'Nie udało się zapisać zdjęcia Pokémona. Spróbuj ponownie.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -333,13 +353,13 @@ export default function CreateNewPokemonScreen() {
         <Pressable
           style={({ pressed }) => [
             styles.saveButton,
-            !name.trim() && styles.saveButtonDisabled,
-            pressed && name.trim() && styles.saveButtonPressed,
+            (!name.trim() || isSaving) && styles.saveButtonDisabled,
+            pressed && name.trim() && !isSaving && styles.saveButtonPressed,
           ]}
           onPress={handleSave}
-          disabled={!name.trim()}
+          disabled={!name.trim() || isSaving}
         >
-          <Text style={styles.saveButtonText}>Zapisz Pokémona</Text>
+          <Text style={styles.saveButtonText}>{isSaving ? 'Zapisywanie...' : 'Zapisz Pokémona'}</Text>
         </Pressable>
 
         {/* Moja kolekcja */}

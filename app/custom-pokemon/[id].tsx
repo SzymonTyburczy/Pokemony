@@ -13,6 +13,7 @@ import { useCustomPokemonContext } from '../../src/features/customPokemon/contex
 import { useFavouritesContext } from '../../src/features/favourites/context/FavouritesContext';
 import { customPokemonToFavourite } from '../../src/features/customPokemon/utils/customPokemonFavourites';
 import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
+import { resolveCustomPokemonImageUri } from '../../src/features/customPokemon/storage/customPokemonImages';
 
 const TYPE_COLORS: Record<string, string> = {
   normal: '#a8a878', fire: '#f08030', water: '#6890f0', electric: '#f8d030',
@@ -53,6 +54,7 @@ export default function CustomPokemonDetailsScreen() {
 
   const favourite = customPokemonToFavourite(pokemon);
   const favouriteActive = isFavourite(favourite.url);
+  const imageUri = resolveCustomPokemonImageUri(pokemon.imageUri);
 
   return (
     <ScrollView
@@ -64,8 +66,8 @@ export default function CustomPokemonDetailsScreen() {
       </Pressable>
 
       {/* Obrazek */}
-      {pokemon.imageUri ? (
-        <Image source={{ uri: pokemon.imageUri }} style={styles.image} resizeMode="cover" />
+      {imageUri ? (
+        <Image source={{ uri: imageUri }} style={styles.image} resizeMode="cover" />
       ) : (
         <View style={styles.imagePlaceholder}>
           <Text style={styles.imagePlaceholderText}>?</Text>

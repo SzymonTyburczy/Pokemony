@@ -2,6 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import { fetchPokemonListByUrl, INITIAL_POKEMON_URL } from '../api/pokemonApi';
 import { Pokemon } from '../model/types';
 
+function isAbortError(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  return error.name === 'AbortError' || error.message.toLowerCase().includes('aborted');
+}
+
 export function usePokemonList() {
   const [pokemons, setPokemons] = useState<Pokemon[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -66,7 +74,7 @@ export function usePokemonList() {
       setNextUrl(data.next ?? null);
       setHasMore(Boolean(data.next));
     } catch (err: unknown) {
-      if (err instanceof Error && err.name === 'AbortError') {
+      if (isAbortError(err)) {
         return;
       }
 

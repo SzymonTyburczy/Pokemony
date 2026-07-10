@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  useAsyncRunner,
   useFrameOutput,
   type CameraFrameOutput,
   type Frame,
@@ -61,7 +60,7 @@ export interface UseObjectDetectionResult {
  *
  * Architektura zaprojektowana tak, by nie blokować ani pipeline'u kamery,
  * ani wątku JS:
- * - inferencja działa na osobnym wątku (AsyncRunner) i jest throttlowana,
+ * - inferencja jest throttlowana, żeby nie uruchamiać modelu co klatkę,
  * - klatki przychodzące w trakcie inferencji są od razu odrzucane,
  * - pozycja Pokemona idzie wyłącznie przez Reanimated shared values,
  * - przejście na wątek JS (re-render Reacta) dzieje się tylko przy ZMIANIE
@@ -138,8 +137,6 @@ export function useObjectDetection({
     pixelLayout: 'interleaved',
   });
 
-  const asyncRunner = useAsyncRunner();
-
   const onLabelChanged = useCallback((classIdx: number) => {
     setDetectedClassIdx(classIdx);
   }, []);
@@ -180,107 +177,98 @@ export function useObjectDetection({
       const frameHeight = frame.height;
       const isMirrored = frame.isMirrored;
 
-      const wasScheduled = asyncRunner.runAsync(() => {
-        'worklet';
-        try {
-          // Resizer robi wycentrowany kwadratowy crop ('cover') i skaluje
-          // do wejścia modelu.
-          const resized = resizer.resize(frame);
-          const pixelBuffer = resized.getPixelBuffer();
-          const outputs = model.runSync([pixelBuffer]);
-          resized.dispose();
+      lastInferenceAt.value = now;
+      try {
+        // Resizer robi wycentrowany kwadratowy crop ('cover') i skaluje
+        // do wejścia modelu.
+        const resized = resizer.resize(frame);
+        const pixelBuffer = resized.getPixelBuffer();
+        const outputs = model.runSync([pixelBuffer]);
+        resized.dispose();
 
-          if (outputs.length >= 4) {
-            const boxes = new Float32Array(outputs[0]);
-            const classes = new Float32Array(outputs[1]);
-            const scores = new Float32Array(outputs[2]);
-            const countArr = new Float32Array(outputs[3]);
-            const count = Math.min(countArr[0] ?? 0, classes.length);
+        if (outputs.length >= 4) {
+          const boxes = new Float32Array(outputs[0]);
+          const classes = new Float32Array(outputs[1]);
+          const scores = new Float32Array(outputs[2]);
+          const countArr = new Float32Array(outputs[3]);
+          const count = Math.min(countArr[0] ?? 0, classes.length);
 
-            // Najlepsza detekcja powyżej progu (a nie pierwsza jak wcześniej).
-            let best = -1;
-            let bestScore = MIN_SCORE;
-            for (let i = 0; i < count; i++) {
-              if (scores[i] >= bestScore) {
-                bestScore = scores[i];
-                best = i;
-              }
-            }
-
-            const detectionTime = Date.now();
-            if (best >= 0) {
-              const ymin = boxes[best * 4];
-              const xmin = boxes[best * 4 + 1];
-              const ymax = boxes[best * 4 + 2];
-              const xmax = boxes[best * 4 + 3];
-              const cx = (xmin + xmax) / 2;
-              const cy = (ymin + ymax) / 2;
-
-              // Mapowanie: współrzędne modelu (kwadratowy crop) -> piksele
-              // klatki -> piksele ekranu (podgląd kamery to aspect-fill).
-              const cropSize = Math.min(frameWidth, frameHeight);
-              const cropX = (frameWidth - cropSize) / 2;
-              const cropY = (frameHeight - cropSize) / 2;
-              let frameX = cropX + cx * cropSize;
-              const frameY = cropY + cy * cropSize;
-              if (isMirrored) {
-                frameX = frameWidth - frameX;
-              }
-              const previewScale = Math.max(
-                screenWidth / frameWidth,
-                screenHeight / frameHeight
-              );
-              const screenX =
-                frameX * previewScale - (frameWidth * previewScale - screenWidth) / 2;
-              const screenY =
-                frameY * previewScale - (frameHeight * previewScale - screenHeight) / 2;
-
-              const newX = screenX - spriteHalfSize;
-              const newY = screenY - spriteHalfSize;
-              if (targetDetected.value) {
-                // Wygładzanie, żeby Pokemon nie skakał między klatkami.
-                targetX.value =
-                  targetX.value + (newX - targetX.value) * POSITION_SMOOTHING;
-                targetY.value =
-                  targetY.value + (newY - targetY.value) * POSITION_SMOOTHING;
-              } else {
-                targetX.value = newX;
-                targetY.value = newY;
-              }
-              targetDetected.value = true;
-              lastSeenAt.value = detectionTime;
-
-              const classIdx = Math.round(classes[best]);
-              if (classIdx !== lastClassIdx.value) {
-                lastClassIdx.value = classIdx;
-              }
-            } else if (
-              targetDetected.value &&
-              detectionTime - lastSeenAt.value > LOST_TIMEOUT_MS
-            ) {
-              targetDetected.value = false;
-              if (lastClassIdx.value !== -1) {
-                lastClassIdx.value = -1;
-              }
+          // Najlepsza detekcja powyżej progu (a nie pierwsza jak wcześniej).
+          let best = -1;
+          let bestScore = MIN_SCORE;
+          for (let i = 0; i < count; i++) {
+            if (scores[i] >= bestScore) {
+              bestScore = scores[i];
+              best = i;
             }
           }
-        } catch {
-          // Pojedyncza zepsuta klatka nie może wywalić pipeline'u.
-        }
-        frame.dispose();
-      });
 
-      if (wasScheduled) {
-        lastInferenceAt.value = now;
-      } else {
-        // Wątek inferencji zajęty — po prostu odrzucamy klatkę.
+          const detectionTime = Date.now();
+          if (best >= 0) {
+            const ymin = boxes[best * 4];
+            const xmin = boxes[best * 4 + 1];
+            const ymax = boxes[best * 4 + 2];
+            const xmax = boxes[best * 4 + 3];
+            const cx = (xmin + xmax) / 2;
+            const cy = (ymin + ymax) / 2;
+
+            // Mapowanie: współrzędne modelu (kwadratowy crop) -> piksele
+            // klatki -> piksele ekranu (podgląd kamery to aspect-fill).
+            const cropSize = Math.min(frameWidth, frameHeight);
+            const cropX = (frameWidth - cropSize) / 2;
+            const cropY = (frameHeight - cropSize) / 2;
+            let frameX = cropX + cx * cropSize;
+            const frameY = cropY + cy * cropSize;
+            if (isMirrored) {
+              frameX = frameWidth - frameX;
+            }
+            const previewScale = Math.max(
+              screenWidth / frameWidth,
+              screenHeight / frameHeight
+            );
+            const screenX =
+              frameX * previewScale - (frameWidth * previewScale - screenWidth) / 2;
+            const screenY =
+              frameY * previewScale - (frameHeight * previewScale - screenHeight) / 2;
+
+            const newX = screenX - spriteHalfSize;
+            const newY = screenY - spriteHalfSize;
+            if (targetDetected.value) {
+              // Wygładzanie, żeby Pokemon nie skakał między klatkami.
+              targetX.value =
+                targetX.value + (newX - targetX.value) * POSITION_SMOOTHING;
+              targetY.value =
+                targetY.value + (newY - targetY.value) * POSITION_SMOOTHING;
+            } else {
+              targetX.value = newX;
+              targetY.value = newY;
+            }
+            targetDetected.value = true;
+            lastSeenAt.value = detectionTime;
+
+            const classIdx = Math.round(classes[best]);
+            if (classIdx !== lastClassIdx.value) {
+              lastClassIdx.value = classIdx;
+            }
+          } else if (
+            targetDetected.value &&
+            detectionTime - lastSeenAt.value > LOST_TIMEOUT_MS
+          ) {
+            targetDetected.value = false;
+            if (lastClassIdx.value !== -1) {
+              lastClassIdx.value = -1;
+            }
+          }
+        }
+      } catch {
+        // Pojedyncza zepsuta klatka nie może wywalić pipeline'u.
+      } finally {
         frame.dispose();
       }
     },
     [
       model,
       resizer,
-      asyncRunner,
       onLabelChanged,
       screenWidth,
       screenHeight,
