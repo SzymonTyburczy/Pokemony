@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react';
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
-import { WebView } from 'react-native-webview';
-import { Pokemon3dForm, Pokemon3dSelection } from '../model/pokemon3d';
-import { formatPokemonName } from '../../../shared/utils/formatPokemonName';
+import React, { useMemo } from "react";
+import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { WebView } from "react-native-webview";
+import { Pokemon3dForm, Pokemon3dSelection } from "../model/pokemon3d";
+import { formatPokemonName } from "../../../shared/utils/formatPokemonName";
 
 interface PokemonAnimationModalProps {
   animation: Pokemon3dSelection | null;
@@ -11,15 +11,22 @@ interface PokemonAnimationModalProps {
   hasCry?: boolean;
 }
 
-function createModelViewerHtml(animation: Pokemon3dSelection, hasCry: boolean): string {
+function createModelViewerHtml(
+  animation: Pokemon3dSelection,
+  hasCry: boolean,
+): string {
   const forms = animation.forms;
   // Start from the initially selected (random) form
   const initialFormIndex = Math.max(
     0,
-    forms.findIndex((f) => f.model === animation.form.model)
+    forms.findIndex((f) => f.model === animation.form.model),
   );
   const formsJson = JSON.stringify(
-    forms.map((f: Pokemon3dForm) => ({ name: f.name, formName: f.formName, model: f.model }))
+    forms.map((f: Pokemon3dForm) => ({
+      name: f.name,
+      formName: f.formName,
+      model: f.model,
+    })),
   );
 
   return `
@@ -142,7 +149,7 @@ function createModelViewerHtml(animation: Pokemon3dSelection, hasCry: boolean): 
       <!-- Row 1: Form picker -->
       <div class="controls-row form-row" id="form-row">
         <select id="form-select" aria-label="Forma"></select>
-        <button class="sound-button${hasCry ? '' : ' disabled'}" id="sound-button" type="button">♪</button>
+        <button class="sound-button${hasCry ? "" : " disabled"}" id="sound-button" type="button">♪</button>
       </div>
       <!-- Row 2: Animation picker + random -->
       <div class="controls-row animation-row" id="animation-row">
@@ -151,7 +158,7 @@ function createModelViewerHtml(animation: Pokemon3dSelection, hasCry: boolean): 
       </div>
     </div>
     <script>
-      const HAS_CRY = ${hasCry ? 'true' : 'false'};
+      const HAS_CRY = ${hasCry ? "true" : "false"};
       const FORMS = ${formsJson};
       let currentFormIndex = ${initialFormIndex};
       let animations = [];
@@ -275,11 +282,16 @@ function createModelViewerHtml(animation: Pokemon3dSelection, hasCry: boolean): 
 </html>`;
 }
 
-export function PokemonAnimationModal({ animation, onClose, onPokemonSound, hasCry = true }: PokemonAnimationModalProps) {
+export function PokemonAnimationModal({
+  animation,
+  onClose,
+  onPokemonSound,
+  hasCry = true,
+}: PokemonAnimationModalProps) {
   const html = useMemo(
-    () => (animation ? createModelViewerHtml(animation, hasCry) : ''),
+    () => (animation ? createModelViewerHtml(animation, hasCry) : ""),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [animation?.id, animation?.form.model, hasCry]
+    [animation?.id, animation?.form.model, hasCry],
   );
 
   const handleWebViewMessage = (event: { nativeEvent: { data: string } }) => {
@@ -289,7 +301,7 @@ export function PokemonAnimationModal({ animation, onClose, onPokemonSound, hasC
 
     try {
       const message = JSON.parse(event.nativeEvent.data) as { type?: string };
-      if (message.type === 'model-ready' || message.type === 'sound-button') {
+      if (message.type === "model-ready" || message.type === "sound-button") {
         onPokemonSound?.(animation.id);
       }
     } catch {
@@ -298,19 +310,30 @@ export function PokemonAnimationModal({ animation, onClose, onPokemonSound, hasC
   };
 
   return (
-    <Modal visible={Boolean(animation)} animationType="fade" transparent onRequestClose={onClose}>
+    <Modal
+      visible={Boolean(animation)}
+      animationType="fade"
+      transparent
+      onRequestClose={onClose}
+    >
       <View style={styles.backdrop}>
         <View style={styles.content}>
           <View style={styles.header}>
             <View>
               <Text style={styles.number}>#{animation?.id}</Text>
               <Text style={styles.title}>
-                {animation ? formatPokemonName(animation.pokemonName) : ''}
+                {animation ? formatPokemonName(animation.pokemonName) : ""}
               </Text>
               <Text style={styles.formName}>{animation?.form.formName}</Text>
             </View>
 
-            <Pressable style={({ pressed }) => [styles.closeButton, pressed && styles.pressed]} onPress={onClose}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.closeButton,
+                pressed && styles.pressed,
+              ]}
+              onPress={onClose}
+            >
               <Text style={styles.closeText}>✕</Text>
             </Pressable>
           </View>
@@ -318,7 +341,7 @@ export function PokemonAnimationModal({ animation, onClose, onPokemonSound, hasC
           {animation && (
             <WebView
               key={`${animation.id}-${animation.form.model}`}
-              originWhitelist={['*']}
+              originWhitelist={["*"]}
               source={{ html }}
               style={styles.webView}
               javaScriptEnabled
@@ -338,53 +361,53 @@ export function PokemonAnimationModal({ animation, onClose, onPokemonSound, hasC
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.55)',
-    justifyContent: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.55)",
+    justifyContent: "center",
     padding: 18,
   },
   content: {
-    overflow: 'hidden',
+    overflow: "hidden",
     borderRadius: 16,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     minHeight: 460,
     borderWidth: 1,
-    borderColor: '#e9ecef',
+    borderColor: "#e9ecef",
   },
   header: {
     minHeight: 84,
     padding: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     borderBottomWidth: 1,
-    borderBottomColor: '#eef2f7',
+    borderBottomColor: "#eef2f7",
   },
   number: {
-    color: '#9ca3af',
+    color: "#9ca3af",
     fontSize: 13,
-    fontWeight: '800',
+    fontWeight: "800",
   },
   title: {
-    color: '#1f2937',
+    color: "#1f2937",
     fontSize: 22,
-    fontWeight: '800',
+    fontWeight: "800",
   },
   formName: {
-    color: '#3b4cca',
+    color: "#3b4cca",
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: "700",
     marginTop: 2,
   },
   closeButton: {
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: '#f3f4f6',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#f3f4f6",
+    alignItems: "center",
+    justifyContent: "center",
   },
   closeText: {
-    color: '#1f2937',
+    color: "#1f2937",
     fontSize: 20,
     lineHeight: 22,
   },
@@ -393,6 +416,6 @@ const styles = StyleSheet.create({
   },
   webView: {
     height: 400,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: "#f8f9fa",
   },
 });

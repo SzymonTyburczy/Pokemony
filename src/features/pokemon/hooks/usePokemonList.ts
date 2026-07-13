@@ -1,7 +1,7 @@
-import { useCallback, useMemo } from 'react';
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { fetchPokemonListByUrl, INITIAL_POKEMON_URL } from '../api/pokemonApi';
-import { pokemonQueryKeys } from '../queries/pokemonQueryKeys';
+import { useCallback, useMemo } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { fetchPokemonListByUrl, INITIAL_POKEMON_URL } from "../api/pokemonApi";
+import { pokemonQueryKeys } from "../queries/pokemonQueryKeys";
 
 export function usePokemonList() {
   const {
@@ -15,7 +15,8 @@ export function usePokemonList() {
     refetch,
   } = useInfiniteQuery({
     queryKey: pokemonQueryKeys.list(),
-    queryFn: ({ pageParam, signal }) => fetchPokemonListByUrl(pageParam, signal),
+    queryFn: ({ pageParam, signal }) =>
+      fetchPokemonListByUrl(pageParam, signal),
     initialPageParam: INITIAL_POKEMON_URL,
     getNextPageParam: (lastPage) => lastPage.next ?? undefined,
     staleTime: 1000 * 60 * 10,
@@ -56,7 +57,14 @@ export function usePokemonList() {
 
       await fetchNextPage();
     },
-    [fetchNextPage, hasNextPage, isFetchingNextPage, isPending, isRefetching, refetch]
+    [
+      fetchNextPage,
+      hasNextPage,
+      isFetchingNextPage,
+      isPending,
+      isRefetching,
+      refetch,
+    ],
   );
 
   const handleLoadMore = useCallback(() => {

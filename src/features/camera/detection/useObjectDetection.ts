@@ -1,19 +1,22 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   useFrameOutput,
   type CameraFrameOutput,
   type Frame,
-} from 'react-native-vision-camera';
-import { useResizer } from 'react-native-vision-camera-resizer';
-import { loadTensorflowModel, type TfliteModel } from 'react-native-fast-tflite';
+} from "react-native-vision-camera";
+import { useResizer } from "react-native-vision-camera-resizer";
+import {
+  loadTensorflowModel,
+  type TfliteModel,
+} from "react-native-fast-tflite";
 import {
   runOnJS,
   useAnimatedReaction,
   useSharedValue,
   type SharedValue,
-} from 'react-native-reanimated';
+} from "react-native-reanimated";
 
-import { COCO_CLASSES, getTranslation } from '../model/cocoClasses';
+import { COCO_CLASSES, getTranslation } from "../model/cocoClasses";
 
 // EfficientDet-Lite0 (COCO, 320x320 RGB uint8) — dokładniejszy od SSD MobileNet v1
 // przy porównywalnym rozmiarze. Kolejność wyjść: boxes, classes, scores, count.
@@ -33,7 +36,7 @@ const LOST_TIMEOUT_MS = 700;
 // Wygładzanie pozycji (EMA): 1.0 = natychmiastowy skok, 0 = brak ruchu.
 const POSITION_SMOOTHING = 0.35;
 
-export type ObjectDetectionModelState = 'loading' | 'loaded' | 'error';
+export type ObjectDetectionModelState = "loading" | "loaded" | "error";
 
 export interface UseObjectDetectionParams {
   /** Czy tryb detekcji obiektów jest aktywny (worklet nic nie robi gdy false). */
@@ -76,7 +79,8 @@ export function useObjectDetection({
   spriteHalfSize = 50,
 }: UseObjectDetectionParams): UseObjectDetectionResult {
   const [model, setModel] = useState<TfliteModel | undefined>(undefined);
-  const [modelState, setModelState] = useState<ObjectDetectionModelState>('loading');
+  const [modelState, setModelState] =
+    useState<ObjectDetectionModelState>("loading");
   const [detectedClassIdx, setDetectedClassIdx] = useState(-1);
 
   // Stan React zdublowany w shared values, żeby worklet nie musiał być
@@ -98,15 +102,15 @@ export function useObjectDetection({
     (async () => {
       try {
         loadedModel = await loadTensorflowModel(
-          require('../../../../assets/efficientdet_lite0.tflite'),
-          []
+          require("../../../../assets/efficientdet_lite0.tflite"),
+          [],
         );
         if (cancelled) return;
         setModel(loadedModel);
-        setModelState('loaded');
+        setModelState("loaded");
       } catch (e) {
-        console.error('Nie udało się załadować modelu detekcji:', e);
-        if (!cancelled) setModelState('error');
+        console.error("Nie udało się załadować modelu detekcji:", e);
+        if (!cancelled) setModelState("error");
       }
     })();
     return () => {
@@ -131,10 +135,10 @@ export function useObjectDetection({
   const { resizer } = useResizer({
     width: MODEL_INPUT_SIZE,
     height: MODEL_INPUT_SIZE,
-    channelOrder: 'rgb',
-    dataType: 'uint8',
-    scaleMode: 'cover',
-    pixelLayout: 'interleaved',
+    channelOrder: "rgb",
+    dataType: "uint8",
+    scaleMode: "cover",
+    pixelLayout: "interleaved",
   });
 
   const onLabelChanged = useCallback((classIdx: number) => {
@@ -148,7 +152,7 @@ export function useObjectDetection({
         runOnJS(onLabelChanged)(classIdx);
       }
     },
-    [onLabelChanged]
+    [onLabelChanged],
   );
 
   // Worklet zmemoizowany — odtwarza się tylko gdy załaduje się model/resizer,
@@ -156,12 +160,8 @@ export function useObjectDetection({
   // callback natywny co render, co kończyło się crashem po paru sekundach).
   const onFrame = useCallback(
     (frame: Frame) => {
-      'worklet';
-      if (
-        !isEnabledShared.value ||
-        model == null ||
-        resizer == null
-      ) {
+      "worklet";
+      if (!isEnabledShared.value || model == null || resizer == null) {
         frame.dispose();
         return;
       }
@@ -224,12 +224,14 @@ export function useObjectDetection({
             }
             const previewScale = Math.max(
               screenWidth / frameWidth,
-              screenHeight / frameHeight
+              screenHeight / frameHeight,
             );
             const screenX =
-              frameX * previewScale - (frameWidth * previewScale - screenWidth) / 2;
+              frameX * previewScale -
+              (frameWidth * previewScale - screenWidth) / 2;
             const screenY =
-              frameY * previewScale - (frameHeight * previewScale - screenHeight) / 2;
+              frameY * previewScale -
+              (frameHeight * previewScale - screenHeight) / 2;
 
             const newX = screenX - spriteHalfSize;
             const newY = screenY - spriteHalfSize;
@@ -269,7 +271,6 @@ export function useObjectDetection({
     [
       model,
       resizer,
-      onLabelChanged,
       screenWidth,
       screenHeight,
       spriteHalfSize,
@@ -280,13 +281,13 @@ export function useObjectDetection({
       targetX,
       targetY,
       targetDetected,
-    ]
+    ],
   );
 
   const frameOutput = useFrameOutput({
     // Resizer na iOS wymaga YUV; przy `native` potrafi dostawać format,
     // którego nie umie przekonwertować i detekcja cicho nie zwraca wyników.
-    pixelFormat: 'yuv',
+    pixelFormat: "yuv",
     // Fizyczna rotacja bufora: model dostaje obraz "do góry głową w górę".
     // Bez tego (stara wersja) model widział obraz obrócony o 90 stopni,
     // przez co detekcja praktycznie nie działała.

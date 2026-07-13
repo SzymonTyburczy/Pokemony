@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useMemo } from 'react';
-import { useCustomPokemons } from '../hooks/useCustomPokemons';
-import { CustomPokemon } from '../model/types';
+import React, { createContext, useContext, useMemo } from "react";
+import { useCustomPokemons } from "../hooks/useCustomPokemons";
+import { CustomPokemon } from "../model/types";
 
 interface CustomPokemonContextValue {
   customPokemons: CustomPokemon[];
@@ -11,31 +11,37 @@ interface CustomPokemonContextValue {
 
 type CustomPokemonStateContextValue = Pick<
   CustomPokemonContextValue,
-  'customPokemons' | 'isLoaded'
+  "customPokemons" | "isLoaded"
 >;
 type CustomPokemonActionsContextValue = Pick<
   CustomPokemonContextValue,
-  'addCustomPokemon' | 'removeCustomPokemon'
+  "addCustomPokemon" | "removeCustomPokemon"
 >;
 
-const CustomPokemonStateContext = createContext<CustomPokemonStateContextValue | null>(null);
-const CustomPokemonActionsContext = createContext<CustomPokemonActionsContextValue | null>(null);
+const CustomPokemonStateContext =
+  createContext<CustomPokemonStateContextValue | null>(null);
+const CustomPokemonActionsContext =
+  createContext<CustomPokemonActionsContextValue | null>(null);
 
-export function CustomPokemonProvider({ children }: { children: React.ReactNode }) {
+export function CustomPokemonProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const value = useCustomPokemons();
   const stateValue = useMemo(
     () => ({
       customPokemons: value.customPokemons,
       isLoaded: value.isLoaded,
     }),
-    [value.customPokemons, value.isLoaded]
+    [value.customPokemons, value.isLoaded],
   );
   const actionsValue = useMemo(
     () => ({
       addCustomPokemon: value.addCustomPokemon,
       removeCustomPokemon: value.removeCustomPokemon,
     }),
-    [value.addCustomPokemon, value.removeCustomPokemon]
+    [value.addCustomPokemon, value.removeCustomPokemon],
   );
 
   return (
@@ -50,7 +56,9 @@ export function CustomPokemonProvider({ children }: { children: React.ReactNode 
 export function useCustomPokemonStateContext(): CustomPokemonStateContextValue {
   const ctx = useContext(CustomPokemonStateContext);
   if (!ctx) {
-    throw new Error('useCustomPokemonStateContext must be used within CustomPokemonProvider');
+    throw new Error(
+      "useCustomPokemonStateContext must be used within CustomPokemonProvider",
+    );
   }
   return ctx;
 }
@@ -58,7 +66,9 @@ export function useCustomPokemonStateContext(): CustomPokemonStateContextValue {
 export function useCustomPokemonActionsContext(): CustomPokemonActionsContextValue {
   const ctx = useContext(CustomPokemonActionsContext);
   if (!ctx) {
-    throw new Error('useCustomPokemonActionsContext must be used within CustomPokemonProvider');
+    throw new Error(
+      "useCustomPokemonActionsContext must be used within CustomPokemonProvider",
+    );
   }
   return ctx;
 }
@@ -72,6 +82,6 @@ export function useCustomPokemonContext(): CustomPokemonContextValue {
       ...state,
       ...actions,
     }),
-    [actions, state]
+    [actions, state],
   );
 }

@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Pokemon } from '../../pokemon/model/types';
-import { getFavourites, saveFavourites } from '../storage/favouritesStorage';
-import { Alert } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Pokemon } from "../../pokemon/model/types";
+import { getFavourites, saveFavourites } from "../storage/favouritesStorage";
+import { Alert } from "react-native";
 
 export function useFavourites() {
   const [favourites, setFavourites] = useState<Pokemon[]>([]);
@@ -17,7 +17,7 @@ export function useFavourites() {
         }
       })
       .catch((error) => {
-        console.error('Nie udało się załadować ulubionych Pokémonów:', error);
+        console.error("Nie udało się załadować ulubionych Pokémonów:", error);
       })
       .finally(() => {
         if (isActive) {
@@ -46,8 +46,8 @@ export function useFavourites() {
 
       if (prev.length >= 7) {
         Alert.alert(
-          'Ograniczenie ulubionych Pokémonów',
-          'Możesz mieć maksymalnie 7 ulubionych Pokémonów.'
+          "Ograniczenie ulubionych Pokémonów",
+          "Możesz mieć maksymalnie 7 ulubionych Pokémonów.",
         );
         return prev;
       }
@@ -62,12 +62,12 @@ export function useFavourites() {
 
   const favouriteUrlSet = useMemo(
     () => new Set(favourites.map((pokemon) => pokemon.url)),
-    [favourites]
+    [favourites],
   );
 
   const isFavourite = useCallback(
     (url: string) => favouriteUrlSet.has(url),
-    [favouriteUrlSet]
+    [favouriteUrlSet],
   );
 
   return useMemo(
@@ -79,6 +79,13 @@ export function useFavourites() {
       removeFavourite,
       isFavourite,
     }),
-    [favourites, favouriteUrlSet, isFavourite, isLoaded, removeFavourite, toggleFavourite]
+    [
+      favourites,
+      favouriteUrlSet,
+      isFavourite,
+      isLoaded,
+      removeFavourite,
+      toggleFavourite,
+    ],
   );
 }

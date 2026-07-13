@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -10,25 +16,44 @@ import {
   Text,
   useWindowDimensions,
   View,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import BottomSheet, { BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
-import * as Location from 'expo-location';
-import { useRouter } from 'expo-router';
-import MapView, { LongPressEvent, MapPressEvent, Marker, Region } from 'react-native-maps';
-import { useFavouritesStateContext } from '../../src/features/favourites/context/FavouritesContext';
-import { useCustomPokemonStateContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
-import { getPokemonUrlImage, isCustomPokemonUrl } from '../../src/features/customPokemon/utils/customPokemonFavourites';
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import BottomSheet, {
+  BottomSheetScrollView,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
+import * as Location from "expo-location";
+import { useRouter } from "expo-router";
+import MapView, {
+  LongPressEvent,
+  MapPressEvent,
+  Marker,
+  Region,
+} from "react-native-maps";
+import { useFavouritesStateContext } from "../../src/features/favourites/context/FavouritesContext";
+import { useCustomPokemonStateContext } from "../../src/features/customPokemon/context/CustomPokemonContext";
+import {
+  getPokemonUrlImage,
+  isCustomPokemonUrl,
+} from "../../src/features/customPokemon/utils/customPokemonFavourites";
 import {
   useMapPinsActionsContext,
   useMapPinsStateContext,
-} from '../../src/features/map/context/MapPinsContext';
-import { PendingMapPinLocation, PokemonMapPin } from '../../src/features/map/model/types';
-import { Pokemon } from '../../src/features/pokemon/model/types';
-import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
-import { MapPokemonDetailsSheetContent } from '../../src/features/map/ui/MapPokemonDetailsSheetContent';
+} from "../../src/features/map/context/MapPinsContext";
+import {
+  PendingMapPinLocation,
+  PokemonMapPin,
+} from "../../src/features/map/model/types";
+import { Pokemon } from "../../src/features/pokemon/model/types";
+import { formatPokemonName } from "../../src/shared/utils/formatPokemonName";
+import { MapPokemonDetailsSheetContent } from "../../src/features/map/ui/MapPokemonDetailsSheetContent";
 
-type SheetMode = 'pin-details' | 'pokemon-picker' | 'empty-favourites' | 'pin-list' | 'pokemon-full-details';
+type SheetMode =
+  | "pin-details"
+  | "pokemon-picker"
+  | "empty-favourites"
+  | "pin-list"
+  | "pokemon-full-details";
 
 const INITIAL_REGION: Region = {
   latitude: 52.2297,
@@ -46,7 +71,6 @@ function clampDelta(delta: number): number {
   return Math.min(MAX_DELTA, Math.max(MIN_DELTA, delta));
 }
 
-
 export default function MapScreen() {
   const router = useRouter();
   const { height: SCREEN_HEIGHT } = useWindowDimensions();
@@ -57,23 +81,23 @@ export default function MapScreen() {
   const [headerBottom, setHeaderBottom] = useState(headerTop + 72);
   const mapRef = useRef<MapView>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const { favourites, isLoaded: areFavouritesLoaded } = useFavouritesStateContext();
+  const { favourites, isLoaded: areFavouritesLoaded } =
+    useFavouritesStateContext();
   const { customPokemons } = useCustomPokemonStateContext();
   const { pins, isLoaded: arePinsLoaded } = useMapPinsStateContext();
-  const {
-    addPin,
-    removePin,
-    updatePinPokemon,
-    updatePinLocation,
-  } = useMapPinsActionsContext();
+  const { addPin, removePin, updatePinPokemon, updatePinLocation } =
+    useMapPinsActionsContext();
   const [region, setRegion] = useState<Region>(INITIAL_REGION);
-  const [sheetMode, setSheetMode] = useState<SheetMode>('empty-favourites');
+  const [sheetMode, setSheetMode] = useState<SheetMode>("empty-favourites");
   const [isMainSheetVisible, setIsMainSheetVisible] = useState(false);
-  const [pendingLocation, setPendingLocation] = useState<PendingMapPinLocation | null>(null);
+  const [pendingLocation, setPendingLocation] =
+    useState<PendingMapPinLocation | null>(null);
   const [selectedPin, setSelectedPin] = useState<PokemonMapPin | null>(null);
   const [editingPinId, setEditingPinId] = useState<string | null>(null);
   const [movingPinId, setMovingPinId] = useState<string | null>(null);
-  const [selectedPokemonFilter, setSelectedPokemonFilter] = useState<string | null>(null);
+  const [selectedPokemonFilter, setSelectedPokemonFilter] = useState<
+    string | null
+  >(null);
   const [isLocating, setIsLocating] = useState(false);
   const [isUserLocationVisible, setIsUserLocationVisible] = useState(false);
 
@@ -81,53 +105,74 @@ export default function MapScreen() {
 
   const pokemonFilterOptions = useMemo(
     () => Array.from(new Set(pins.map((pin) => pin.pokemonName))).sort(),
-    [pins]
+    [pins],
   );
 
   const listedPins = useMemo(
-    () => (selectedPokemonFilter ? pins.filter((pin) => pin.pokemonName === selectedPokemonFilter) : pins),
-    [pins, selectedPokemonFilter]
+    () =>
+      selectedPokemonFilter
+        ? pins.filter((pin) => pin.pokemonName === selectedPokemonFilter)
+        : pins,
+    [pins, selectedPokemonFilter],
   );
 
-  const snapPoints = useMemo(
-    () => {
-      // Usable height: exclude status bar and bottom nav/home indicator
-      const usableHeight = SCREEN_HEIGHT - insets.top - insets.bottom;
+  const snapPoints = useMemo(() => {
+    // Usable height: exclude status bar and bottom nav/home indicator
+    const usableHeight = SCREEN_HEIGHT - insets.top - insets.bottom;
 
-      if (sheetMode === 'pokemon-picker') {
-        if (favourites.length >= 3) {
-          return [Math.round(usableHeight * 0.45), Math.round(usableHeight * 0.90)];
-        }
-        return [Math.round(usableHeight * 0.35), Math.round(usableHeight * 0.50), Math.round(usableHeight * 0.90)];
+    if (sheetMode === "pokemon-picker") {
+      if (favourites.length >= 3) {
+        return [
+          Math.round(usableHeight * 0.45),
+          Math.round(usableHeight * 0.9),
+        ];
       }
+      return [
+        Math.round(usableHeight * 0.35),
+        Math.round(usableHeight * 0.5),
+        Math.round(usableHeight * 0.9),
+      ];
+    }
 
-      if (sheetMode === 'pin-details') {
-        // iOS needs more room because of home indicator & larger safe-area insets
-        const pct = Platform.OS === 'ios' ? 0.54 : 0.46;
-        return [Math.round(usableHeight * pct)];
+    if (sheetMode === "pin-details") {
+      // iOS needs more room because of home indicator & larger safe-area insets
+      const pct = Platform.OS === "ios" ? 0.54 : 0.46;
+      return [Math.round(usableHeight * pct)];
+    }
+
+    if (sheetMode === "pokemon-full-details") {
+      return [Math.round(usableHeight * 0.9)];
+    }
+
+    if (sheetMode === "pin-list") {
+      if (listedPins.length === 1) {
+        return [Math.round(usableHeight * 0.31)];
+      } else if (listedPins.length === 2) {
+        return [Math.round(usableHeight * 0.4)];
+      } else if (listedPins.length >= 3) {
+        return [Math.round(usableHeight * 0.5)];
       }
+    }
 
-      if (sheetMode === 'pokemon-full-details') {
-        return [Math.round(usableHeight * 0.9)];
-      }
-
-      if (sheetMode === 'pin-list') {
-        if (listedPins.length == 1) {
-          return [Math.round(usableHeight * 0.31)];
-        } else if (listedPins.length == 2) {
-          return [Math.round(usableHeight * 0.4)];
-        } else if (listedPins.length >= 3) {
-          return [Math.round(usableHeight * 0.5)];
-        }
-      }
-
-      return [Math.round(usableHeight * 0.3), Math.round(usableHeight * 0.5), Math.round(usableHeight * 0.8)];
-    },
-    [sheetMode, favourites.length, listedPins.length, SCREEN_HEIGHT, insets.top, insets.bottom]
-  );
+    return [
+      Math.round(usableHeight * 0.3),
+      Math.round(usableHeight * 0.5),
+      Math.round(usableHeight * 0.8),
+    ];
+  }, [
+    sheetMode,
+    favourites.length,
+    listedPins.length,
+    SCREEN_HEIGHT,
+    insets.top,
+    insets.bottom,
+  ]);
 
   useEffect(() => {
-    if (selectedPokemonFilter && !pokemonFilterOptions.includes(selectedPokemonFilter)) {
+    if (
+      selectedPokemonFilter &&
+      !pokemonFilterOptions.includes(selectedPokemonFilter)
+    ) {
       setSelectedPokemonFilter(null);
     }
   }, [pokemonFilterOptions, selectedPokemonFilter]);
@@ -144,7 +189,7 @@ export default function MapScreen() {
       latitudeDelta: Math.min(region.latitudeDelta, PIN_FOCUS_DELTA),
       longitudeDelta: Math.min(region.longitudeDelta, PIN_FOCUS_DELTA),
     }),
-    [region.latitudeDelta, region.longitudeDelta]
+    [region.latitudeDelta, region.longitudeDelta],
   );
 
   const openSheet = useCallback((mode: SheetMode) => {
@@ -156,15 +201,15 @@ export default function MapScreen() {
   }, []);
 
   const handleZoom = useCallback(
-    (direction: 'in' | 'out') => {
-      const factor = direction === 'in' ? 0.5 : 2;
+    (direction: "in" | "out") => {
+      const factor = direction === "in" ? 0.5 : 2;
       animateToRegion({
         ...region,
         latitudeDelta: clampDelta(region.latitudeDelta * factor),
         longitudeDelta: clampDelta(region.longitudeDelta * factor),
       });
     },
-    [animateToRegion, region]
+    [animateToRegion, region],
   );
 
   const handleCenterOnUser = useCallback(async () => {
@@ -172,8 +217,11 @@ export default function MapScreen() {
       setIsLocating(true);
       const { status } = await Location.requestForegroundPermissionsAsync();
 
-      if (status !== 'granted') {
-        Alert.alert('Brak dostępu do lokalizacji', 'Nadaj uprawnienie, aby wycentrować mapę na swoim położeniu.');
+      if (status !== "granted") {
+        Alert.alert(
+          "Brak dostępu do lokalizacji",
+          "Nadaj uprawnienie, aby wycentrować mapę na swoim położeniu.",
+        );
         return;
       }
 
@@ -190,8 +238,11 @@ export default function MapScreen() {
       setIsUserLocationVisible(true);
       animateToRegion(nextRegion);
     } catch (error) {
-      console.error('Nie udało się pobrać aktualnej lokalizacji:', error);
-      Alert.alert('Nie udało się pobrać lokalizacji', 'Sprawdź ustawienia lokalizacji i spróbuj ponownie.');
+      console.error("Nie udało się pobrać aktualnej lokalizacji:", error);
+      Alert.alert(
+        "Nie udało się pobrać lokalizacji",
+        "Sprawdź ustawienia lokalizacji i spróbuj ponownie.",
+      );
     } finally {
       setIsLocating(false);
     }
@@ -211,7 +262,7 @@ export default function MapScreen() {
 
         if (pinToMove) {
           setSelectedPin({ ...pinToMove, ...location });
-          openSheet('pin-details');
+          openSheet("pin-details");
         }
 
         return;
@@ -220,9 +271,9 @@ export default function MapScreen() {
       setEditingPinId(null);
       setPendingLocation(location);
       setSelectedPin(null);
-      openSheet(favourites.length > 0 ? 'pokemon-picker' : 'empty-favourites');
+      openSheet(favourites.length > 0 ? "pokemon-picker" : "empty-favourites");
     },
-    [favourites.length, movingPinId, openSheet, pins, updatePinLocation]
+    [favourites.length, movingPinId, openSheet, pins, updatePinLocation],
   );
 
   const handleOpenPinList = useCallback(
@@ -232,9 +283,9 @@ export default function MapScreen() {
       setPendingLocation(null);
       setEditingPinId(null);
       setMovingPinId(null);
-      openSheet('pin-list');
+      openSheet("pin-list");
     },
-    [openSheet]
+    [openSheet],
   );
 
   const handleSelectListedPin = useCallback(
@@ -244,16 +295,16 @@ export default function MapScreen() {
       setPendingLocation(null);
       setEditingPinId(null);
       setMovingPinId(null);
-      openSheet('pin-details');
+      openSheet("pin-details");
     },
-    [animateToRegion, getPinFocusRegion, openSheet]
+    [animateToRegion, getPinFocusRegion, openSheet],
   );
 
   const handleMarkerPress = useCallback(
     (pin: PokemonMapPin) => {
       handleSelectListedPin(pin);
     },
-    [handleSelectListedPin]
+    [handleSelectListedPin],
   );
 
   const handleChoosePokemon = useCallback(
@@ -270,7 +321,7 @@ export default function MapScreen() {
             pokemonName: pokemon.name,
             pokemonUrl: pokemon.url,
           });
-          openSheet('pin-details');
+          openSheet("pin-details");
         }
 
         return;
@@ -283,9 +334,9 @@ export default function MapScreen() {
       const pin = addPin(pendingLocation, pokemon);
       setSelectedPin(pin);
       setPendingLocation(null);
-      openSheet('pin-details');
+      openSheet("pin-details");
     },
-    [addPin, editingPinId, openSheet, pendingLocation, pins, updatePinPokemon]
+    [addPin, editingPinId, openSheet, pendingLocation, pins, updatePinPokemon],
   );
 
   const handleEditSelectedPokemon = useCallback(() => {
@@ -295,7 +346,7 @@ export default function MapScreen() {
 
     setEditingPinId(selectedPin.id);
     setPendingLocation(null);
-    openSheet(favourites.length > 0 ? 'pokemon-picker' : 'empty-favourites');
+    openSheet(favourites.length > 0 ? "pokemon-picker" : "empty-favourites");
   }, [favourites.length, openSheet, selectedPin]);
 
   const handleMoveSelectedPin = useCallback(() => {
@@ -322,7 +373,7 @@ export default function MapScreen() {
         bottomSheetRef.current?.close();
       }
     },
-    [selectedPin]
+    [selectedPin],
   );
 
   const handleRemoveSelectedPin = useCallback(() => {
@@ -338,7 +389,7 @@ export default function MapScreen() {
 
   const handleOpenDetails = useCallback(() => {
     if (selectedPin) {
-      openSheet('pokemon-full-details');
+      openSheet("pokemon-full-details");
     }
   }, [openSheet, selectedPin]);
 
@@ -350,11 +401,11 @@ export default function MapScreen() {
 
   useEffect(() => {
     const hasRenderableContent =
-      sheetMode === 'pokemon-picker' ||
-      sheetMode === 'empty-favourites' ||
-      sheetMode === 'pin-list' ||
-      sheetMode === 'pokemon-full-details' ||
-      (sheetMode === 'pin-details' && !!selectedPin);
+      sheetMode === "pokemon-picker" ||
+      sheetMode === "empty-favourites" ||
+      sheetMode === "pin-list" ||
+      sheetMode === "pokemon-full-details" ||
+      (sheetMode === "pin-details" && !!selectedPin);
 
     if (!hasRenderableContent) {
       setIsMainSheetVisible(false);
@@ -383,7 +434,10 @@ export default function MapScreen() {
       >
         {pins.map((pin) => {
           const isSelected = selectedPin?.id === pin.id;
-          const pinImageUrl = getPokemonUrlImage(pin.pokemonUrl, customPokemons);
+          const pinImageUrl = getPokemonUrlImage(
+            pin.pokemonUrl,
+            customPokemons,
+          );
           const isCustomPin = isCustomPokemonUrl(pin.pokemonUrl);
 
           return (
@@ -395,12 +449,20 @@ export default function MapScreen() {
               onPress={() => handleMarkerPress(pin)}
             >
               <View style={styles.markerContainer}>
-                <View style={[styles.markerBubble, isSelected && styles.markerBubbleSelected]}>
+                <View
+                  style={[
+                    styles.markerBubble,
+                    isSelected && styles.markerBubbleSelected,
+                  ]}
+                >
                   {pinImageUrl ? (
                     <Image
                       source={{ uri: pinImageUrl }}
-                      style={[styles.markerImage, isCustomPin && styles.markerImageCustom]}
-                      resizeMode={isCustomPin ? 'cover' : 'contain'}
+                      style={[
+                        styles.markerImage,
+                        isCustomPin && styles.markerImageCustom,
+                      ]}
+                      resizeMode={isCustomPin ? "cover" : "contain"}
                     />
                   ) : (
                     <View style={styles.markerImagePlaceholder}>
@@ -408,7 +470,12 @@ export default function MapScreen() {
                     </View>
                   )}
                 </View>
-                <View style={[styles.markerPointer, isSelected && styles.markerPointerSelected]} />
+                <View
+                  style={[
+                    styles.markerPointer,
+                    isSelected && styles.markerPointerSelected,
+                  ]}
+                />
               </View>
             </Marker>
           );
@@ -442,7 +509,10 @@ export default function MapScreen() {
             onPress={() => handleOpenPinList(null)}
           >
             <Text
-              style={[styles.filterText, !selectedPokemonFilter && styles.filterTextActive]}
+              style={[
+                styles.filterText,
+                !selectedPokemonFilter && styles.filterTextActive,
+              ]}
               numberOfLines={1}
               ellipsizeMode="tail"
             >
@@ -464,7 +534,10 @@ export default function MapScreen() {
                 onPress={() => handleOpenPinList(pokemonName)}
               >
                 <Text
-                  style={[styles.filterText, isActive && styles.filterTextActive]}
+                  style={[
+                    styles.filterText,
+                    isActive && styles.filterTextActive,
+                  ]}
                   numberOfLines={1}
                   ellipsizeMode="tail"
                 >
@@ -478,26 +551,53 @@ export default function MapScreen() {
 
       {movingPinId && (
         <View style={styles.moveBanner}>
-          <Text style={styles.moveText}>Przytrzymaj nowe miejsce, aby przenieść pin.</Text>
-          <Pressable style={({ pressed }) => [styles.moveCancel, pressed && styles.pressed]} onPress={handleCancelMove}>
+          <Text style={styles.moveText}>
+            Przytrzymaj nowe miejsce, aby przenieść pin.
+          </Text>
+          <Pressable
+            style={({ pressed }) => [
+              styles.moveCancel,
+              pressed && styles.pressed,
+            ]}
+            onPress={handleCancelMove}
+          >
             <Text style={styles.moveCancelText}>Anuluj</Text>
           </Pressable>
         </View>
       )}
 
       <View style={[styles.controlsColumn, { top: headerBottom + 46 }]}>
-        <Pressable style={({ pressed }) => [styles.mapControlButton, pressed && styles.pressed]} onPress={() => handleZoom('in')}>
+        <Pressable
+          style={({ pressed }) => [
+            styles.mapControlButton,
+            pressed && styles.pressed,
+          ]}
+          onPress={() => handleZoom("in")}
+        >
           <Text style={styles.mapControlText}>+</Text>
         </Pressable>
-        <Pressable style={({ pressed }) => [styles.mapControlButton, pressed && styles.pressed]} onPress={() => handleZoom('out')}>
+        <Pressable
+          style={({ pressed }) => [
+            styles.mapControlButton,
+            pressed && styles.pressed,
+          ]}
+          onPress={() => handleZoom("out")}
+        >
           <Text style={styles.mapControlText}>-</Text>
         </Pressable>
         <Pressable
-          style={({ pressed }) => [styles.mapControlButton, pressed && styles.pressed]}
+          style={({ pressed }) => [
+            styles.mapControlButton,
+            pressed && styles.pressed,
+          ]}
           onPress={handleCenterOnUser}
           disabled={isLocating}
         >
-          {isLocating ? <ActivityIndicator size="small" color="#3b4cca" /> : <Text style={styles.locationText}>GPS</Text>}
+          {isLocating ? (
+            <ActivityIndicator size="small" color="#3b4cca" />
+          ) : (
+            <Text style={styles.locationText}>GPS</Text>
+          )}
         </Pressable>
       </View>
 
@@ -512,38 +612,55 @@ export default function MapScreen() {
           handleIndicatorStyle={styles.sheetIndicator}
           onClose={() => setIsMainSheetVisible(false)}
         >
-          {sheetMode === 'pokemon-picker' && (
+          {sheetMode === "pokemon-picker" && (
             <BottomSheetScrollView contentContainerStyle={styles.sheetContent}>
-              <Text style={styles.sheetTitle}>{editingPinId ? 'Zmień Pokémona' : 'Wybierz Pokémona'}</Text>
+              <Text style={styles.sheetTitle}>
+                {editingPinId ? "Zmień Pokémona" : "Wybierz Pokémona"}
+              </Text>
               <Text style={styles.sheetText}>
                 {editingPinId
-                  ? 'Ten Pokémon zastąpi aktualnie przypisanego do pina.'
-                  : 'Ten Pokémon zostanie przypięty do wybranego miejsca.'}
+                  ? "Ten Pokémon zastąpi aktualnie przypisanego do pina."
+                  : "Ten Pokémon zostanie przypięty do wybranego miejsca."}
               </Text>
 
               <View style={styles.pokemonGrid}>
                 {favourites.map((pokemon) => {
-                  const imageUrl = getPokemonUrlImage(pokemon.url, customPokemons);
+                  const imageUrl = getPokemonUrlImage(
+                    pokemon.url,
+                    customPokemons,
+                  );
                   const isCustom = isCustomPokemonUrl(pokemon.url);
                   return (
                     <Pressable
                       key={pokemon.url}
-                      style={({ pressed }) => [styles.pokemonOption, pressed && styles.pressed]}
+                      style={({ pressed }) => [
+                        styles.pokemonOption,
+                        pressed && styles.pressed,
+                      ]}
                       onPress={() => handleChoosePokemon(pokemon)}
                     >
                       {imageUrl ? (
                         <Image
                           source={{ uri: imageUrl }}
-                          style={[styles.optionImage, isCustom && styles.optionImageCustom]}
-                          resizeMode={isCustom ? 'cover' : 'contain'}
+                          style={[
+                            styles.optionImage,
+                            isCustom && styles.optionImageCustom,
+                          ]}
+                          resizeMode={isCustom ? "cover" : "contain"}
                         />
                       ) : (
                         <View style={styles.optionImagePlaceholder}>
-                          <Text style={styles.optionImagePlaceholderText}>?</Text>
+                          <Text style={styles.optionImagePlaceholderText}>
+                            ?
+                          </Text>
                         </View>
                       )}
-                      <Text style={styles.optionName}>{formatPokemonName(pokemon.name)}</Text>
-                      {isCustom && <Text style={styles.optionCustomBadge}>własny</Text>}
+                      <Text style={styles.optionName}>
+                        {formatPokemonName(pokemon.name)}
+                      </Text>
+                      {isCustom && (
+                        <Text style={styles.optionCustomBadge}>własny</Text>
+                      )}
                     </Pressable>
                   );
                 })}
@@ -551,16 +668,22 @@ export default function MapScreen() {
             </BottomSheetScrollView>
           )}
 
-          {sheetMode === 'pin-details' && selectedPin && (
+          {sheetMode === "pin-details" && selectedPin && (
             <BottomSheetView style={styles.sheetContent}>
               {(() => {
-                const pinImageUrl = getPokemonUrlImage(selectedPin.pokemonUrl, customPokemons);
+                const pinImageUrl = getPokemonUrlImage(
+                  selectedPin.pokemonUrl,
+                  customPokemons,
+                );
                 const isCustomPin = isCustomPokemonUrl(selectedPin.pokemonUrl);
                 return pinImageUrl ? (
                   <Image
                     source={{ uri: pinImageUrl }}
-                    style={[styles.detailsImage, isCustomPin && styles.detailsImageCustom]}
-                    resizeMode={isCustomPin ? 'cover' : 'contain'}
+                    style={[
+                      styles.detailsImage,
+                      isCustomPin && styles.detailsImageCustom,
+                    ]}
+                    resizeMode={isCustomPin ? "cover" : "contain"}
                   />
                 ) : (
                   <View style={styles.detailsImagePlaceholder}>
@@ -568,35 +691,53 @@ export default function MapScreen() {
                   </View>
                 );
               })()}
-              <Text style={styles.sheetTitle}>{formatPokemonName(selectedPin.pokemonName)}</Text>
+              <Text style={styles.sheetTitle}>
+                {formatPokemonName(selectedPin.pokemonName)}
+              </Text>
               {isCustomPokemonUrl(selectedPin.pokemonUrl) && (
                 <View style={styles.customPinBadge}>
                   <Text style={styles.customPinBadgeText}>Własny Pokémon</Text>
                 </View>
               )}
               <Text style={styles.sheetText}>
-                Ten Pokémon został przypięty do miejsca: {selectedPin.latitude.toFixed(4)},{' '}
+                Ten Pokémon został przypięty do miejsca:{" "}
+                {selectedPin.latitude.toFixed(4)},{" "}
                 {selectedPin.longitude.toFixed(4)}.
               </Text>
 
               <View style={styles.actionsGrid}>
-                <Pressable style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]} onPress={handleOpenDetails}>
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.primaryButton,
+                    pressed && styles.pressed,
+                  ]}
+                  onPress={handleOpenDetails}
+                >
                   <Text style={styles.primaryButtonText}>Szczegóły</Text>
                 </Pressable>
                 <Pressable
-                  style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
+                  style={({ pressed }) => [
+                    styles.secondaryButton,
+                    pressed && styles.pressed,
+                  ]}
                   onPress={handleEditSelectedPokemon}
                 >
                   <Text style={styles.secondaryButtonText}>Zmień</Text>
                 </Pressable>
                 <Pressable
-                  style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
+                  style={({ pressed }) => [
+                    styles.secondaryButton,
+                    pressed && styles.pressed,
+                  ]}
                   onPress={handleMoveSelectedPin}
                 >
                   <Text style={styles.secondaryButtonText}>Przenieś</Text>
                 </Pressable>
                 <Pressable
-                  style={({ pressed }) => [styles.dangerButton, pressed && styles.pressed]}
+                  style={({ pressed }) => [
+                    styles.dangerButton,
+                    pressed && styles.pressed,
+                  ]}
                   onPress={handleRemoveSelectedPin}
                 >
                   <Text style={styles.dangerButtonText}>Usuń</Text>
@@ -605,36 +746,53 @@ export default function MapScreen() {
             </BottomSheetView>
           )}
 
-          {sheetMode === 'pin-list' && (
+          {sheetMode === "pin-list" && (
             <BottomSheetScrollView contentContainerStyle={styles.sheetContent}>
               <Text style={styles.sheetTitle}>
-                {selectedPokemonFilter ? formatPokemonName(selectedPokemonFilter) : 'Wszystkie lokalizacje'}
+                {selectedPokemonFilter
+                  ? formatPokemonName(selectedPokemonFilter)
+                  : "Wszystkie lokalizacje"}
               </Text>
-              <Text style={styles.sheetText}>Wybierz pozycję, żeby przesunąć mapę na zapisane miejsce.</Text>
+              <Text style={styles.sheetText}>
+                Wybierz pozycję, żeby przesunąć mapę na zapisane miejsce.
+              </Text>
 
               <View style={styles.pinList}>
                 {listedPins.map((pin) => {
-                  const pinImageUrl = getPokemonUrlImage(pin.pokemonUrl, customPokemons);
+                  const pinImageUrl = getPokemonUrlImage(
+                    pin.pokemonUrl,
+                    customPokemons,
+                  );
                   const isCustomPin = isCustomPokemonUrl(pin.pokemonUrl);
                   return (
                     <Pressable
                       key={pin.id}
-                      style={({ pressed }) => [styles.pinListItem, pressed && styles.pressed]}
+                      style={({ pressed }) => [
+                        styles.pinListItem,
+                        pressed && styles.pressed,
+                      ]}
                       onPress={() => handleSelectListedPin(pin)}
                     >
                       {pinImageUrl ? (
                         <Image
                           source={{ uri: pinImageUrl }}
-                          style={[styles.pinListImage, isCustomPin && styles.pinListImageCustom]}
-                          resizeMode={isCustomPin ? 'cover' : 'contain'}
+                          style={[
+                            styles.pinListImage,
+                            isCustomPin && styles.pinListImageCustom,
+                          ]}
+                          resizeMode={isCustomPin ? "cover" : "contain"}
                         />
                       ) : (
                         <View style={styles.pinListImagePlaceholder}>
-                          <Text style={styles.pinListImagePlaceholderText}>?</Text>
+                          <Text style={styles.pinListImagePlaceholderText}>
+                            ?
+                          </Text>
                         </View>
                       )}
                       <View style={styles.pinListContent}>
-                        <Text style={styles.pinListName}>{formatPokemonName(pin.pokemonName)}</Text>
+                        <Text style={styles.pinListName}>
+                          {formatPokemonName(pin.pokemonName)}
+                        </Text>
                         <Text style={styles.pinListCoordinates}>
                           {pin.latitude.toFixed(4)}, {pin.longitude.toFixed(4)}
                         </Text>
@@ -646,19 +804,25 @@ export default function MapScreen() {
             </BottomSheetScrollView>
           )}
 
-          {sheetMode === 'pokemon-full-details' && selectedPin && (
+          {sheetMode === "pokemon-full-details" && selectedPin && (
             <BottomSheetScrollView contentContainerStyle={styles.sheetContent}>
               <MapPokemonDetailsSheetContent pin={selectedPin} />
             </BottomSheetScrollView>
           )}
 
-          {sheetMode === 'empty-favourites' && (
+          {sheetMode === "empty-favourites" && (
             <BottomSheetView style={styles.sheetContent}>
               <Text style={styles.sheetTitle}>Brak ulubionych</Text>
-              <Text style={styles.sheetText}>Dodaj najpierw Pokémona do ulubionych, a potem przypnij go na mapie.</Text>
+              <Text style={styles.sheetText}>
+                Dodaj najpierw Pokémona do ulubionych, a potem przypnij go na
+                mapie.
+              </Text>
               <Pressable
-                style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}
-                onPress={() => router.push('/(tabs)/list')}
+                style={({ pressed }) => [
+                  styles.primaryButton,
+                  pressed && styles.pressed,
+                ]}
+                onPress={() => router.push("/(tabs)/list")}
               >
                 <Text style={styles.primaryButtonText}>Przejdź do listy</Text>
               </Pressable>
@@ -673,40 +837,40 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   center: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#fff',
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#fff",
   },
   map: {
     flex: 1,
   },
   header: {
-    position: 'absolute',
+    position: "absolute",
     left: 20,
     right: 20,
-    backgroundColor: 'rgba(255,255,255,0.94)',
+    backgroundColor: "rgba(255,255,255,0.94)",
     borderRadius: 8,
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: "#e5e7eb",
   },
   title: {
     fontSize: 22,
-    fontWeight: '700',
-    color: '#1f2937',
+    fontWeight: "700",
+    color: "#1f2937",
   },
   subtitle: {
     marginTop: 2,
     fontSize: 14,
-    color: '#6b7280',
+    color: "#6b7280",
   },
   filterBar: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     right: 0,
   },
@@ -715,101 +879,101 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   filterChip: {
-    backgroundColor: 'rgba(255,255,255,0.94)',
+    backgroundColor: "rgba(255,255,255,0.94)",
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: "#e5e7eb",
     paddingVertical: 8,
     paddingHorizontal: 12,
   },
   filterChipActive: {
-    backgroundColor: '#3b4cca',
-    borderColor: '#3b4cca',
+    backgroundColor: "#3b4cca",
+    borderColor: "#3b4cca",
   },
   filterText: {
-    color: '#1f2937',
-    fontWeight: '700',
+    color: "#1f2937",
+    fontWeight: "700",
     fontSize: 13,
   },
   filterTextActive: {
-    color: '#fff',
+    color: "#fff",
   },
   moveBanner: {
-    position: 'absolute',
+    position: "absolute",
     left: 20,
     right: 20,
     bottom: 118,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 12,
-    backgroundColor: 'rgba(31,41,55,0.94)',
+    backgroundColor: "rgba(31,41,55,0.94)",
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: 12,
   },
   moveText: {
     flex: 1,
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
     fontSize: 13,
   },
   moveCancel: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 8,
     paddingVertical: 7,
     paddingHorizontal: 10,
   },
   moveCancelText: {
-    color: '#1f2937',
-    fontWeight: '700',
+    color: "#1f2937",
+    fontWeight: "700",
     fontSize: 13,
   },
   controlsColumn: {
-    position: 'absolute',
+    position: "absolute",
     right: 20,
     gap: 8,
   },
   mapControlButton: {
     width: 44,
     height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.96)',
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.96)",
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: "#e5e7eb",
   },
   mapControlText: {
     fontSize: 24,
-    fontWeight: '800',
-    color: '#1f2937',
+    fontWeight: "800",
+    color: "#1f2937",
     lineHeight: 26,
   },
   locationText: {
     fontSize: 12,
-    fontWeight: '800',
-    color: '#3b4cca',
+    fontWeight: "800",
+    color: "#3b4cca",
   },
   markerContainer: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   markerBubble: {
     width: 48,
     height: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#fff',
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#fff",
     borderRadius: 24,
     borderWidth: 2,
-    borderColor: '#3b4cca',
-    shadowColor: '#000',
+    borderColor: "#3b4cca",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 4,
   },
   markerBubbleSelected: {
-    borderColor: '#ffcb05',
+    borderColor: "#ffcb05",
     transform: [{ scale: 1.08 }],
   },
   markerImage: {
@@ -823,14 +987,14 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: '#e9ecef',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#e9ecef",
+    alignItems: "center",
+    justifyContent: "center",
   },
   markerImagePlaceholderText: {
     fontSize: 18,
-    fontWeight: '800',
-    color: '#9ca3af',
+    fontWeight: "800",
+    color: "#9ca3af",
   },
   markerPointer: {
     width: 0,
@@ -838,19 +1002,19 @@ const styles = StyleSheet.create({
     borderLeftWidth: 6,
     borderRightWidth: 6,
     borderTopWidth: 9,
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-    borderTopColor: '#3b4cca',
+    borderLeftColor: "transparent",
+    borderRightColor: "transparent",
+    borderTopColor: "#3b4cca",
     marginTop: -2,
   },
   markerPointerSelected: {
-    borderTopColor: '#ffcb05',
+    borderTopColor: "#ffcb05",
   },
   sheetBackground: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   sheetIndicator: {
-    backgroundColor: '#9ca3af',
+    backgroundColor: "#9ca3af",
   },
   sheetContent: {
     paddingTop: 8,
@@ -859,30 +1023,30 @@ const styles = StyleSheet.create({
   },
   sheetTitle: {
     fontSize: 22,
-    fontWeight: '700',
-    color: '#1f2937',
+    fontWeight: "700",
+    color: "#1f2937",
     marginBottom: 8,
   },
   sheetText: {
     fontSize: 15,
     lineHeight: 21,
-    color: '#4b5563',
+    color: "#4b5563",
     marginBottom: 18,
   },
   pokemonGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 12,
   },
   pokemonOption: {
-    width: '47%',
+    width: "47%",
     minHeight: 112,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f8f9fa',
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#f8f9fa",
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: "#e5e7eb",
     padding: 12,
   },
   optionImage: {
@@ -897,33 +1061,33 @@ const styles = StyleSheet.create({
     width: 58,
     height: 58,
     borderRadius: 12,
-    backgroundColor: '#e9ecef',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#e9ecef",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 8,
   },
   optionImagePlaceholderText: {
     fontSize: 24,
-    fontWeight: '800',
-    color: '#9ca3af',
+    fontWeight: "800",
+    color: "#9ca3af",
   },
   optionCustomBadge: {
     marginTop: 4,
     fontSize: 11,
-    fontWeight: '700',
-    color: '#3b4cca',
-    textTransform: 'uppercase',
+    fontWeight: "700",
+    color: "#3b4cca",
+    textTransform: "uppercase",
   },
   optionName: {
     fontSize: 15,
-    fontWeight: '600',
-    color: '#1f2937',
-    textAlign: 'center',
+    fontWeight: "600",
+    color: "#1f2937",
+    textAlign: "center",
   },
   detailsImage: {
     width: 110,
     height: 110,
-    alignSelf: 'center',
+    alignSelf: "center",
     marginBottom: 8,
   },
   detailsImageCustom: {
@@ -933,42 +1097,42 @@ const styles = StyleSheet.create({
     width: 110,
     height: 110,
     borderRadius: 16,
-    alignSelf: 'center',
-    backgroundColor: '#e9ecef',
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignSelf: "center",
+    backgroundColor: "#e9ecef",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 8,
   },
   detailsImagePlaceholderText: {
     fontSize: 40,
-    fontWeight: '800',
-    color: '#9ca3af',
+    fontWeight: "800",
+    color: "#9ca3af",
   },
   customPinBadge: {
-    alignSelf: 'center',
-    backgroundColor: '#3b4cca',
+    alignSelf: "center",
+    backgroundColor: "#3b4cca",
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 4,
     marginBottom: 8,
   },
   customPinBadgeText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 11,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   pinList: {
     gap: 10,
   },
   pinListItem: {
     minHeight: 72,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 12,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: "#f8f9fa",
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: "#e5e7eb",
     paddingVertical: 10,
     paddingHorizontal: 12,
   },
@@ -983,77 +1147,77 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 10,
-    backgroundColor: '#e9ecef',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#e9ecef",
+    alignItems: "center",
+    justifyContent: "center",
   },
   pinListImagePlaceholderText: {
     fontSize: 22,
-    fontWeight: '800',
-    color: '#9ca3af',
+    fontWeight: "800",
+    color: "#9ca3af",
   },
   pinListContent: {
     flex: 1,
   },
   pinListName: {
     fontSize: 16,
-    fontWeight: '700',
-    color: '#1f2937',
+    fontWeight: "700",
+    color: "#1f2937",
   },
   pinListCoordinates: {
     marginTop: 3,
     fontSize: 13,
-    color: '#6b7280',
+    color: "#6b7280",
   },
   actionsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 10,
   },
   primaryButton: {
-    minWidth: '47%',
+    minWidth: "47%",
     flexGrow: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#3b4cca',
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#3b4cca",
     borderRadius: 8,
     paddingVertical: 12,
     paddingHorizontal: 14,
   },
   primaryButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   secondaryButton: {
-    minWidth: '47%',
+    minWidth: "47%",
     flexGrow: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#eef2ff',
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#eef2ff",
     borderRadius: 8,
     paddingVertical: 12,
     paddingHorizontal: 14,
   },
   secondaryButtonText: {
-    color: '#3b4cca',
+    color: "#3b4cca",
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   dangerButton: {
-    minWidth: '47%',
+    minWidth: "47%",
     flexGrow: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#fee2e2',
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#fee2e2",
     borderRadius: 8,
     paddingVertical: 12,
     paddingHorizontal: 14,
   },
   dangerButtonText: {
-    color: '#dc2626',
+    color: "#dc2626",
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   pressed: {
     opacity: 0.72,

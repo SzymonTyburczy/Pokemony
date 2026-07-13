@@ -1,7 +1,7 @@
-import React from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { PokemonDetails } from '../model/types';
-import { formatPokemonName } from '../../../shared/utils/formatPokemonName';
+import React from "react";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { PokemonDetails } from "../model/types";
+import { formatPokemonName } from "../../../shared/utils/formatPokemonName";
 
 interface PokemonDetailsCardProps {
   pokemon: PokemonDetails;
@@ -10,15 +10,25 @@ interface PokemonDetailsCardProps {
   hasCry?: boolean;
 }
 
-export function PokemonDetailsCard({ pokemon, onImagePress, onSoundPress, hasCry = true }: PokemonDetailsCardProps) {
+export function PokemonDetailsCard({
+  pokemon,
+  onImagePress,
+  onSoundPress,
+  hasCry = true,
+}: PokemonDetailsCardProps) {
   const imageUrl =
-    pokemon.sprites.other?.['official-artwork']?.front_default || pokemon.sprites.front_default || null;
+    pokemon.sprites.other?.["official-artwork"]?.front_default ||
+    pokemon.sprites.front_default ||
+    null;
 
   return (
     <>
       {imageUrl ? (
         <Pressable
-          style={({ pressed }) => [styles.imageButton, pressed && styles.imagePressed]}
+          style={({ pressed }) => [
+            styles.imageButton,
+            pressed && styles.imagePressed,
+          ]}
           onPress={onImagePress}
           disabled={!onImagePress}
         >
@@ -38,8 +48,13 @@ export function PokemonDetailsCard({ pokemon, onImagePress, onSoundPress, hasCry
         onPress={hasCry ? onSoundPress : undefined}
         disabled={!hasCry}
       >
-        <Text style={[styles.soundButtonText, !hasCry && styles.soundButtonTextDisabled]}>
-          {hasCry ? '♪ Odtworz dzwiek' : '♪ Brak dzwieku'}
+        <Text
+          style={[
+            styles.soundButtonText,
+            !hasCry && styles.soundButtonTextDisabled,
+          ]}
+        >
+          {hasCry ? "♪ Odtworz dzwiek" : "♪ Brak dzwieku"}
         </Text>
       </Pressable>
 
@@ -75,7 +90,7 @@ export function PokemonDetailsCard({ pokemon, onImagePress, onSoundPress, hasCry
 
 const styles = StyleSheet.create({
   imageButton: {
-    alignSelf: 'center',
+    alignSelf: "center",
     marginBottom: 20,
   },
   imagePressed: {
@@ -88,87 +103,87 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 30,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    color: '#1f2937',
+    fontWeight: "bold",
+    textAlign: "center",
+    color: "#1f2937",
   },
   subtitle: {
     fontSize: 16,
-    textAlign: 'center',
-    color: '#6b7280',
+    textAlign: "center",
+    color: "#6b7280",
     marginBottom: 12,
   },
   soundButton: {
-    alignSelf: 'center',
-    backgroundColor: '#3b4cca',
+    alignSelf: "center",
+    backgroundColor: "#3b4cca",
     borderRadius: 14,
     paddingVertical: 10,
     paddingHorizontal: 18,
     marginBottom: 20,
   },
   soundButtonDisabled: {
-    backgroundColor: '#d1d5db',
+    backgroundColor: "#d1d5db",
   },
   soundPressed: {
     opacity: 0.75,
     transform: [{ scale: 0.97 }],
   },
   soundButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 15,
-    fontWeight: '800',
+    fontWeight: "800",
   },
   soundButtonTextDisabled: {
-    color: '#9ca3af',
+    color: "#9ca3af",
   },
   card: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: "#f8f9fa",
     borderRadius: 14,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#e9ecef',
+    borderColor: "#e9ecef",
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: "700",
     marginBottom: 12,
-    color: '#3b4cca',
+    color: "#3b4cca",
   },
   infoText: {
     fontSize: 16,
-    color: '#111827',
+    color: "#111827",
     marginBottom: 6,
   },
   tagsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
   },
   tag: {
-    backgroundColor: '#3b4cca',
+    backgroundColor: "#3b4cca",
     borderRadius: 999,
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
   tagText: {
-    color: '#fff',
-    fontWeight: '600',
-    textTransform: 'capitalize',
+    color: "#fff",
+    fontWeight: "600",
+    textTransform: "capitalize",
   },
   statRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: "#e5e7eb",
   },
   statName: {
-    color: '#111827',
-    textTransform: 'capitalize',
+    color: "#111827",
+    textTransform: "capitalize",
   },
   statValue: {
-    fontWeight: '700',
-    color: '#111827',
+    fontWeight: "700",
+    color: "#111827",
   },
 });

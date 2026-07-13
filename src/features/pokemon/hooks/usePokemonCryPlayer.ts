@@ -1,6 +1,6 @@
-import { useCallback, useRef } from 'react';
-import { WebView } from 'react-native-webview';
-import { getPokemonCryUrl } from '../../../shared/utils/getPokemonCryUrl';
+import { useCallback, useRef } from "react";
+import { WebView } from "react-native-webview";
+import { getPokemonCryUrl } from "../../../shared/utils/getPokemonCryUrl";
 
 /**
  * Hook that returns a hidden WebView ref and a play function.

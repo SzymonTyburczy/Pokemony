@@ -1,15 +1,15 @@
-import { Platform } from 'react-native';
-import { Tabs } from 'expo-router';
-import { NativeTabs } from 'expo-router/unstable-native-tabs';
-import { Ionicons } from '@expo/vector-icons';
+import { Platform } from "react-native";
+import { Tabs } from "expo-router";
+import { NativeTabs } from "expo-router/unstable-native-tabs";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function TabsLayout() {
-  if (Platform.OS === 'ios') {
+  if (Platform.OS === "ios") {
     return (
       <NativeTabs>
         <NativeTabs.Trigger name="index">
           <NativeTabs.Trigger.Icon
-            sf={{ default: 'heart', selected: 'heart.fill' }}
+            sf={{ default: "heart", selected: "heart.fill" }}
             selectedColor="#3b4cca"
           />
           <NativeTabs.Trigger.Label>Ulubione</NativeTabs.Trigger.Label>
@@ -17,7 +17,7 @@ export default function TabsLayout() {
 
         <NativeTabs.Trigger name="list">
           <NativeTabs.Trigger.Icon
-            sf={{ default: 'list.bullet', selected: 'list.bullet' }}
+            sf={{ default: "list.bullet", selected: "list.bullet" }}
             selectedColor="#3b4cca"
           />
           <NativeTabs.Trigger.Label>Lista</NativeTabs.Trigger.Label>
@@ -25,7 +25,7 @@ export default function TabsLayout() {
 
         <NativeTabs.Trigger name="map">
           <NativeTabs.Trigger.Icon
-            sf={{ default: 'map', selected: 'map.fill' }}
+            sf={{ default: "map", selected: "map.fill" }}
             selectedColor="#3b4cca"
           />
           <NativeTabs.Trigger.Label>Mapa</NativeTabs.Trigger.Label>
@@ -33,7 +33,7 @@ export default function TabsLayout() {
 
         <NativeTabs.Trigger name="camera">
           <NativeTabs.Trigger.Icon
-            sf={{ default: 'camera', selected: 'camera.fill' }}
+            sf={{ default: "camera", selected: "camera.fill" }}
             selectedColor="#3b4cca"
           />
           <NativeTabs.Trigger.Label>Kamera</NativeTabs.Trigger.Label>
@@ -41,7 +41,10 @@ export default function TabsLayout() {
 
         <NativeTabs.Trigger name="additional">
           <NativeTabs.Trigger.Icon
-            sf={{ default: 'ellipsis.circle', selected: 'ellipsis.circle.fill' }}
+            sf={{
+              default: "ellipsis.circle",
+              selected: "ellipsis.circle.fill",
+            }}
             selectedColor="#3b4cca"
           />
           <NativeTabs.Trigger.Label>Swipe</NativeTabs.Trigger.Label>
@@ -49,7 +52,7 @@ export default function TabsLayout() {
 
         <NativeTabs.Trigger name="createNewPokemon">
           <NativeTabs.Trigger.Icon
-            sf={{ default: 'plus.circle', selected: 'plus.circle.fill' }}
+            sf={{ default: "plus.circle", selected: "plus.circle.fill" }}
             selectedColor="#3b4cca"
           />
           <NativeTabs.Trigger.Label>Dodaj</NativeTabs.Trigger.Label>
@@ -62,28 +65,36 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#3b4cca',
-        tabBarInactiveTintColor: '#8e8e93',
-        tabBarStyle: { backgroundColor: '#ffffff' },
+        tabBarActiveTintColor: "#3b4cca",
+        tabBarInactiveTintColor: "#8e8e93",
+        tabBarStyle: { backgroundColor: "#ffffff" },
         headerShown: false,
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Ulubione',
+          title: "Ulubione",
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'heart' : 'heart-outline'} size={24} color={color} />
+            <Ionicons
+              name={focused ? "heart" : "heart-outline"}
+              size={24}
+              color={color}
+            />
           ),
         }}
       />
-      
+
       <Tabs.Screen
         name="list"
         options={{
-          title: 'Lista',
+          title: "Lista",
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'list' : 'list-outline'} size={24} color={color} />
+            <Ionicons
+              name={focused ? "list" : "list-outline"}
+              size={24}
+              color={color}
+            />
           ),
         }}
       />
@@ -91,9 +102,13 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="map"
         options={{
-          title: 'Mapa',
+          title: "Mapa",
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'map' : 'map-outline'} size={24} color={color} />
+            <Ionicons
+              name={focused ? "map" : "map-outline"}
+              size={24}
+              color={color}
+            />
           ),
         }}
       />
@@ -101,9 +116,13 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="camera"
         options={{
-          title: 'Kamera',
+          title: "Kamera",
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'camera' : 'camera-outline'} size={24} color={color} />
+            <Ionicons
+              name={focused ? "camera" : "camera-outline"}
+              size={24}
+              color={color}
+            />
           ),
         }}
       />
@@ -111,10 +130,14 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="additional"
         options={{
-          title: 'Swipe',
+          title: "Swipe",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={focused ? 'ellipsis-horizontal-circle' : 'ellipsis-horizontal-circle-outline'}
+              name={
+                focused
+                  ? "ellipsis-horizontal-circle"
+                  : "ellipsis-horizontal-circle-outline"
+              }
               size={24}
               color={color}
             />

@@ -1,10 +1,10 @@
-import { Href } from 'expo-router';
-import { Pokemon } from '../../pokemon/model/types';
-import { CustomPokemon } from '../model/types';
-import { getPokemonImageUrl } from '../../../shared/utils/getPokemonImageUrl';
-import { resolveCustomPokemonImageUri } from '../storage/customPokemonImages';
+import { Href } from "expo-router";
+import { Pokemon } from "../../pokemon/model/types";
+import { CustomPokemon } from "../model/types";
+import { getPokemonImageUrl } from "../../../shared/utils/getPokemonImageUrl";
+import { resolveCustomPokemonImageUri } from "../storage/customPokemonImages";
 
-export const CUSTOM_POKEMON_URL_PREFIX = 'custom://';
+export const CUSTOM_POKEMON_URL_PREFIX = "custom://";
 
 export function customPokemonToFavourite(pokemon: CustomPokemon): Pokemon {
   return {
@@ -17,15 +17,22 @@ export function isCustomPokemonFavourite(pokemon: Pokemon): boolean {
   return pokemon.url.startsWith(CUSTOM_POKEMON_URL_PREFIX);
 }
 
-export function getCustomPokemonIdFromFavourite(pokemon: Pokemon): string | null {
+export function getCustomPokemonIdFromFavourite(
+  pokemon: Pokemon,
+): string | null {
   if (!isCustomPokemonFavourite(pokemon)) return null;
   return pokemon.url.slice(CUSTOM_POKEMON_URL_PREFIX.length);
 }
 
-export function getFavouriteImageUrl(pokemon: Pokemon, customPokemons: CustomPokemon[]): string {
+export function getFavouriteImageUrl(
+  pokemon: Pokemon,
+  customPokemons: CustomPokemon[],
+): string {
   const customId = getCustomPokemonIdFromFavourite(pokemon);
   if (customId) {
-    return resolveCustomPokemonImageUri(customPokemons.find((p) => p.id === customId)?.imageUri ?? null);
+    return resolveCustomPokemonImageUri(
+      customPokemons.find((p) => p.id === customId)?.imageUri ?? null,
+    );
   }
   return getPokemonImageUrl(pokemon.url);
 }
@@ -34,13 +41,13 @@ export function getFavouriteDetailsRoute(pokemon: Pokemon): Href {
   const customId = getCustomPokemonIdFromFavourite(pokemon);
   if (customId) {
     return {
-      pathname: '/custom-pokemon/[id]',
+      pathname: "/custom-pokemon/[id]",
       params: { id: customId },
     };
   }
 
   return {
-    pathname: '/pokemon/[name]',
+    pathname: "/pokemon/[name]",
     params: { name: pokemon.name },
   };
 }
@@ -58,6 +65,9 @@ export function getCustomPokemonByUrl(
   return customPokemons.find((p) => p.id === id);
 }
 
-export function getPokemonUrlImage(url: string, customPokemons: CustomPokemon[]): string {
-  return getFavouriteImageUrl({ name: '', url }, customPokemons);
+export function getPokemonUrlImage(
+  url: string,
+  customPokemons: CustomPokemon[],
+): string {
+  return getFavouriteImageUrl({ name: "", url }, customPokemons);
 }

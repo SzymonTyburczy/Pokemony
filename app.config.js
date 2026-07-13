@@ -1,86 +1,90 @@
 export default {
-  "expo": {
-    "name": "pokemon-app",
-    "slug": "pokemon-app",
-    "version": "1.0.0",
-    "scheme": "pokemon-app",
-    "experiments": {
-      "typedRoutes": true
+  expo: {
+    name: "pokemon-app",
+    slug: "pokemon-app",
+    version: "1.0.0",
+    scheme: "pokemon-app",
+    experiments: {
+      typedRoutes: true,
     },
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "ios": {
-      "supportsTablet": true,
-      "infoPlist": {
-        "NSCameraUsageDescription": "$(PRODUCT_NAME) potrzebuje dostępu do kamery, aby pozwolić na robienie zdjęć Pokémonów.",
-        "NSMicrophoneUsageDescription": "$(PRODUCT_NAME) potrzebuje dostępu do mikrofonu, aby nagrywać dźwięk.",
-        "NSPhotoLibraryUsageDescription": "Aplikacja potrzebuje dostępu do galerii, aby zapisywać zdjęcia Pokémonów.",
-        "NSPhotoLibraryAddUsageDescription": "Aplikacja potrzebuje dostępu do galerii, aby zapisywać zdjęcia Pokémonów."
+    orientation: "portrait",
+    icon: "./assets/icon.png",
+    userInterfaceStyle: "light",
+    ios: {
+      supportsTablet: true,
+      infoPlist: {
+        NSCameraUsageDescription:
+          "$(PRODUCT_NAME) potrzebuje dostępu do kamery, aby pozwolić na robienie zdjęć Pokémonów.",
+        NSMicrophoneUsageDescription:
+          "$(PRODUCT_NAME) potrzebuje dostępu do mikrofonu, aby nagrywać dźwięk.",
+        NSPhotoLibraryUsageDescription:
+          "Aplikacja potrzebuje dostępu do galerii, aby zapisywać zdjęcia Pokémonów.",
+        NSPhotoLibraryAddUsageDescription:
+          "Aplikacja potrzebuje dostępu do galerii, aby zapisywać zdjęcia Pokémonów.",
       },
-      "bundleIdentifier": "com.anonymous.pokemonapp"
+      bundleIdentifier: "com.anonymous.pokemonapp",
     },
-    "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+    android: {
+      adaptiveIcon: {
+        backgroundColor: "#E6F4FE",
+        foregroundImage: "./assets/android-icon-foreground.png",
+        backgroundImage: "./assets/android-icon-background.png",
+        monochromeImage: "./assets/android-icon-monochrome.png",
       },
-      "predictiveBackGestureEnabled": false,
-      "navigationBar": {
-        "backgroundColor": "#ffffff",
-        "barStyle": "dark-content"
+      predictiveBackGestureEnabled: false,
+      navigationBar: {
+        backgroundColor: "#ffffff",
+        barStyle: "dark-content",
       },
-      "permissions": [
+      permissions: [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO",
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",
-        "android.permission.MODIFY_AUDIO_SETTINGS"
+        "android.permission.MODIFY_AUDIO_SETTINGS",
       ],
-      "package": "com.anonymous.pokemonapp",
-      "config": {
-        "googleMaps": {
-          "apiKey": process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY
-        }
-      }
+      package: "com.anonymous.pokemonapp",
+      config: {
+        googleMaps: {
+          apiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
+        },
+      },
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
+    web: {
+      favicon: "./assets/favicon.png",
     },
-    "plugins": [
+    plugins: [
       "expo-router",
       "expo-status-bar",
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Aplikacja potrzebuje lokalizacji, aby wycentrować mapę na Twoim położeniu."
-        }
+          locationWhenInUsePermission:
+            "Aplikacja potrzebuje lokalizacji, aby wycentrować mapę na Twoim położeniu.",
+        },
       ],
       [
         "expo-audio",
         {
-          "microphonePermission": false,
-          "recordAudioAndroid": false,
-          "enableBackgroundPlayback": false,
-          "enableBackgroundRecording": false
-        }
+          microphonePermission: false,
+          recordAudioAndroid: false,
+          enableBackgroundPlayback: false,
+          enableBackgroundRecording: false,
+        },
       ],
       [
         "expo-build-properties",
         {
-          "ios": {
-            "buildReactNativeFromSource": false
+          ios: {
+            buildReactNativeFromSource: false,
           },
-          "android": {
-            "minSdkVersion": 26
-          }
-        }
+          android: {
+            minSdkVersion: 26,
+          },
+        },
       ],
-      "./plugins/with-ios-simulator-excluded-archs"
-    ]
-  }
-}
+    ],
+  },
+};

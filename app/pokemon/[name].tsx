@@ -1,14 +1,21 @@
-import React from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { WebView } from 'react-native-webview';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { usePokemonDetails } from '../../src/features/pokemon/hooks/usePokemonDetails';
-import { PokemonDetailsCard } from '../../src/features/pokemon/ui/PokemonDetailsCard';
-import { usePokemonShowcase } from '../../src/features/pokemon/hooks/usePokemonShowcase';
-import { PokemonAnimationModal } from '../../src/features/pokemon/ui/PokemonAnimationModal';
-import { usePokemonCryExists } from '../../src/features/pokemon/hooks/usePokemonCryExists';
-import { getCryPlayerHtml } from '../../src/features/pokemon/hooks/usePokemonCryPlayer';
+import React from "react";
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { WebView } from "react-native-webview";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { usePokemonDetails } from "../../src/features/pokemon/hooks/usePokemonDetails";
+import { PokemonDetailsCard } from "../../src/features/pokemon/ui/PokemonDetailsCard";
+import { usePokemonShowcase } from "../../src/features/pokemon/hooks/usePokemonShowcase";
+import { PokemonAnimationModal } from "../../src/features/pokemon/ui/PokemonAnimationModal";
+import { usePokemonCryExists } from "../../src/features/pokemon/hooks/usePokemonCryExists";
+import { getCryPlayerHtml } from "../../src/features/pokemon/hooks/usePokemonCryPlayer";
 
 export default function PokemonDetailsScreen() {
   const router = useRouter();
@@ -17,7 +24,13 @@ export default function PokemonDetailsScreen() {
   const pokemonName = Array.isArray(name) ? name[0] : name;
 
   const { pokemon, isLoading, error } = usePokemonDetails(pokemonName);
-  const { selectedAnimation, playPokemonCry, webViewRef, showPokemonById, closeAnimation } = usePokemonShowcase();
+  const {
+    selectedAnimation,
+    playPokemonCry,
+    webViewRef,
+    showPokemonById,
+    closeAnimation,
+  } = usePokemonShowcase();
   const hasCry = usePokemonCryExists(pokemon?.id);
 
   if (isLoading) {
@@ -31,8 +44,10 @@ export default function PokemonDetailsScreen() {
   if (error || !pokemon) {
     return (
       <View style={styles.center}>
-        <Text style={styles.errorTitle}>⚠️ Nie udało się otworzyć szczegółów</Text>
-        <Text style={styles.errorText}>{error || 'Brak danych Pokémona.'}</Text>
+        <Text style={styles.errorTitle}>
+          ⚠️ Nie udało się otworzyć szczegółów
+        </Text>
+        <Text style={styles.errorText}>{error || "Brak danych Pokémona."}</Text>
         <Pressable style={styles.backButton} onPress={() => router.back()}>
           <Text style={styles.backButtonText}>Wróć</Text>
         </Pressable>
@@ -56,7 +71,12 @@ export default function PokemonDetailsScreen() {
         allowsInlineMediaPlayback
       />
 
-      <ScrollView contentContainerStyle={[styles.container, { paddingTop: insets.top + 16 }]}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.container,
+          { paddingTop: insets.top + 16 },
+        ]}
+      >
         <Pressable style={styles.backButton} onPress={() => router.back()}>
           <Text style={styles.backButtonText}>Wróć</Text>
         </Pressable>
@@ -64,7 +84,9 @@ export default function PokemonDetailsScreen() {
         <PokemonDetailsCard
           pokemon={pokemon}
           onImagePress={() => showPokemonById(pokemon.id, pokemon.name)}
-          onSoundPress={cryAvailable ? () => playPokemonCry(pokemon.id) : undefined}
+          onSoundPress={
+            cryAvailable ? () => playPokemonCry(pokemon.id) : undefined
+          }
           hasCry={cryAvailable}
         />
       </ScrollView>
@@ -83,43 +105,43 @@ const styles = StyleSheet.create({
   hiddenWebView: {
     width: 0,
     height: 0,
-    position: 'absolute',
+    position: "absolute",
   },
   container: {
     flexGrow: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 20,
   },
   center: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   backButton: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#3b4cca',
+    alignSelf: "flex-start",
+    backgroundColor: "#3b4cca",
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderRadius: 10,
     marginBottom: 20,
   },
   backButtonText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
   },
   errorTitle: {
     fontSize: 22,
-    fontWeight: 'bold',
-    color: '#dc3545',
+    fontWeight: "bold",
+    color: "#dc3545",
     marginBottom: 10,
-    textAlign: 'center',
+    textAlign: "center",
   },
   errorText: {
     fontSize: 16,
-    color: '#6c757d',
+    color: "#6c757d",
     marginBottom: 20,
-    textAlign: 'center',
+    textAlign: "center",
   },
 });

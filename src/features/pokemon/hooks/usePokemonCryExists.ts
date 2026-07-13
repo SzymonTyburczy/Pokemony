@@ -1,12 +1,14 @@
-import { useQuery } from '@tanstack/react-query';
-import { fetchAvailableCryIds } from '../api/pokemonCryApi';
-import { pokemonQueryKeys } from '../queries/pokemonQueryKeys';
+import { useQuery } from "@tanstack/react-query";
+import { fetchAvailableCryIds } from "../api/pokemonCryApi";
+import { pokemonQueryKeys } from "../queries/pokemonQueryKeys";
 
 /**
  * Checks whether a cry audio file actually exists for the given Pokemon ID.
  * Returns `true` if available, `false` if not, `null` while loading.
  */
-export function usePokemonCryExists(pokemonId: number | undefined): boolean | null {
+export function usePokemonCryExists(
+  pokemonId: number | undefined,
+): boolean | null {
   const query = useQuery({
     queryKey: pokemonQueryKeys.cryIds(),
     queryFn: ({ signal }) => fetchAvailableCryIds(signal),

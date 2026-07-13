@@ -1,6 +1,6 @@
-import { Directory, File, Paths } from 'expo-file-system';
+import { Directory, File, Paths } from "expo-file-system";
 
-const CUSTOM_POKEMON_IMAGES_DIR = 'custom-pokemon-images';
+const CUSTOM_POKEMON_IMAGES_DIR = "custom-pokemon-images";
 const CUSTOM_POKEMON_IMAGES_PREFIX = `${CUSTOM_POKEMON_IMAGES_DIR}/`;
 
 function getCustomPokemonImagesDirectory(): Directory {
@@ -10,9 +10,9 @@ function getCustomPokemonImagesDirectory(): Directory {
 }
 
 function getImageExtension(uri: string): string {
-  const cleanUri = uri.split('?')[0] ?? uri;
+  const cleanUri = uri.split("?")[0] ?? uri;
   const match = cleanUri.match(/\.(jpe?g|png|webp|heic|heif)$/i);
-  return match?.[0].toLowerCase() ?? '.jpg';
+  return match?.[0].toLowerCase() ?? ".jpg";
 }
 
 function toStoredCustomPokemonImagePath(uri: string): string {
@@ -26,7 +26,7 @@ function toStoredCustomPokemonImagePath(uri: string): string {
 
 export function resolveCustomPokemonImageUri(imageUri: string | null): string {
   if (!imageUri) {
-    return '';
+    return "";
   }
 
   if (imageUri.startsWith(CUSTOM_POKEMON_IMAGES_PREFIX)) {

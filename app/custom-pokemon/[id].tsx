@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Image,
   Pressable,
@@ -6,33 +6,46 @@ import {
   StyleSheet,
   Text,
   View,
-} from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useCustomPokemonStateContext } from '../../src/features/customPokemon/context/CustomPokemonContext';
+} from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useCustomPokemonStateContext } from "../../src/features/customPokemon/context/CustomPokemonContext";
 import {
   useFavouritesActionsContext,
   useFavouritesStateContext,
-} from '../../src/features/favourites/context/FavouritesContext';
-import { customPokemonToFavourite } from '../../src/features/customPokemon/utils/customPokemonFavourites';
-import { formatPokemonName } from '../../src/shared/utils/formatPokemonName';
-import { resolveCustomPokemonImageUri } from '../../src/features/customPokemon/storage/customPokemonImages';
+} from "../../src/features/favourites/context/FavouritesContext";
+import { customPokemonToFavourite } from "../../src/features/customPokemon/utils/customPokemonFavourites";
+import { formatPokemonName } from "../../src/shared/utils/formatPokemonName";
+import { resolveCustomPokemonImageUri } from "../../src/features/customPokemon/storage/customPokemonImages";
 
 const TYPE_COLORS: Record<string, string> = {
-  normal: '#a8a878', fire: '#f08030', water: '#6890f0', electric: '#f8d030',
-  grass: '#78c850', ice: '#98d8d8', fighting: '#c03028', poison: '#a040a0',
-  ground: '#e0c068', flying: '#a890f0', psychic: '#f85888', bug: '#a8b820',
-  rock: '#b8a038', ghost: '#705898', dragon: '#7038f8', dark: '#705848',
-  steel: '#b8b8d0', fairy: '#ee99ac',
+  normal: "#a8a878",
+  fire: "#f08030",
+  water: "#6890f0",
+  electric: "#f8d030",
+  grass: "#78c850",
+  ice: "#98d8d8",
+  fighting: "#c03028",
+  poison: "#a040a0",
+  ground: "#e0c068",
+  flying: "#a890f0",
+  psychic: "#f85888",
+  bug: "#a8b820",
+  rock: "#b8a038",
+  ghost: "#705898",
+  dragon: "#7038f8",
+  dark: "#705848",
+  steel: "#b8b8d0",
+  fairy: "#ee99ac",
 };
 
 const STAT_LABELS: Record<string, string> = {
-  hp: 'HP',
-  attack: 'Atak',
-  defense: 'Obrona',
-  'special-attack': 'Sp. Atak',
-  'special-defense': 'Sp. Obr.',
-  speed: 'Szybkość',
+  hp: "HP",
+  attack: "Atak",
+  defense: "Obrona",
+  "special-attack": "Sp. Atak",
+  "special-defense": "Sp. Obr.",
+  speed: "Szybkość",
 };
 
 export default function CustomPokemonDetailsScreen() {
@@ -71,7 +84,11 @@ export default function CustomPokemonDetailsScreen() {
 
       {/* Obrazek */}
       {imageUri ? (
-        <Image source={{ uri: imageUri }} style={styles.image} resizeMode="cover" />
+        <Image
+          source={{ uri: imageUri }}
+          style={styles.image}
+          resizeMode="cover"
+        />
       ) : (
         <View style={styles.imagePlaceholder}>
           <Text style={styles.imagePlaceholderText}>?</Text>
@@ -93,7 +110,7 @@ export default function CustomPokemonDetailsScreen() {
         onPress={() => toggleFavourite(favourite)}
       >
         <Text style={styles.favouriteButtonText}>
-          {favouriteActive ? '❤️ W ulubionych' : '🤍 Dodaj do ulubionych'}
+          {favouriteActive ? "❤️ W ulubionych" : "🤍 Dodaj do ulubionych"}
         </Text>
       </Pressable>
 
@@ -101,7 +118,13 @@ export default function CustomPokemonDetailsScreen() {
       {pokemon.types.length > 0 && (
         <View style={styles.typesRow}>
           {pokemon.types.map((type) => (
-            <View key={type} style={[styles.typeChip, { backgroundColor: TYPE_COLORS[type] ?? '#6b7280' }]}>
+            <View
+              key={type}
+              style={[
+                styles.typeChip,
+                { backgroundColor: TYPE_COLORS[type] ?? "#6b7280" },
+              ]}
+            >
               <Text style={styles.typeChipText}>{type}</Text>
             </View>
           ))}
@@ -120,10 +143,10 @@ export default function CustomPokemonDetailsScreen() {
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Informacje</Text>
         <Text style={styles.infoText}>
-          Wzrost: {pokemon.height > 0 ? `${pokemon.height} m` : '—'}
+          Wzrost: {pokemon.height > 0 ? `${pokemon.height} m` : "—"}
         </Text>
         <Text style={styles.infoText}>
-          Waga: {pokemon.weight > 0 ? `${pokemon.weight} kg` : '—'}
+          Waga: {pokemon.weight > 0 ? `${pokemon.weight} kg` : "—"}
         </Text>
       </View>
 
@@ -133,9 +156,16 @@ export default function CustomPokemonDetailsScreen() {
           <Text style={styles.cardTitle}>Statystyki</Text>
           {pokemon.stats.map((stat) => (
             <View key={stat.name} style={styles.statRow}>
-              <Text style={styles.statLabel}>{STAT_LABELS[stat.name] ?? stat.name}</Text>
+              <Text style={styles.statLabel}>
+                {STAT_LABELS[stat.name] ?? stat.name}
+              </Text>
               <View style={styles.statBarWrap}>
-                <View style={[styles.statBar, { width: `${(stat.value / 255) * 100}%` }]} />
+                <View
+                  style={[
+                    styles.statBar,
+                    { width: `${(stat.value / 255) * 100}%` },
+                  ]}
+                />
               </View>
               <Text style={styles.statValue}>{stat.value}</Text>
             </View>
@@ -149,7 +179,7 @@ export default function CustomPokemonDetailsScreen() {
 const styles = StyleSheet.create({
   flex: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   content: {
     padding: 20,
@@ -157,55 +187,55 @@ const styles = StyleSheet.create({
   },
   center: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
     padding: 24,
   },
   backBtn: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#3b4cca',
+    alignSelf: "flex-start",
+    backgroundColor: "#3b4cca",
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderRadius: 10,
     marginBottom: 24,
   },
   backBtnText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
     fontSize: 15,
   },
   image: {
     width: 200,
     height: 200,
     borderRadius: 20,
-    alignSelf: 'center',
+    alignSelf: "center",
     marginBottom: 20,
   },
   imagePlaceholder: {
     width: 200,
     height: 200,
     borderRadius: 20,
-    alignSelf: 'center',
-    backgroundColor: '#e9ecef',
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignSelf: "center",
+    backgroundColor: "#e9ecef",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 20,
   },
   imagePlaceholderText: {
     fontSize: 64,
-    color: '#9ca3af',
-    fontWeight: '800',
+    color: "#9ca3af",
+    fontWeight: "800",
   },
   name: {
     fontSize: 32,
-    fontWeight: '800',
-    color: '#1f2937',
-    textAlign: 'center',
+    fontWeight: "800",
+    color: "#1f2937",
+    textAlign: "center",
   },
   ownBadge: {
-    alignSelf: 'center',
-    backgroundColor: '#3b4cca',
+    alignSelf: "center",
+    backgroundColor: "#3b4cca",
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 4,
@@ -213,36 +243,36 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   ownBadgeText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   favouriteButton: {
-    alignSelf: 'center',
-    backgroundColor: '#f3f4f6',
+    alignSelf: "center",
+    backgroundColor: "#f3f4f6",
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#e9ecef',
+    borderColor: "#e9ecef",
     paddingVertical: 12,
     paddingHorizontal: 20,
     marginBottom: 20,
   },
   favouriteButtonActive: {
-    backgroundColor: '#fee2e2',
-    borderColor: '#fecaca',
+    backgroundColor: "#fee2e2",
+    borderColor: "#fecaca",
   },
   favouriteButtonPressed: {
     opacity: 0.8,
   },
   favouriteButtonText: {
     fontSize: 15,
-    fontWeight: '700',
-    color: '#1f2937',
-    textAlign: 'center',
+    fontWeight: "700",
+    color: "#1f2937",
+    textAlign: "center",
   },
   typesRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     gap: 8,
     marginBottom: 20,
   },
@@ -252,71 +282,71 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   typeChipText: {
-    color: '#fff',
-    fontWeight: '700',
+    color: "#fff",
+    fontWeight: "700",
     fontSize: 14,
-    textTransform: 'capitalize',
+    textTransform: "capitalize",
   },
   card: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: "#f8f9fa",
     borderRadius: 14,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#e9ecef',
+    borderColor: "#e9ecef",
   },
   cardTitle: {
     fontSize: 18,
-    fontWeight: '700',
-    color: '#3b4cca',
+    fontWeight: "700",
+    color: "#3b4cca",
     marginBottom: 12,
   },
   description: {
     fontSize: 15,
-    color: '#374151',
+    color: "#374151",
     lineHeight: 22,
   },
   infoText: {
     fontSize: 16,
-    color: '#111827',
+    color: "#111827",
     marginBottom: 6,
   },
   statRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 10,
     gap: 8,
   },
   statLabel: {
     width: 80,
     fontSize: 13,
-    fontWeight: '600',
-    color: '#374151',
+    fontWeight: "600",
+    color: "#374151",
   },
   statBarWrap: {
     flex: 1,
     height: 8,
-    backgroundColor: '#e9ecef',
+    backgroundColor: "#e9ecef",
     borderRadius: 4,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   statBar: {
-    height: '100%',
-    backgroundColor: '#3b4cca',
+    height: "100%",
+    backgroundColor: "#3b4cca",
     borderRadius: 4,
   },
   statValue: {
     width: 36,
-    textAlign: 'right',
+    textAlign: "right",
     fontSize: 14,
-    fontWeight: '700',
-    color: '#111827',
+    fontWeight: "700",
+    color: "#111827",
   },
   errorTitle: {
     fontSize: 20,
-    fontWeight: '700',
-    color: '#dc2626',
+    fontWeight: "700",
+    color: "#dc2626",
     marginBottom: 16,
-    textAlign: 'center',
+    textAlign: "center",
   },
 });

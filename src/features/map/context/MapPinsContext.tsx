@@ -1,13 +1,20 @@
-import React, { createContext, useContext, useMemo } from 'react';
-import { useMapPins } from '../hooks/useMapPins';
+import React, { createContext, useContext, useMemo } from "react";
+import { useMapPins } from "../hooks/useMapPins";
 
 type MapPinsContextValue = ReturnType<typeof useMapPins>;
 
-type MapPinsStateContextValue = Pick<MapPinsContextValue, 'pins' | 'isLoaded'>;
-type MapPinsActionsContextValue = Omit<MapPinsContextValue, 'pins' | 'isLoaded'>;
+type MapPinsStateContextValue = Pick<MapPinsContextValue, "pins" | "isLoaded">;
+type MapPinsActionsContextValue = Omit<
+  MapPinsContextValue,
+  "pins" | "isLoaded"
+>;
 
-const MapPinsStateContext = createContext<MapPinsStateContextValue | null>(null);
-const MapPinsActionsContext = createContext<MapPinsActionsContextValue | null>(null);
+const MapPinsStateContext = createContext<MapPinsStateContextValue | null>(
+  null,
+);
+const MapPinsActionsContext = createContext<MapPinsActionsContextValue | null>(
+  null,
+);
 
 export function MapPinsProvider({ children }: { children: React.ReactNode }) {
   const value = useMapPins();
@@ -16,7 +23,7 @@ export function MapPinsProvider({ children }: { children: React.ReactNode }) {
       pins: value.pins,
       isLoaded: value.isLoaded,
     }),
-    [value.isLoaded, value.pins]
+    [value.isLoaded, value.pins],
   );
   const actionsValue = useMemo(
     () => ({
@@ -32,7 +39,7 @@ export function MapPinsProvider({ children }: { children: React.ReactNode }) {
       value.removePinsForPokemonUrl,
       value.updatePinLocation,
       value.updatePinPokemon,
-    ]
+    ],
   );
 
   return (
@@ -47,7 +54,9 @@ export function MapPinsProvider({ children }: { children: React.ReactNode }) {
 export function useMapPinsStateContext(): MapPinsStateContextValue {
   const ctx = useContext(MapPinsStateContext);
   if (!ctx) {
-    throw new Error('useMapPinsStateContext must be used within MapPinsProvider');
+    throw new Error(
+      "useMapPinsStateContext must be used within MapPinsProvider",
+    );
   }
   return ctx;
 }
@@ -55,7 +64,9 @@ export function useMapPinsStateContext(): MapPinsStateContextValue {
 export function useMapPinsActionsContext(): MapPinsActionsContextValue {
   const ctx = useContext(MapPinsActionsContext);
   if (!ctx) {
-    throw new Error('useMapPinsActionsContext must be used within MapPinsProvider');
+    throw new Error(
+      "useMapPinsActionsContext must be used within MapPinsProvider",
+    );
   }
   return ctx;
 }
@@ -69,6 +80,6 @@ export function useMapPinsContext(): MapPinsContextValue {
       ...state,
       ...actions,
     }),
-    [actions, state]
+    [actions, state],
   );
 }

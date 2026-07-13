@@ -1,22 +1,27 @@
-import { useEffect } from 'react';
+import { useEffect } from "react";
 import {
   useFavouritesActionsContext,
   useFavouritesStateContext,
-} from '../../favourites/context/FavouritesContext';
+} from "../../favourites/context/FavouritesContext";
 import {
   useMapPinsActionsContext,
   useMapPinsStateContext,
-} from '../../map/context/MapPinsContext';
-import { useCustomPokemonStateContext } from './CustomPokemonContext';
-import { CUSTOM_POKEMON_URL_PREFIX, isCustomPokemonUrl } from '../utils/customPokemonFavourites';
+} from "../../map/context/MapPinsContext";
+import { useCustomPokemonStateContext } from "./CustomPokemonContext";
+import {
+  CUSTOM_POKEMON_URL_PREFIX,
+  isCustomPokemonUrl,
+} from "../utils/customPokemonFavourites";
 
 function getCustomPokemonUrl(id: string): string {
   return `${CUSTOM_POKEMON_URL_PREFIX}${id}`;
 }
 
 export function CustomPokemonDataCleanup() {
-  const { customPokemons, isLoaded: areCustomPokemonsLoaded } = useCustomPokemonStateContext();
-  const { favourites, isLoaded: areFavouritesLoaded } = useFavouritesStateContext();
+  const { customPokemons, isLoaded: areCustomPokemonsLoaded } =
+    useCustomPokemonStateContext();
+  const { favourites, isLoaded: areFavouritesLoaded } =
+    useFavouritesStateContext();
   const { removeFavourite } = useFavouritesActionsContext();
   const { pins, isLoaded: arePinsLoaded } = useMapPinsStateContext();
   const { removePinsForPokemonUrl } = useMapPinsActionsContext();
@@ -26,16 +31,23 @@ export function CustomPokemonDataCleanup() {
       return;
     }
 
-    const existingCustomPokemonUrls = new Set(customPokemons.map((pokemon) => getCustomPokemonUrl(pokemon.id)));
+    const existingCustomPokemonUrls = new Set(
+      customPokemons.map((pokemon) => getCustomPokemonUrl(pokemon.id)),
+    );
     const orphanFavouriteUrls = favourites
       .map((pokemon) => pokemon.url)
-      .filter((url) => isCustomPokemonUrl(url) && !existingCustomPokemonUrls.has(url));
+      .filter(
+        (url) => isCustomPokemonUrl(url) && !existingCustomPokemonUrls.has(url),
+      );
     const orphanPinUrls = Array.from(
       new Set(
         pins
           .map((pin) => pin.pokemonUrl)
-          .filter((url) => isCustomPokemonUrl(url) && !existingCustomPokemonUrls.has(url))
-      )
+          .filter(
+            (url) =>
+              isCustomPokemonUrl(url) && !existingCustomPokemonUrls.has(url),
+          ),
+      ),
     );
 
     orphanFavouriteUrls.forEach(removeFavourite);

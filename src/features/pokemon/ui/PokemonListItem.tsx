@@ -1,8 +1,8 @@
-import React, { memo } from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { Pokemon } from '../model/types';
-import { getPokemonImageUrl } from '../../../shared/utils/getPokemonImageUrl';
-import { formatPokemonName } from '../../../shared/utils/formatPokemonName';
+import React, { memo } from "react";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pokemon } from "../model/types";
+import { getPokemonImageUrl } from "../../../shared/utils/getPokemonImageUrl";
+import { formatPokemonName } from "../../../shared/utils/formatPokemonName";
 
 interface PokemonListItemProps {
   item: Pokemon;
@@ -33,7 +33,10 @@ export const PokemonListItem = memo(function PokemonListItem({
       {onPlayCry && (
         <Pressable
           accessibilityLabel={`Odtworz dzwiek ${formatPokemonName(item.name)}`}
-          style={({ pressed }) => [styles.cryButton, pressed && styles.actionPressed]}
+          style={({ pressed }) => [
+            styles.cryButton,
+            pressed && styles.actionPressed,
+          ]}
           onPress={(e) => {
             e.stopPropagation?.();
             onPlayCry(item);
@@ -45,14 +48,17 @@ export const PokemonListItem = memo(function PokemonListItem({
       )}
       {onToggleFavourite && (
         <Pressable
-          style={({ pressed }) => [styles.heartButton, pressed && styles.actionPressed]}
+          style={({ pressed }) => [
+            styles.heartButton,
+            pressed && styles.actionPressed,
+          ]}
           onPress={(e) => {
             e.stopPropagation?.();
             onToggleFavourite(item);
           }}
           hitSlop={8}
         >
-          <Text style={styles.heartIcon}>{isFavourite ? '❤️' : '🤍'}</Text>
+          <Text style={styles.heartIcon}>{isFavourite ? "❤️" : "🤍"}</Text>
         </Pressable>
       )}
     </Pressable>
@@ -61,14 +67,14 @@ export const PokemonListItem = memo(function PokemonListItem({
 
 const styles = StyleSheet.create({
   itemRow: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: "#f8f9fa",
     padding: 10,
     marginVertical: 6,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#e9ecef',
-    flexDirection: 'row',
-    alignItems: 'center',
+    borderColor: "#e9ecef",
+    flexDirection: "row",
+    alignItems: "center",
   },
   itemPressed: {
     opacity: 0.75,
@@ -77,14 +83,14 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     marginRight: 15,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   pokemonName: {
     flex: 1,
     fontSize: 18,
-    fontWeight: '500',
-    color: '#212529',
+    fontWeight: "500",
+    color: "#212529",
   },
   pokemonImage: {
     width: 50,
@@ -95,15 +101,15 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: '#e8edff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#e8edff",
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: 6,
   },
   cryButtonText: {
-    color: '#3b4cca',
+    color: "#3b4cca",
     fontSize: 19,
-    fontWeight: '800',
+    fontWeight: "800",
   },
   heartButton: {
     padding: 6,

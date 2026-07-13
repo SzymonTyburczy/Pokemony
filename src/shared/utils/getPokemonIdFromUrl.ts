@@ -4,7 +4,7 @@ export function getPokemonIdFromUrl(url: string): number | null {
     return Number(match[1]);
   }
 
-  const parts = url.split('/').filter(Boolean);
+  const parts = url.split("/").filter(Boolean);
   const pokemonId = Number(parts.at(-1));
   return Number.isFinite(pokemonId) ? pokemonId : null;
 }

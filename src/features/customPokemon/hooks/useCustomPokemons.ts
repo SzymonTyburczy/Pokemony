@@ -1,6 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { CustomPokemon } from '../model/types';
-import { getCustomPokemons, saveCustomPokemons } from '../storage/customPokemonStorage';
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { CustomPokemon } from "../model/types";
+import {
+  getCustomPokemons,
+  saveCustomPokemons,
+} from "../storage/customPokemonStorage";
 
 export function useCustomPokemons() {
   const [customPokemons, setCustomPokemons] = useState<CustomPokemon[]>([]);
@@ -12,7 +15,9 @@ export function useCustomPokemons() {
       .then((data) => {
         if (isActive) setCustomPokemons(data);
       })
-      .catch((err) => console.error('Błąd ładowania customowych Pokémonów:', err))
+      .catch((err) =>
+        console.error("Błąd ładowania customowych Pokémonów:", err),
+      )
       .finally(() => {
         if (isActive) setIsLoaded(true);
       });
@@ -42,6 +47,6 @@ export function useCustomPokemons() {
       addCustomPokemon,
       removeCustomPokemon,
     }),
-    [addCustomPokemon, customPokemons, isLoaded, removeCustomPokemon]
+    [addCustomPokemon, customPokemons, isLoaded, removeCustomPokemon],
   );
 }

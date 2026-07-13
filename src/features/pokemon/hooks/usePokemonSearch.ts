@@ -1,9 +1,9 @@
-import { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { fetchAllPokemon } from '../api/pokemonApi';
-import { pokemonQueryKeys } from '../queries/pokemonQueryKeys';
-import { Pokemon } from '../model/types';
-import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue';
+import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchAllPokemon } from "../api/pokemonApi";
+import { pokemonQueryKeys } from "../queries/pokemonQueryKeys";
+import { Pokemon } from "../model/types";
+import { useDebouncedValue } from "../../../shared/hooks/useDebouncedValue";
 
 const SEARCH_DEBOUNCE_MS = 300;
 const MAX_SEARCH_RESULTS = 50;
@@ -46,7 +46,7 @@ export function usePokemonSearch(query: string) {
     results,
     isLoading: isSearchActive && (isDebouncing || queryResult.isPending),
     error: queryResult.error
-      ? 'Nie udało się pobrać listy do wyszukiwania.'
+      ? "Nie udało się pobrać listy do wyszukiwania."
       : null,
   };
 }

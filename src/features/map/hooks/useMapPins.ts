@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Pokemon } from '../../pokemon/model/types';
-import { PendingMapPinLocation, PokemonMapPin } from '../model/types';
-import { getMapPins, saveMapPins } from '../storage/mapPinsStorage';
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Pokemon } from "../../pokemon/model/types";
+import { PendingMapPinLocation, PokemonMapPin } from "../model/types";
+import { getMapPins, saveMapPins } from "../storage/mapPinsStorage";
 
 function createPinId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -21,7 +21,7 @@ export function useMapPins() {
         }
       })
       .catch((error) => {
-        console.error('Nie udało się załadować pinów mapy:', error);
+        console.error("Nie udało się załadować pinów mapy:", error);
       })
       .finally(() => {
         if (isActive) {
@@ -40,19 +40,22 @@ export function useMapPins() {
     }
   }, [pins, isLoaded]);
 
-  const addPin = useCallback((location: PendingMapPinLocation, pokemon: Pokemon) => {
-    const nextPin: PokemonMapPin = {
-      id: createPinId(),
-      latitude: location.latitude,
-      longitude: location.longitude,
-      pokemonName: pokemon.name,
-      pokemonUrl: pokemon.url,
-      createdAt: new Date().toISOString(),
-    };
+  const addPin = useCallback(
+    (location: PendingMapPinLocation, pokemon: Pokemon) => {
+      const nextPin: PokemonMapPin = {
+        id: createPinId(),
+        latitude: location.latitude,
+        longitude: location.longitude,
+        pokemonName: pokemon.name,
+        pokemonUrl: pokemon.url,
+        createdAt: new Date().toISOString(),
+      };
 
-    setPins((prev) => [...prev, nextPin]);
-    return nextPin;
-  }, []);
+      setPins((prev) => [...prev, nextPin]);
+      return nextPin;
+    },
+    [],
+  );
 
   const removePin = useCallback((id: string) => {
     setPins((prev) => prev.filter((pin) => pin.id !== id));
@@ -71,24 +74,27 @@ export function useMapPins() {
               pokemonName: pokemon.name,
               pokemonUrl: pokemon.url,
             }
-          : pin
-      )
+          : pin,
+      ),
     );
   }, []);
 
-  const updatePinLocation = useCallback((id: string, location: PendingMapPinLocation) => {
-    setPins((prev) =>
-      prev.map((pin) =>
-        pin.id === id
-          ? {
-              ...pin,
-              latitude: location.latitude,
-              longitude: location.longitude,
-            }
-          : pin
-      )
-    );
-  }, []);
+  const updatePinLocation = useCallback(
+    (id: string, location: PendingMapPinLocation) => {
+      setPins((prev) =>
+        prev.map((pin) =>
+          pin.id === id
+            ? {
+                ...pin,
+                latitude: location.latitude,
+                longitude: location.longitude,
+              }
+            : pin,
+        ),
+      );
+    },
+    [],
+  );
 
   return useMemo(
     () => ({
@@ -108,6 +114,6 @@ export function useMapPins() {
       removePinsForPokemonUrl,
       updatePinLocation,
       updatePinPokemon,
-    ]
+    ],
   );
 }

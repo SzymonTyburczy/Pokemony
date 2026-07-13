@@ -1,4 +1,4 @@
-import { Pokemon, PokemonDetails } from './types';
+import { Pokemon, PokemonDetails } from "./types";
 
 export interface PokemonListResponseDto {
   results: Pokemon[];
